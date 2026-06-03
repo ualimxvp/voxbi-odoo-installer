@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="view_voxbi_installer_setup_form" model="ir.ui.view">
+        <field name="name">voxbi.installer.setup.form</field>
+        <field name="model">voxbi.installer.setup</field>
+        <field name="arch" type="xml">
+            <form string="Voxbi Setup" create="false" delete="false" duplicate="false">
+                <header>
+                    <button name="action_install"
+                            string="Install"
+                            type="object"
+                            class="btn-primary"
+                            invisible="state != 'draft'"/>
+                    <button name="action_refresh"
+                            string="Refresh status"
+                            type="object"
+                            class="btn-primary"
+                            invisible="state != 'installing'"/>
+                    <button name="action_retry_with_fresh_credentials"
+                            string="Retry with refreshed credentials"
+                            type="object"
+                            class="btn-primary"
+                            invisible="state != 'failed' or not token_id"/>
+                    <button name="action_fetch_integration"
+                            string="Show cockpit state"
+                            type="object"
+                            class="btn-secondary"
+                            invisible="not token_id"/>
+                    <button name="action_reset"
+                            string="Try again with a new token"
+                            type="object"
+                            class="btn-secondary"
+                            invisible="state not in ('installing','failed')"/>
+                    <field name="state" widget="statusbar" statusbar_visible="draft,installing,done"/>
+                </header>
+                <sheet>
+                    <div class="oe_title">
+                        <h1>Connect this Odoo to Mixvoip Voxbi</h1>
+                        <p class="text-muted">
+                            Paste the one-time install token you generated in Mixvoip cockpit
+                            (Integrations → Odoo → Generate install token). The token is shown
+                            only once and expires in 30 minutes.
+                        </p>
+                    </div>
+                    <group>
+                        <field name="install_token"
+                               placeholder="vxi_..."
+                               readonly="state != 'draft'"/>
+                    </group>
+                    <group string="Options"
+                           invisible="state != 'draft'">
+                        <field name="sync_sip_configurations"/>
+                        <field name="is_active"/>
+                    </group>
+                    <div class="alert alert-danger" role="alert" invisible="state != 'failed'">
+                        <h4 class="alert-heading">Install failed</h4>
+                        <field name="message" readonly="1" nolabel="1"/>
+                        <hr/>
+                        <p class="mb-0">
+                            Your install token has been used. Go back to Mixvoip cockpit
+                            (<strong>Integrations → Odoo → Generate install token</strong>),
+                            generate a fresh one, then click
+                            <strong>Try again with a new token</strong> above and paste it in.
+                        </p>
+                    </div>
+                    <group string="Status" invisible="state not in ('installing','done')">
+                        <field name="token_id" readonly="1"/>
+                        <field name="integration_id" readonly="1"/>
+                        <field name="message" readonly="1"/>
+                    </group>
+                    <group string="Output" invisible="not output_html">
+                        <field name="output_html" nolabel="1" readonly="1"/>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_voxbi_installer_open" model="ir.actions.server">
+        <field name="name">Voxbi Setup</field>
+        <field name="model_id" ref="model_voxbi_installer_setup"/>
+        <field name="state">code</field>
+        <field name="code">action = model.action_open_setup()</field>
+    </record>
+
+</odoo>

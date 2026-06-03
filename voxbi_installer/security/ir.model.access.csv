@@ -1,0 +1,2 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_voxbi_installer_setup_system,voxbi.installer.setup.system,model_voxbi_installer_setup,base.group_system,1,1,1,1

@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <menuitem id="menu_voxbi_root"
+              name="Voxbi"
+              sequence="90"
+              web_icon="voxbi_installer,static/description/icon.png"/>
+
+    <menuitem id="menu_voxbi_setup"
+              name="Configuration"
+              parent="menu_voxbi_root"
+              action="action_voxbi_installer_open"
+              sequence="100"/>
+
+</odoo>
