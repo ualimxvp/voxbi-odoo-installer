@@ -8,7 +8,7 @@ then installs and configures the full Voxbi telephony integration in this Odoo.
 
 - **Odoo:** 18.0
 - **Version:** 18.0.0.15.0
-- **License:** LGPL-3
+- **License:** MIT (see [LICENSE](LICENSE))
 
 ## Contents
 

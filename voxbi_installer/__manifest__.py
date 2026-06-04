@@ -14,7 +14,7 @@ over XML-RPC.
     "website": "https://www.mixvoip.com",
     "category": "Telephony",
     "version": "18.0.0.16.0",
-    "license": "LGPL-3",
+    "license": "Other OSI approved licence",  # MIT, see LICENSE file
     "depends": ["base", "web"],
     "data": [
         "security/ir.model.access.csv",
