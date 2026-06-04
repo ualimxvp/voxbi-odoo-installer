@@ -13,7 +13,7 @@ over XML-RPC.
     "author": "Mixvoip",
     "website": "https://www.mixvoip.com",
     "category": "Telephony",
-    "version": "18.0.0.15.0",
+    "version": "18.0.0.16.0",
     "license": "LGPL-3",
     "depends": ["base", "web"],
     "data": [
@@ -21,6 +21,14 @@ over XML-RPC.
         "views/setup_wizard_views.xml",
         "views/menu.xml",
     ],
+    "assets": {
+        "web.assets_backend": [
+            "voxbi_installer/static/src/auto_refresh.js",
+            "voxbi_installer/static/src/auto_refresh.xml",
+            "voxbi_installer/static/src/masked_field.js",
+            "voxbi_installer/static/src/masked_field.xml",
+        ],
+    },
     "application": True,
     "installable": True,
     "auto_install": False,

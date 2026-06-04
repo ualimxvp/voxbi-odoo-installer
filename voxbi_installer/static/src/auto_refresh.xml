@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+    <t t-name="voxbi_installer.AutoRefresh">
+        <span class="o_voxbi_auto_refresh"/>
+    </t>
+</templates>

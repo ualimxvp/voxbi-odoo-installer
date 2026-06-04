@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+    <t t-name="voxbi_installer.MaskedTextField">
+        <div class="d-inline-flex align-items-center gap-2">
+            <span class="font-monospace" t-esc="displayValue"/>
+            <button t-if="value" type="button"
+                    class="btn btn-link btn-sm p-0 text-muted"
+                    t-on-click="toggle"
+                    t-att-title="state.revealed ? 'Hide' : 'Show'">
+                <i class="fa" t-att-class="state.revealed ? 'fa-eye-slash' : 'fa-eye'"/>
+            </button>
+        </div>
+    </t>
+</templates>

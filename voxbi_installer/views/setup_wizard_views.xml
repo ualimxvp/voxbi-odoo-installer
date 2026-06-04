@@ -12,26 +12,21 @@
                             type="object"
                             class="btn-primary"
                             invisible="state != 'draft'"/>
-                    <button name="action_refresh"
-                            string="Refresh status"
+                    <button name="action_install"
+                            string="Re-install"
                             type="object"
                             class="btn-primary"
-                            invisible="state != 'installing'"/>
+                            invisible="state not in ('done','failed')"/>
                     <button name="action_retry_with_fresh_credentials"
                             string="Retry with refreshed credentials"
                             type="object"
                             class="btn-primary"
                             invisible="state != 'failed' or not token_id"/>
-                    <button name="action_fetch_integration"
-                            string="Show cockpit state"
-                            type="object"
-                            class="btn-secondary"
-                            invisible="not token_id"/>
                     <button name="action_reset"
                             string="Try again with a new token"
                             type="object"
                             class="btn-secondary"
-                            invisible="state not in ('installing','failed')"/>
+                            invisible="1"/>
                     <field name="state" widget="statusbar" statusbar_visible="draft,installing,done"/>
                 </header>
                 <sheet>
@@ -46,28 +41,22 @@
                     <group>
                         <field name="install_token"
                                placeholder="vxi_..."
-                               readonly="state != 'draft'"/>
+                               readonly="state == 'installing'"/>
                     </group>
                     <group string="Options"
-                           invisible="state != 'draft'">
+                           invisible="state == 'installing'">
                         <field name="sync_sip_configurations"/>
                         <field name="is_active"/>
                     </group>
                     <div class="alert alert-danger" role="alert" invisible="state != 'failed'">
                         <h4 class="alert-heading">Install failed</h4>
                         <field name="message" readonly="1" nolabel="1"/>
-                        <hr/>
-                        <p class="mb-0">
-                            Your install token has been used. Go back to Mixvoip cockpit
-                            (<strong>Integrations → Odoo → Generate install token</strong>),
-                            generate a fresh one, then click
-                            <strong>Try again with a new token</strong> above and paste it in.
-                        </p>
                     </div>
-                    <group string="Status" invisible="state not in ('installing','done')">
-                        <field name="token_id" readonly="1"/>
-                        <field name="integration_id" readonly="1"/>
-                        <field name="message" readonly="1"/>
+                    <widget name="voxbi_auto_refresh"/>
+                    <group string="Status" invisible="not token_id">
+                        <field name="token_id" widget="masked_text" readonly="1"/>
+                        <field name="integration_id" widget="masked_text" readonly="1"/>
+                        <field name="message" readonly="1" invisible="state == 'failed'"/>
                     </group>
                     <group string="Output" invisible="not output_html">
                         <field name="output_html" nolabel="1" readonly="1"/>

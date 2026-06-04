@@ -48,6 +48,13 @@ class VoxbiInstallerSetup(models.Model):
     message = fields.Text(readonly=True)
     output_html = fields.Html(string="Output", readonly=True, sanitize=False)
 
+    @api.depends("state")
+    def _compute_display_name(self):
+        # Without a name/_rec_name the breadcrumb falls back to "model,id"
+        # (e.g. "voxbi.installer.setup,1"). Give it a stable human label.
+        for record in self:
+            record.display_name = _("Voxbi Setup")
+
     # --- helpers ---------------------------------------------------------
 
     def _cockpit_base_url(self):
@@ -160,7 +167,7 @@ class VoxbiInstallerSetup(models.Model):
                 "state": "installing",
                 "token_id": str(body["token_id"]),
                 "integration_id": str(body.get("integration_id") or ""),
-                "message": _("Mixvoip is installing Voxbi. Click Refresh status to update."),
+                "message": _("Mixvoip is installing Voxbi. This page updates automatically."),
             })
             return True
 
@@ -168,12 +175,15 @@ class VoxbiInstallerSetup(models.Model):
         token_problems = {"unknown", "expired", "consumed", "revoked"}
 
         if status in (401, 410) and reason in token_problems:
+            # Keep the pasted token in the field — don't wipe what the user
+            # entered. Surface it as a failure so the error state is obvious;
+            # they paste a fresh token and click Re-install.
             self.write({
-                "install_token": False,
-                "state": "draft",
+                "state": "failed",
                 "message": _(
-                    "That install token is %(reason)s. Generate a new one in Mixvoip cockpit "
-                    "(Integrations → Odoo → Generate install token) and paste it here."
+                    "This install token is %(reason)s. Generate a fresh one in Mixvoip "
+                    "cockpit (Integrations → Odoo → Generate install token), paste it "
+                    "above, and click Re-install."
                 ) % {"reason": reason},
             })
         else:
@@ -335,7 +345,7 @@ class VoxbiInstallerSetup(models.Model):
             self.write({
                 "state": "installing",
                 "integration_id": str(body.get("integration_id") or self.integration_id or ""),
-                "message": _("Credentials refreshed. Mixvoip is retrying the install — click Refresh status."),
+                "message": _("Credentials refreshed. Mixvoip is retrying the install — this page updates automatically."),
             })
             return True
 
