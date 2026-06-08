@@ -1,0 +1,116 @@
+<section class="oe_container">
+  <div class="oe_row oe_spaced">
+    <div class="oe_span12">
+      <h2 class="oe_slogan" style="color:#2b3990;">Voxbi Installer</h2>
+      <h3 class="oe_slogan" style="font-size:18px;">Connect this Odoo to Mixvoip Voxbi telephony in one step</h3>
+    </div>
+    <div class="oe_span12 text-center">
+      <img src="banner.png" class="img img-responsive img-fluid center-block" style="max-width:100%;" alt="Voxbi Installer banner"/>
+    </div>
+  </div>
+</section>
+
+<section class="oe_container oe_dark">
+  <div class="oe_row oe_spaced">
+    <div class="oe_span12">
+      <h3 class="oe_slogan">What this module does</h3>
+      <p class="oe_mt32" style="max-width:760px;margin:0 auto;">
+        Voxbi Installer adds a <b>Voxbi &rarr; Configuration</b> wizard to your Odoo backend.
+        You paste a one-time install token generated in Mixvoip Cockpit and click Install.
+        The wizard registers this Odoo with Mixvoip Cockpit, which then provisions and
+        configures the Voxbi telephony integration for your database. Installation progress
+        streams back into the wizard in real time.
+      </p>
+    </div>
+  </div>
+</section>
+
+<section class="oe_container">
+  <div class="oe_row oe_spaced">
+    <div class="oe_span12">
+      <h3 class="oe_slogan">Key features</h3>
+    </div>
+    <div class="oe_span6">
+      <div class="oe_row_img oe_centered">
+        <h4>One-time token setup</h4>
+        <p>No credentials to type. Generate a single-use token in Mixvoip Cockpit, paste it, and install. Each token works once and can be revoked at any time.</p>
+      </div>
+    </div>
+    <div class="oe_span6">
+      <div class="oe_row_img oe_centered">
+        <h4>Live progress</h4>
+        <p>The wizard polls the install status and shows a color-coded log console, so you can watch the provisioning happen step by step.</p>
+      </div>
+    </div>
+    <div class="oe_span6">
+      <div class="oe_row_img oe_centered">
+        <h4>Optional SIP sync</h4>
+        <p>Opt in to push SIP settings into Odoo's VoIP module after install, or keep your existing VoIP configuration untouched.</p>
+      </div>
+    </div>
+    <div class="oe_span6">
+      <div class="oe_row_img oe_centered">
+        <h4>Admin-only</h4>
+        <p>The setup wizard is restricted to Settings administrators. Connection identifiers are masked in the UI by default.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="oe_container oe_dark">
+  <div class="oe_row oe_spaced">
+    <div class="oe_span12">
+      <h3 class="oe_slogan">How it works</h3>
+    </div>
+    <div class="oe_span12 text-center">
+      <img src="screenshot_install.png" class="img img-responsive img-fluid center-block oe_picture" style="max-width:100%;border:1px solid #e0e0e0;" alt="Voxbi setup wizard"/>
+    </div>
+    <div class="oe_span12 oe_mt32">
+      <ol style="max-width:680px;margin:0 auto;">
+        <li>In Mixvoip Cockpit, open the user's settings page and go to the <b>Odoo installer</b> tab, then generate a single-use token under <b>Odoo install tokens</b>.</li>
+        <li>In Odoo, open <b>Voxbi &rarr; Configuration</b>, paste the token, review the data-sharing notice, tick the authorization box, and click <b>Install</b>.</li>
+        <li>The wizard shows live progress and confirms once Mixvoip Cockpit has configured the integration.</li>
+      </ol>
+    </div>
+    <div class="oe_span12 text-center oe_mt32">
+      <img src="screenshot_progress.png" class="img img-responsive img-fluid center-block oe_picture" style="max-width:100%;border:1px solid #e0e0e0;" alt="Voxbi install progress log"/>
+    </div>
+  </div>
+</section>
+
+<section class="oe_container">
+  <div class="oe_row oe_spaced">
+    <div class="oe_span12">
+      <h3 class="oe_slogan">External service &amp; data sharing</h3>
+      <p class="oe_mt32" style="max-width:760px;margin:0 auto;">
+        This module requires <b>Mixvoip Cockpit</b>, an external service operated by Mixvoip&nbsp;SA,
+        to provision the Voxbi integration. When you click Install, the module asks for your
+        explicit authorization and then sends the following data to Mixvoip Cockpit over an
+        encrypted (HTTPS) connection:
+      </p>
+      <ul style="max-width:680px;margin:16px auto 0;">
+        <li>The one-time install token you pasted</li>
+        <li>This Odoo instance's URL, database name and version</li>
+        <li>The login of the administrator running the wizard</li>
+        <li>A freshly generated Odoo API key for that administrator, used by Mixvoip Cockpit to configure the integration over XML-RPC</li>
+        <li>Your chosen options (SIP sync, active flag)</li>
+      </ul>
+      <p style="max-width:760px;margin:16px auto 0;">
+        The generated API key can be revoked at any time from the administrator's
+        <b>Preferences &rarr; Account Security</b>. You retain full ownership of your data.
+        A Mixvoip account and an active Voxbi subscription are required to use this integration.
+      </p>
+    </div>
+  </div>
+</section>
+
+<section class="oe_container oe_dark">
+  <div class="oe_row oe_spaced">
+    <div class="oe_span12 text-center">
+      <h3 class="oe_slogan">Support</h3>
+      <p>Questions about Voxbi or this module? Contact us at
+        <a href="mailto:support@mixvoip.com">support@mixvoip.com</a>
+        or visit <a href="https://www.mixvoip.com" target="_blank" rel="noopener">www.mixvoip.com</a>.</p>
+    </div>
+  </div>
+</section>
