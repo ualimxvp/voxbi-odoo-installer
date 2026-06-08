@@ -8,6 +8,9 @@ from odoo.exceptions import UserError
 
 _logger = logging.getLogger(__name__)
 
+# Default Cockpit endpoint baked into the module. Override per-instance via
+# the ir.config_parameter "voxbi.cockpit_url" (e.g. for staging).
+# TODO: swap to the production HTTPS URL before App Store submission — see B3.
 DEFAULT_COCKPIT_URL = "http://host.docker.internal:8083"
 # Must be exactly "rpc" — that's the scope Odoo's _check_credentials fallback
 # in res.users.apikeys looks for when authenticating XML-RPC requests.
@@ -23,6 +26,14 @@ class VoxbiInstallerSetup(models.Model):
     _order = "id desc"
 
     install_token = fields.Char(string="Install Token", required=False)
+    consent = fields.Boolean(
+        string="I authorize Mixvoip to configure this Odoo",
+        default=False,
+        help="Required. By ticking this you authorize the module to generate an "
+        "Odoo API key for your user and send it, together with this instance's "
+        "connection details, to Mixvoip Cockpit over HTTPS so it can configure "
+        "the Voxbi integration. You can revoke the key at any time.",
+    )
     sync_sip_configurations = fields.Boolean(
         string="Sync SIP configurations to Odoo VoIP",
         help="If on, Mixvoip pushes SIP settings into Odoo's VoIP module after install.",
@@ -46,7 +57,16 @@ class VoxbiInstallerSetup(models.Model):
     token_id = fields.Char(readonly=True)
     integration_id = fields.Char(readonly=True)
     message = fields.Text(readonly=True)
-    output_html = fields.Html(string="Output", readonly=True, sanitize=False)
+    # Content is built server-side from Cockpit's log array with every message
+    # HTML-escaped (see _render_output_html). We still keep Odoo's sanitizer on
+    # as defense in depth, allowing the inline styles the log console relies on.
+    output_html = fields.Html(
+        string="Output",
+        readonly=True,
+        sanitize=True,
+        sanitize_attributes=True,
+        sanitize_style=True,
+    )
 
     @api.depends("state")
     def _compute_display_name(self):
@@ -137,6 +157,13 @@ class VoxbiInstallerSetup(models.Model):
         self.ensure_one()
         if not self.install_token:
             raise UserError(_("Please paste the install token from Mixvoip cockpit."))
+        if not self.consent:
+            raise UserError(_(
+                "Please review the data-sharing notice and tick the authorization "
+                "box before installing."
+            ))
+
+        base_url = self._cockpit_base_url()
 
         try:
             login, api_key = self._issue_api_key_for_current_user()
@@ -158,7 +185,7 @@ class VoxbiInstallerSetup(models.Model):
             "installer_module_version": MODULE_VERSION,
         }
 
-        url = f"{self._cockpit_base_url()}/api/v1/odoo-installer/register-install"
+        url = f"{base_url}/api/v1/odoo-installer/register-install"
         _logger.info("Voxbi installer: posting register-install to %s", url)
         status, body = self._post_json(url, payload)
 
@@ -177,13 +204,13 @@ class VoxbiInstallerSetup(models.Model):
         if status in (401, 410) and reason in token_problems:
             # Keep the pasted token in the field — don't wipe what the user
             # entered. Surface it as a failure so the error state is obvious;
-            # they paste a fresh token and click Re-install.
+            # they paste a fresh token and click Try again.
             self.write({
                 "state": "failed",
                 "message": _(
                     "This install token is %(reason)s. Generate a fresh one in Mixvoip "
-                    "cockpit (Integrations → Odoo → Generate install token), paste it "
-                    "above, and click Re-install."
+                    "cockpit (user's settings page → Odoo installer tab → Odoo install "
+                    "tokens), paste it above, and click Try again."
                 ) % {"reason": reason},
             })
         else:
@@ -298,6 +325,7 @@ class VoxbiInstallerSetup(models.Model):
         self.write({
             "state": "draft",
             "install_token": False,
+            "consent": False,
             "token_id": False,
             "integration_id": False,
             "message": False,
@@ -318,6 +346,8 @@ class VoxbiInstallerSetup(models.Model):
                 "No integration linked to this wizard yet. Paste a token and click Install first."
             ))
 
+        base_url = self._cockpit_base_url()
+
         try:
             login, api_key = self._issue_api_key_for_current_user()
         except Exception as e:
@@ -337,7 +367,7 @@ class VoxbiInstallerSetup(models.Model):
             "installer_module_version": MODULE_VERSION,
         }
 
-        url = f"{self._cockpit_base_url()}/api/v1/odoo-installer/update-and-fix-integration/{self.token_id}"
+        url = f"{base_url}/api/v1/odoo-installer/update-and-fix-integration/{self.token_id}"
         _logger.info("Voxbi installer: posting update-and-fix-integration to %s", url)
         status, body = self._post_json(url, payload)
 

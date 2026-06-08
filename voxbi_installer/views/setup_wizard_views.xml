@@ -16,7 +16,12 @@
                             string="Re-install"
                             type="object"
                             class="btn-primary"
-                            invisible="state not in ('done','failed')"/>
+                            invisible="state != 'done'"/>
+                    <button name="action_install"
+                            string="Try again"
+                            type="object"
+                            class="btn-primary"
+                            invisible="state != 'failed'"/>
                     <button name="action_retry_with_fresh_credentials"
                             string="Retry with refreshed credentials"
                             type="object"
@@ -33,15 +38,29 @@
                     <div class="oe_title">
                         <h1>Connect this Odoo to Mixvoip Voxbi</h1>
                         <p class="text-muted">
-                            Paste the one-time install token you generated in Mixvoip cockpit
-                            (Integrations → Odoo → Generate install token). The token is shown
-                            only once and expires in 30 minutes.
+                            Paste the single-use install token you generated in Mixvoip cockpit
+                            (user's settings page → Odoo installer tab → Odoo install tokens).
+                            The token is shown only once; mint a fresh one if it has been used.
                         </p>
                     </div>
                     <group>
                         <field name="install_token"
                                placeholder="vxi_..."
                                readonly="state == 'installing'"/>
+                    </group>
+                    <div class="alert alert-info" role="alert"
+                         invisible="state in ('installing','done')">
+                        <h4 class="alert-heading">Data shared with Mixvoip Cockpit</h4>
+                        <p>
+                            Installing generates an Odoo API key for your user and sends it —
+                            together with this instance's URL, database name, version and your
+                            login — to Mixvoip Cockpit over HTTPS, so it can configure the Voxbi
+                            integration over XML-RPC. You retain ownership of your data and can
+                            revoke the key at any time from <b>Preferences → Account Security</b>.
+                        </p>
+                    </div>
+                    <group invisible="state in ('installing','done')">
+                        <field name="consent"/>
                     </group>
                     <group string="Options"
                            invisible="state == 'installing'">
