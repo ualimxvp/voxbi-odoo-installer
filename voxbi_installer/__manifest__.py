@@ -1,9 +1,9 @@
 {
-    "name": "Voxbi Installer",
+    "name": "Voxbi",
     "summary": "Connect this Odoo to Mixvoip Voxbi telephony.",
     "description": """
-Voxbi Installer
-===============
+Voxbi
+=====
 Paste a one-time install token from Mixvoip Cockpit and click Install.
 This module hands off connection details to Mixvoip Cockpit, which then
 installs and configures the full Voxbi telephony integration in this Odoo

@@ -1,4 +1,4 @@
-# Voxbi Installer
+# Voxbi
 
 Odoo Apps Store module that connects an Odoo instance to Mixvoip Voxbi telephony.
 
@@ -25,7 +25,7 @@ voxbi_installer/
 
 1. Enable developer mode: **Settings → Activate Developer Mode**.
 2. **Apps → Update Apps List**.
-3. Search **"Voxbi Installer"** → **Install**.
+3. Search **"Voxbi"** → **Install**.
 4. Open **Voxbi → Configuration**, paste your install token, review the data-sharing
    notice and tick the authorization box, then click **Install**.
 
