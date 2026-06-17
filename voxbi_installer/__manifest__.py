@@ -1,6 +1,6 @@
 {
     "name": "Voxbi",
-    "summary": "Connect this Odoo to Mixvoip Voxbi telephony.",
+    "summary": "Connect this Odoo to Voxbi telephony.",
     "description": """
 Voxbi
 =====
