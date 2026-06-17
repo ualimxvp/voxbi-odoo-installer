@@ -36,18 +36,29 @@
                 </header>
                 <sheet>
                     <div class="oe_title">
-                        <h1>Connect this Odoo to Mixvoip Voxbi</h1>
-                        <p class="text-muted">
-                            Paste the single-use install token you generated in Mixvoip cockpit
-                            (user's settings page → Odoo installer tab → Odoo install tokens).
-                            The token is shown only once; mint a fresh one if it has been used.
-                        </p>
+                        <h1 style="color:#8D3D8A;">Set up Voxbi telephony in Odoo</h1>
+                    </div>
+                    <div class="alert alert-info" role="alert"
+                         invisible="state in ('installing','done')">
+                        <h4 class="alert-heading">Get your Cockpit token</h4>
+                        <p class="mb-1">In <b>Mixvoip Cockpit</b>, generate a single-use install token:</p>
+                        <ol class="mb-0">
+                            <li>Open the user's <b>settings</b> page.</li>
+                            <li>Go to the <b>Odoo installer</b> tab.</li>
+                            <li>Under <b>Odoo install tokens</b>, generate a token.</li>
+                        </ol>
                     </div>
                     <group>
                         <field name="install_token"
-                               placeholder="vxi_..."
+                               string="Cockpit token"
+                               widget="masked_input"
+                               placeholder="vxi_…"
                                readonly="state == 'installing'"/>
                     </group>
+                    <p class="text-muted" invisible="state in ('installing','done')">
+                        Paste the single-use token from Mixvoip Cockpit. It's shown only once —
+                        if it's already been used, generate a fresh one.
+                    </p>
                     <div class="alert alert-info" role="alert"
                          invisible="state in ('installing','done')">
                         <h4 class="alert-heading">Data shared with Mixvoip Cockpit</h4>
@@ -59,14 +70,11 @@
                             revoke the key at any time from <b>Preferences → Account Security</b>.
                         </p>
                     </div>
-                    <group invisible="state in ('installing','done')">
-                        <field name="consent"/>
-                    </group>
-                    <group string="Options"
-                           invisible="state == 'installing'">
-                        <field name="sync_sip_configurations"/>
-                        <field name="is_active"/>
-                    </group>
+                    <div class="d-flex align-items-center gap-2 mb-3"
+                         invisible="state in ('installing','done')">
+                        <field name="consent" nolabel="1"/>
+                        <label for="consent" class="o_form_label m-0">I authorize Mixvoip to set up Voxbi here</label>
+                    </div>
                     <div class="alert alert-danger" role="alert" invisible="state != 'failed'">
                         <h4 class="alert-heading">Install failed</h4>
                         <field name="message" readonly="1" nolabel="1"/>

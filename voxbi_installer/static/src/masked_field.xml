@@ -11,4 +11,22 @@
             </button>
         </div>
     </t>
+
+    <t t-name="voxbi_installer.MaskedInputField">
+        <div class="d-flex align-items-center gap-2 w-100">
+            <input class="form-control"
+                   t-att-type="state.revealed ? 'text' : 'password'"
+                   t-att-value="value"
+                   t-att-placeholder="props.placeholder"
+                   t-att-readonly="props.readonly"
+                   autocomplete="off"
+                   t-on-input="onInput"/>
+            <button t-if="!props.readonly" type="button"
+                    class="btn btn-link btn-sm p-0 text-muted"
+                    t-on-click="toggle"
+                    t-att-title="state.revealed ? 'Hide' : 'Show'">
+                <i class="fa" t-att-class="state.revealed ? 'fa-eye-slash' : 'fa-eye'"/>
+            </button>
+        </div>
+    </t>
 </templates>

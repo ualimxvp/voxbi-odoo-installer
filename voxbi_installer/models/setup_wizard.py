@@ -25,9 +25,9 @@ class VoxbiInstallerSetup(models.Model):
     _description = "Voxbi Setup"
     _order = "id desc"
 
-    install_token = fields.Char(string="Install Token", required=False)
+    install_token = fields.Char(string="Cockpit token", required=False)
     consent = fields.Boolean(
-        string="I authorize Mixvoip to configure this Odoo",
+        string="I authorize Mixvoip to set up Voxbi here",
         default=False,
         help="Required. By ticking this you authorize the module to generate an "
         "Odoo API key for your user and send it, together with this instance's "

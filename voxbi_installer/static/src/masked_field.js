@@ -38,3 +38,39 @@ export const maskedTextField = {
 };
 
 registry.category("fields").add("masked_text", maskedTextField);
+
+// Editable char field rendered as a masked (password-style) input with an eye
+// toggle. Used for the Cockpit token so it isn't shown in cleartext by default,
+// while still being typeable/pasteable.
+export class MaskedInputField extends Component {
+    static template = "voxbi_installer.MaskedInputField";
+    static props = {
+        ...standardFieldProps,
+        placeholder: { type: String, optional: true },
+    };
+
+    setup() {
+        this.state = useState({ revealed: false });
+    }
+
+    get value() {
+        return this.props.record.data[this.props.name] || "";
+    }
+
+    onInput(ev) {
+        this.props.record.update({ [this.props.name]: ev.target.value });
+    }
+
+    toggle() {
+        this.state.revealed = !this.state.revealed;
+    }
+}
+
+export const maskedInputField = {
+    component: MaskedInputField,
+    displayName: "Masked Input",
+    supportedTypes: ["char"],
+    extractProps: ({ attrs }) => ({ placeholder: attrs.placeholder }),
+};
+
+registry.category("fields").add("masked_input", maskedInputField);
