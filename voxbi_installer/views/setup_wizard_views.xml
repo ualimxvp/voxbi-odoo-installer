@@ -73,7 +73,7 @@
                     <div class="d-flex align-items-center gap-2 mb-3"
                          invisible="state in ('installing','done')">
                         <field name="consent" nolabel="1"/>
-                        <label for="consent" class="o_form_label m-0">I authorize Mixvoip to set up Voxbi here</label>
+                        <label for="consent" class="o_form_label m-0">I authorize Voxbi to configure this Odoo</label>
                     </div>
                     <div class="alert alert-danger" role="alert" invisible="state != 'failed'">
                         <h4 class="alert-heading">Install failed</h4>

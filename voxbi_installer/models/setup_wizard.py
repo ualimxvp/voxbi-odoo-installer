@@ -27,7 +27,7 @@ class VoxbiInstallerSetup(models.Model):
 
     install_token = fields.Char(string="Cockpit token", required=False)
     consent = fields.Boolean(
-        string="I authorize Voxbi to set up Voxbi here",
+        string="I authorize Voxbi to configure this Odoo",
         default=False,
         help="Required. By ticking this you authorize the module to generate an "
         "Odoo API key for your user and send it, together with this instance's "
