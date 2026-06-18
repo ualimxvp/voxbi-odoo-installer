@@ -27,16 +27,16 @@ class VoxbiInstallerSetup(models.Model):
 
     install_token = fields.Char(string="Cockpit token", required=False)
     consent = fields.Boolean(
-        string="I authorize Mixvoip to set up Voxbi here",
+        string="I authorize Voxbi to set up Voxbi here",
         default=False,
         help="Required. By ticking this you authorize the module to generate an "
         "Odoo API key for your user and send it, together with this instance's "
-        "connection details, to Mixvoip Cockpit over HTTPS so it can configure "
+        "connection details, to Voxbi Cockpit over HTTPS so it can configure "
         "the Voxbi integration. You can revoke the key at any time.",
     )
     sync_sip_configurations = fields.Boolean(
         string="Sync SIP configurations to Odoo VoIP",
-        help="If on, Mixvoip pushes SIP settings into Odoo's VoIP module after install.",
+        help="If on, Voxbi pushes SIP settings into Odoo's VoIP module after install.",
         default=False,
     )
     is_active = fields.Boolean(
@@ -90,8 +90,8 @@ class VoxbiInstallerSetup(models.Model):
 
         The customer is never asked for credentials — the wizard runs as a
         logged-in admin, so we mint an API key on their behalf via
-        `res.users.apikeys` and hand the plaintext (returned once) to Mixvoip
-        cockpit, which uses it as the XML-RPC password.
+        `res.users.apikeys` and hand the plaintext (returned once) to Voxbi
+        Cockpit, which uses it as the XML-RPC password.
         """
         user = self.env.user
         # Wipe any prior keys for this scope so revocation/rotation is clean.
@@ -156,7 +156,7 @@ class VoxbiInstallerSetup(models.Model):
     def action_install(self):
         self.ensure_one()
         if not self.install_token:
-            raise UserError(_("Please paste the install token from Mixvoip cockpit."))
+            raise UserError(_("Please paste the install token from Voxbi Cockpit."))
         if not self.consent:
             raise UserError(_(
                 "Please review the data-sharing notice and tick the authorization "
@@ -194,7 +194,7 @@ class VoxbiInstallerSetup(models.Model):
                 "state": "installing",
                 "token_id": str(body["token_id"]),
                 "integration_id": str(body.get("integration_id") or ""),
-                "message": _("Mixvoip is installing Voxbi. This page updates automatically."),
+                "message": _("Voxbi module is installing. This page updates automatically."),
             })
             return True
 
@@ -208,8 +208,8 @@ class VoxbiInstallerSetup(models.Model):
             self.write({
                 "state": "failed",
                 "message": _(
-                    "This install token is %(reason)s. Generate a fresh one in Mixvoip "
-                    "cockpit (user's settings page → Odoo installer tab → Odoo install "
+                    "This install token is %(reason)s. Generate a fresh one in Voxbi "
+                    "Cockpit (user's settings page → Odoo installer tab → Odoo install "
                     "tokens), paste it above, and click Try again."
                 ) % {"reason": reason},
             })
@@ -261,9 +261,9 @@ class VoxbiInstallerSetup(models.Model):
 
     @staticmethod
     def _render_output_html(results):
-        """Render cockpit's [{color, message}, ...] log array as a styled HTML block.
+        """Render Voxbi Cockpit's [{color, message}, ...] log array as a styled HTML block.
 
-        Mirrors cockpit's Output terminal: black background, monospace, color-coded
+        Mirrors Voxbi Cockpit's Output terminal: black background, monospace, color-coded
         lines. `color` arrives as Tailwind-ish names (text-red-500, text-blue-500,
         etc.); we map them to inline CSS colors.
         """
@@ -337,7 +337,7 @@ class VoxbiInstallerSetup(models.Model):
 
         Used when the install failed because crmapi could not authenticate
         into Odoo (bad creds, expired key, wrong UID). The token_id stays the
-        same — we hit cockpit's `update-and-fix-integration` endpoint with a
+        same — we hit Voxbi Cockpit's `update-and-fix-integration` endpoint with a
         freshly-minted key and flip the integration back to pending.
         """
         self.ensure_one()
@@ -375,7 +375,7 @@ class VoxbiInstallerSetup(models.Model):
             self.write({
                 "state": "installing",
                 "integration_id": str(body.get("integration_id") or self.integration_id or ""),
-                "message": _("Credentials refreshed. Mixvoip is retrying the install — this page updates automatically."),
+                "message": _("Credentials refreshed. Voxbi is retrying the install — this page updates automatically."),
             })
             return True
 
@@ -387,7 +387,7 @@ class VoxbiInstallerSetup(models.Model):
                 "integration_id": False,
                 "message": _(
                     "Cockpit no longer recognises this install. Paste a fresh token from "
-                    "Mixvoip cockpit and click Install."
+                    "Voxbi Cockpit and click Install."
                 ),
             })
             return True
