@@ -41,7 +41,7 @@
                     <div class="alert alert-info" role="alert"
                          invisible="state in ('installing','done')">
                         <h4 class="alert-heading">Get your Cockpit token</h4>
-                        <p class="mb-1">In <b>Mixvoip Cockpit</b>, generate a single-use install token:</p>
+                        <p class="mb-1">In <b>Voxbi Cockpit</b>, generate a single-use install token:</p>
                         <ol class="mb-0">
                             <li>Open the user's <b>settings</b> page.</li>
                             <li>Go to the <b>Odoo installer</b> tab.</li>
@@ -56,16 +56,16 @@
                                readonly="state == 'installing'"/>
                     </group>
                     <p class="text-muted" invisible="state in ('installing','done')">
-                        Paste the single-use token from Mixvoip Cockpit. It's shown only once —
+                        Paste the single-use token from Voxbi Cockpit. It's shown only once —
                         if it's already been used, generate a fresh one.
                     </p>
                     <div class="alert alert-info" role="alert"
                          invisible="state in ('installing','done')">
-                        <h4 class="alert-heading">Data shared with Mixvoip Cockpit</h4>
+                        <h4 class="alert-heading">Data shared with Voxbi Cockpit</h4>
                         <p>
                             Installing generates an Odoo API key for your user and sends it —
                             together with this instance's URL, database name, version and your
-                            login — to Mixvoip Cockpit over HTTPS, so it can configure the Voxbi
+                            login — to Voxbi Cockpit over HTTPS, so it can configure the Voxbi
                             integration over XML-RPC. You retain ownership of your data and can
                             revoke the key at any time from <b>Preferences → Account Security</b>.
                         </p>
