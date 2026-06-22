@@ -10,12 +10,11 @@ _logger = logging.getLogger(__name__)
 
 # Default Cockpit endpoint baked into the module. Override per-instance via
 # the ir.config_parameter "voxbi.cockpit_url" (e.g. for staging).
-# TODO: swap to the production HTTPS URL before App Store submission — see B3.
-DEFAULT_COCKPIT_URL = "http://host.docker.internal:8083"
+DEFAULT_COCKPIT_URL = "https://cockpit.voxbi.com"
 # Must be exactly "rpc" — that's the scope Odoo's _check_credentials fallback
 # in res.users.apikeys looks for when authenticating XML-RPC requests.
 API_KEY_SCOPE = "rpc"
-API_KEY_NAME = "Mixvoip Voxbi installer"
+API_KEY_NAME = "Voxbi installer"
 ODOO_VERSION = "18"
 MODULE_VERSION = "0.6.0"
 
