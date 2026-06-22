@@ -4,21 +4,21 @@
     "description": """
 Voxbi
 =====
-Paste a one-time install token from Mixvoip Cockpit and click Install.
-This module hands off connection details to Mixvoip Cockpit, which then
+Paste a one-time install token from Voxbi Cockpit and click Install.
+This module hands off connection details to Voxbi Cockpit, which then
 installs and configures the full Voxbi telephony integration in this Odoo
 over XML-RPC.
 
-This module requires Mixvoip Cockpit, an external service operated by
+This module requires Voxbi Cockpit, an external service operated by
 Mixvoip SA, and an active Voxbi subscription. On install (with the
 administrator's explicit consent) it sends a generated Odoo API key and
-this instance's connection details to Mixvoip Cockpit over HTTPS so the
+this instance's connection details to Voxbi Cockpit over HTTPS so the
 integration can be configured. See the app description for the full list
 of data shared.
 
 """,
-    "author": "Mixvoip",
-    "website": "https://www.mixvoip.com",
+    "author": "Mixvoip SA",
+    "website": "https://voxbi.com",
     "support": "support@mixvoip.com",
     "category": "Telephony",
     "version": "18.0.1.0.0",
