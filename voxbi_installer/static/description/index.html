@@ -1,262 +1,159 @@
-<div class="voxbi_desc">
-  <style>
-    .voxbi_desc {
-      --vx-tint: #8D3D8A;
-      --vx-tint-hover: #6F2D6C;
-      --vx-charcoal: #414141;
-      --vx-text: #757574;
-      --vx-muted: #8E8E8C;
-      --vx-bg: #F1F1F1;
-      --vx-card: #F9F8F7;
-      --vx-border: rgba(0, 0, 0, .08);
-      --vx-sage: #E6F1E1;
-      --vx-sky: #E1ECF5;
-      --vx-lavender: #ECE5F1;
-      --vx-peach: #F5E8DD;
-      --vx-shadow: 0 2px 14px -6px rgba(60, 30, 90, .1), 0 1px 3px rgba(0, 0, 0, .04);
-      font-family: "Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
-      color: var(--vx-text);
-      line-height: 1.6;
-      -webkit-font-smoothing: antialiased;
-    }
-    .voxbi_desc * { box-sizing: border-box; }
-    .voxbi_desc .vx-section {
-      max-width: 980px;
-      margin: 0 auto;
-      padding: 56px 24px;
-    }
-    .voxbi_desc .vx-eyebrow {
-      text-transform: uppercase;
-      letter-spacing: .14em;
-      font-size: 13px;
-      font-weight: 700;
-      color: var(--vx-tint);
-      margin: 0 0 14px;
-    }
-    .voxbi_desc h1, .voxbi_desc h2, .voxbi_desc h3 {
-      color: var(--vx-charcoal);
-      letter-spacing: -.02em;
-      line-height: 1.15;
-      margin: 0 0 16px;
-      font-weight: 800;
-    }
-    .voxbi_desc h1 { font-size: 40px; }
-    .voxbi_desc h2 { font-size: 28px; }
-    .voxbi_desc h3 { font-size: 19px; font-weight: 700; letter-spacing: -.01em; }
-    .voxbi_desc p { margin: 0 0 16px; font-size: 16px; }
-    .voxbi_desc .vx-lead { font-size: 18px; color: var(--vx-text); }
-    .voxbi_desc .vx-center { text-align: center; }
-    .voxbi_desc .vx-measure { max-width: 720px; margin-left: auto; margin-right: auto; }
-
-    .voxbi_desc .vx-hero {
-      background: var(--vx-bg);
-      border-radius: 16px;
-      padding: 56px 32px;
-      text-align: center;
-    }
-    .voxbi_desc .vx-cta {
-      display: inline-block;
-      background: var(--vx-tint);
-      color: #fff;
-      text-decoration: none;
-      font-weight: 600;
-      font-size: 15px;
-      padding: 12px 28px;
-      border-radius: 999px;
-      margin-top: 8px;
-    }
-    .voxbi_desc .vx-cta:hover { background: var(--vx-tint-hover); color: #fff; }
-    .voxbi_desc .vx-banner {
-      max-width: 100%;
-      height: auto;
-      margin-top: 36px;
-      border-radius: 16px;
-    }
-
-    .voxbi_desc .vx-grid {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 20px;
-      margin-top: 12px;
-    }
-    .voxbi_desc .vx-card {
-      flex: 1 1 calc(50% - 10px);
-      min-width: 260px;
-      border-radius: 16px;
-      padding: 26px;
-      box-shadow: var(--vx-shadow);
-    }
-    .voxbi_desc .vx-card h3 { margin-bottom: 8px; }
-    .voxbi_desc .vx-card p { margin: 0; font-size: 15px; }
-    .voxbi_desc .vx-c-sage { background: var(--vx-sage); }
-    .voxbi_desc .vx-c-sky { background: var(--vx-sky); }
-    .voxbi_desc .vx-c-lavender { background: var(--vx-lavender); }
-    .voxbi_desc .vx-c-peach { background: var(--vx-peach); }
-
-    .voxbi_desc .vx-steps { counter-reset: vx; list-style: none; padding: 0; margin: 0 auto; max-width: 720px; }
-    .voxbi_desc .vx-steps li {
-      counter-increment: vx;
-      position: relative;
-      padding: 4px 0 20px 52px;
-      font-size: 16px;
-    }
-    .voxbi_desc .vx-steps li::before {
-      content: counter(vx);
-      position: absolute;
-      left: 0;
-      top: 0;
-      width: 34px;
-      height: 34px;
-      border-radius: 999px;
-      background: var(--vx-tint);
-      color: #fff;
-      font-weight: 700;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-    .voxbi_desc .vx-shot {
-      max-width: 100%;
-      height: auto;
-      border: 1px solid var(--vx-border);
-      border-radius: 16px;
-      margin-top: 28px;
-    }
-
-    .voxbi_desc .vx-data { background: var(--vx-card); border-radius: 16px; padding: 40px 32px; }
-    .voxbi_desc .vx-data ul { max-width: 720px; margin: 0 auto; padding-left: 20px; }
-    .voxbi_desc .vx-data li { font-size: 15px; margin-bottom: 8px; }
-    .voxbi_desc a { color: var(--vx-tint); }
-
-    @media (max-width: 640px) {
-      .voxbi_desc h1 { font-size: 30px; }
-      .voxbi_desc h2 { font-size: 23px; }
-      .voxbi_desc .vx-card { flex: 1 1 100%; }
-    }
-  </style>
-
-  <!-- Hero -->
-  <div class="vx-section">
-    <div class="vx-hero">
-      <p class="vx-eyebrow">Odoo integration</p>
-      <h1>Set up Voxbi telephony in Odoo</h1>
-      <p class="vx-lead vx-measure">
+<!-- Hero -->
+<section class="oe_container oe_dark">
+  <div class="oe_row oe_spaced">
+    <div class="oe_span12 oe_centeralign">
+      <h2 class="oe_slogan" style="color:#8D3D8A;">Set up Voxbi telephony in Odoo</h2>
+      <p style="font-size:18px;max-width:640px;margin:0 auto 24px;">
         One token. The full Voxbi integration, configured for you —
         no credentials to type, no vendor ticket, no waiting.
       </p>
-      <a class="vx-cta" href="https://voxbi.com" target="_blank" rel="noopener">Discover Voxbi</a>
-      <img src="banner.png" class="vx-banner" alt="Voxbi"/>
+      <img src="banner.png" class="oe_picture" alt="Voxbi" style="max-width:100%;border-radius:12px;"/>
     </div>
   </div>
+</section>
 
-  <!-- Problem -> solution -->
-  <div class="vx-section vx-center">
-    <p class="vx-eyebrow">Why this module</p>
-    <h2>Telephony setup shouldn't need a ticket.</h2>
-    <p class="vx-lead vx-measure">
-      Connecting a phone system to your business software usually means raising a
-      ticket, sharing credentials, and waiting on a vendor to wire it up.
-    </p>
-    <p class="vx-measure">
-      This module flips that around. You paste a one-time token from Voxbi Cockpit
-      and click Install — Cockpit then provisions and configures the whole Voxbi
-      telephony integration in your Odoo for you, and the progress streams back in real time.
-    </p>
-  </div>
-
-  <!-- What it does -->
-  <div class="vx-section vx-center">
-    <p class="vx-eyebrow">What this module does</p>
-    <h2>From token to live integration</h2>
-    <p class="vx-measure">
-      Voxbi adds a <b>Voxbi → Configuration</b> wizard to your Odoo backend. You paste a
-      one-time install token generated in Voxbi Cockpit and click Install. The wizard
-      registers this Odoo with Voxbi Cockpit, which then provisions and configures the
-      Voxbi telephony integration for your database — with installation progress streaming
-      back into the wizard as it happens.
-    </p>
-  </div>
-
-  <!-- Key features -->
-  <div class="vx-section">
-    <div class="vx-center">
-      <p class="vx-eyebrow">Key features</p>
-      <h2>Built for a one-step install</h2>
+<!-- Why this module -->
+<section class="oe_container">
+  <div class="oe_row oe_spaced">
+    <div class="oe_span12 oe_centeralign">
+      <p style="text-transform:uppercase;letter-spacing:0.12em;font-size:12px;font-weight:700;color:#8D3D8A;">Why this module</p>
+      <h2 class="oe_slogan">Telephony setup shouldn't need a ticket.</h2>
+      <p style="font-size:17px;max-width:680px;margin:0 auto 16px;">
+        Connecting a phone system to your business software usually means raising a
+        ticket, sharing credentials, and waiting on a vendor to wire it up.
+      </p>
+      <p style="max-width:680px;margin:0 auto;">
+        This module flips that around. You paste a one-time token from Voxbi Cockpit
+        and click Install — Cockpit then provisions and configures the whole Voxbi
+        telephony integration in your Odoo for you, with progress streaming back in real time.
+      </p>
     </div>
-    <div class="vx-grid">
-      <div class="vx-card vx-c-lavender">
-        <h3>One-time token setup</h3>
-        <p>No credentials to type. Generate a single-use token in Voxbi Cockpit, paste it,
+  </div>
+</section>
+
+<!-- What it does -->
+<section class="oe_container oe_dark">
+  <div class="oe_row oe_spaced">
+    <div class="oe_span12 oe_centeralign">
+      <p style="text-transform:uppercase;letter-spacing:0.12em;font-size:12px;font-weight:700;color:#8D3D8A;">What this module does</p>
+      <h2 class="oe_slogan">From token to live integration</h2>
+      <p style="max-width:700px;margin:0 auto;">
+        Voxbi adds a <b>Voxbi → Configuration</b> wizard to your Odoo backend. You paste a
+        one-time install token generated in Voxbi Cockpit and click Install. The wizard
+        registers this Odoo with Voxbi Cockpit, which then provisions and configures the
+        Voxbi telephony integration for your database — with installation progress streaming
+        back into the wizard as it happens.
+      </p>
+    </div>
+  </div>
+</section>
+
+<!-- Key features -->
+<section class="oe_container">
+  <div class="oe_row oe_spaced">
+    <div class="oe_span12 oe_centeralign">
+      <p style="text-transform:uppercase;letter-spacing:0.12em;font-size:12px;font-weight:700;color:#8D3D8A;">Key features</p>
+      <h2 class="oe_slogan">Built for a one-step install</h2>
+    </div>
+  </div>
+  <div class="oe_row">
+    <div class="oe_span6">
+      <div style="background:#ECE5F1;border-radius:12px;padding:24px;margin:8px;">
+        <h3 style="color:#414141;font-weight:700;margin-bottom:8px;">One-time token setup</h3>
+        <p style="margin:0;">No credentials to type. Generate a single-use token in Voxbi Cockpit, paste it,
           and install. Each token works once and can be revoked at any time.</p>
       </div>
-      <div class="vx-card vx-c-sky">
-        <h3>Live progress</h3>
-        <p>The wizard polls the install status and shows a color-coded log console, so you can
+    </div>
+    <div class="oe_span6">
+      <div style="background:#E1ECF5;border-radius:12px;padding:24px;margin:8px;">
+        <h3 style="color:#414141;font-weight:700;margin-bottom:8px;">Live progress</h3>
+        <p style="margin:0;">The wizard polls the install status and shows a color-coded log console, so you can
           watch the provisioning happen step by step.</p>
       </div>
-      <div class="vx-card vx-c-sage">
-        <h3>Optional SIP sync</h3>
-        <p>Opt in to push SIP settings into Odoo's VoIP module after install, or keep your
+    </div>
+  </div>
+  <div class="oe_row oe_spaced">
+    <div class="oe_span6">
+      <div style="background:#E6F1E1;border-radius:12px;padding:24px;margin:8px;">
+        <h3 style="color:#414141;font-weight:700;margin-bottom:8px;">Optional SIP sync</h3>
+        <p style="margin:0;">Opt in to push SIP settings into Odoo's VoIP module after install, or keep your
           existing VoIP configuration untouched.</p>
       </div>
-      <div class="vx-card vx-c-peach">
-        <h3>Admin-only</h3>
-        <p>The setup wizard is restricted to Settings administrators. Connection identifiers
+    </div>
+    <div class="oe_span6">
+      <div style="background:#F5E8DD;border-radius:12px;padding:24px;margin:8px;">
+        <h3 style="color:#414141;font-weight:700;margin-bottom:8px;">Admin-only</h3>
+        <p style="margin:0;">The setup wizard is restricted to Settings administrators. Connection identifiers
           are masked in the UI by default.</p>
       </div>
     </div>
   </div>
+</section>
 
-  <!-- How it works -->
-  <div class="vx-section vx-center">
-    <p class="vx-eyebrow">How it works</p>
-    <h2>Three steps, then it runs itself</h2>
-    <img src="screenshot_install.png" class="vx-shot" alt="Voxbi setup wizard"/>
-    <ol class="vx-steps" style="text-align:left;margin-top:36px;">
-      <li>In <b>Voxbi Cockpit</b>, go to <b>Integration → Create</b>, select <b>Odoo Installer</b>,
-        and click <b>Generate install token</b>. Copy the <code>vxi_…</code> token — shown only once.</li>
-      <li>In Odoo, open <b>Voxbi → Configuration</b>, paste the token, review the data-sharing
-        notice, tick the authorization box, and click <b>Install</b>.</li>
-      <li>The wizard shows live progress and confirms once Voxbi Cockpit has configured the
-        integration.</li>
-    </ol>
-    <img src="screenshot_progress.png" class="vx-shot" alt="Voxbi install progress log"/>
+<!-- How it works -->
+<section class="oe_container oe_dark">
+  <div class="oe_row oe_spaced">
+    <div class="oe_span12 oe_centeralign">
+      <p style="text-transform:uppercase;letter-spacing:0.12em;font-size:12px;font-weight:700;color:#8D3D8A;">How it works</p>
+      <h2 class="oe_slogan">Three steps, then it runs itself</h2>
+      <img src="screenshot_install.png" class="oe_picture oe_screenshot" alt="Voxbi setup wizard"/>
+    </div>
+    <div class="oe_span12">
+      <ol style="max-width:680px;margin:24px auto 0;padding-left:20px;">
+        <li style="margin-bottom:12px;">In <b>Voxbi Cockpit</b>, go to <b>Integration → Create</b>, select <b>Odoo Installer</b>,
+          and click <b>Generate install token</b>. Copy the <code>vxi_…</code> token — shown only once.</li>
+        <li style="margin-bottom:12px;">In Odoo, open <b>Voxbi → Configuration</b>, paste the token, review the data-sharing
+          notice, tick the authorization box, and click <b>Install</b>.</li>
+        <li style="margin-bottom:12px;">The wizard shows live progress and confirms once Voxbi Cockpit has configured the
+          integration.</li>
+      </ol>
+    </div>
+    <div class="oe_span12 oe_centeralign">
+      <img src="screenshot_progress.png" class="oe_picture oe_screenshot" alt="Voxbi install progress log"/>
+    </div>
   </div>
+</section>
 
-  <!-- Data sharing -->
-  <div class="vx-section">
-    <div class="vx-data">
-      <div class="vx-center">
-        <p class="vx-eyebrow">External service &amp; data sharing</p>
-        <h2>What gets shared, and with whom</h2>
-      </div>
-      <p class="vx-measure vx-center">
+<!-- Data sharing -->
+<section class="oe_container">
+  <div class="oe_row oe_spaced">
+    <div class="oe_span12 oe_centeralign">
+      <p style="text-transform:uppercase;letter-spacing:0.12em;font-size:12px;font-weight:700;color:#8D3D8A;">External service &amp; data sharing</p>
+      <h2 class="oe_slogan">What gets shared, and with whom</h2>
+      <p style="max-width:700px;margin:0 auto 16px;">
         This module requires <b>Voxbi Cockpit</b>, an external service operated by Mixvoip SA,
         to provision the Voxbi integration. When you click Install, the module asks for your explicit
         authorization and then sends the following to Voxbi Cockpit over an encrypted (HTTPS) connection:
       </p>
-      <ul>
-        <li>The one-time install token you pasted</li>
-        <li>This Odoo instance's URL, database name and version</li>
-        <li>The login of the administrator running the wizard</li>
-        <li>A freshly generated Odoo API key for that administrator, used by Voxbi Cockpit to configure
+    </div>
+    <div class="oe_span12">
+      <ul style="max-width:680px;margin:0 auto;padding-left:20px;">
+        <li style="margin-bottom:8px;">The one-time install token you pasted</li>
+        <li style="margin-bottom:8px;">This Odoo instance's URL, database name and version</li>
+        <li style="margin-bottom:8px;">The login of the administrator running the wizard</li>
+        <li style="margin-bottom:8px;">A freshly generated Odoo API key for that administrator, used by Voxbi Cockpit to configure
           the integration over XML-RPC</li>
-        <li>Your chosen options (SIP sync, active flag)</li>
+        <li style="margin-bottom:8px;">Your chosen options (SIP sync, active flag)</li>
       </ul>
-      <p class="vx-measure vx-center" style="margin-top:16px;">
+      <p style="max-width:680px;margin:16px auto 0;text-align:center;">
         The generated API key can be revoked at any time from the administrator's
-        <b>Preferences → Account Security</b>. You retain full ownership of your data. A Voxbi account and an active Voxbi subscription are required to use this integration.
+        <b>Preferences → Account Security</b>. You retain full ownership of your data.
+        A Voxbi account and an active Voxbi subscription are required to use this integration.
       </p>
     </div>
   </div>
+</section>
 
-  <!-- Support -->
-  <div class="vx-section vx-center">
-    <p class="vx-eyebrow">Support</p>
-    <h2>Questions about Voxbi?</h2>
-    <p class="vx-measure">
-      Contact us at <a href="mailto:support@mixvoip.com">support@mixvoip.com</a>
-      or visit <a href="https://voxbi.com" target="_blank" rel="noopener">voxbi.com</a>.
-    </p>
+<!-- Support -->
+<section class="oe_container oe_dark">
+  <div class="oe_row oe_spaced">
+    <div class="oe_span12 oe_centeralign">
+      <p style="text-transform:uppercase;letter-spacing:0.12em;font-size:12px;font-weight:700;color:#8D3D8A;">Support</p>
+      <h2 class="oe_slogan">Questions about Voxbi?</h2>
+      <p style="max-width:640px;margin:0 auto;">
+        Contact us at <a href="mailto:support@mixvoip.com">support@mixvoip.com</a>
+        or visit <a href="https://voxbi.com" target="_blank" rel="noopener">voxbi.com</a>.
+      </p>
+    </div>
   </div>
-</div>
+</section>
