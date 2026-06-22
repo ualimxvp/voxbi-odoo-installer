@@ -43,9 +43,9 @@
                         <h4 class="alert-heading">Get your Cockpit token</h4>
                         <p class="mb-1">In <b>Voxbi Cockpit</b>, generate a single-use install token:</p>
                         <ol class="mb-0">
-                            <li>Open the user's <b>settings</b> page.</li>
-                            <li>Go to the <b>Odoo installer</b> tab.</li>
-                            <li>Under <b>Odoo install tokens</b>, generate a token.</li>
+                            <li>Go to <a href="https://cockpit.voxbi.com/admin/integration/create" target="_blank" rel="noopener">cockpit.voxbi.com/admin/integration/create</a>.</li>
+                            <li>Select <b>Odoo Installer</b> as the integration type.</li>
+                            <li>Click <b>Generate install token</b> and copy the <code>vxi_…</code> token — it is shown only once.</li>
                         </ol>
                     </div>
                     <group>
@@ -56,8 +56,7 @@
                                readonly="state == 'installing'"/>
                     </group>
                     <p class="text-muted" invisible="state in ('installing','done')">
-                        Paste the single-use token from Voxbi Cockpit. It's shown only once —
-                        if it's already been used, generate a fresh one.
+                        Paste the token from Voxbi Cockpit above. If the token has already been used, go back to Cockpit and click <b>Regenerate token</b>.
                     </p>
                     <div class="alert alert-info" role="alert"
                          invisible="state in ('installing','done')">
