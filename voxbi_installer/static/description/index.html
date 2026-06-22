@@ -144,7 +144,7 @@
         One token. The full Voxbi integration, configured for you —
         no credentials to type, no vendor ticket, no waiting.
       </p>
-      <a class="vx-cta" href="https://voxbi.com/" target="_blank" rel="noopener">Discover Voxbi</a>
+      <a class="vx-cta" href="https://voxbi.com" target="_blank" rel="noopener">Discover Voxbi</a>
       <img src="banner.png" class="vx-banner" alt="Voxbi"/>
     </div>
   </div>
@@ -158,7 +158,7 @@
       ticket, sharing credentials, and waiting on a vendor to wire it up.
     </p>
     <p class="vx-measure">
-      This module flips that around. You paste a one-time token from Mixvoip Cockpit
+      This module flips that around. You paste a one-time token from Voxbi Cockpit
       and click Install — Cockpit then provisions and configures the whole Voxbi
       telephony integration in your Odoo for you, and the progress streams back in real time.
     </p>
@@ -170,8 +170,8 @@
     <h2>From token to live integration</h2>
     <p class="vx-measure">
       Voxbi adds a <b>Voxbi → Configuration</b> wizard to your Odoo backend. You paste a
-      one-time install token generated in Mixvoip Cockpit and click Install. The wizard
-      registers this Odoo with Mixvoip Cockpit, which then provisions and configures the
+      one-time install token generated in Voxbi Cockpit and click Install. The wizard
+      registers this Odoo with Voxbi Cockpit, which then provisions and configures the
       Voxbi telephony integration for your database — with installation progress streaming
       back into the wizard as it happens.
     </p>
@@ -186,7 +186,7 @@
     <div class="vx-grid">
       <div class="vx-card vx-c-lavender">
         <h3>One-time token setup</h3>
-        <p>No credentials to type. Generate a single-use token in Mixvoip Cockpit, paste it,
+        <p>No credentials to type. Generate a single-use token in Voxbi Cockpit, paste it,
           and install. Each token works once and can be revoked at any time.</p>
       </div>
       <div class="vx-card vx-c-sky">
@@ -213,11 +213,11 @@
     <h2>Three steps, then it runs itself</h2>
     <img src="screenshot_install.png" class="vx-shot" alt="Voxbi setup wizard"/>
     <ol class="vx-steps" style="text-align:left;margin-top:36px;">
-      <li>In Mixvoip Cockpit, open the user's settings page, go to the <b>Odoo installer</b> tab,
-        and generate a single-use token under <b>Odoo install tokens</b>.</li>
+      <li>In <b>Voxbi Cockpit</b>, go to <b>Integration → Create</b>, select <b>Odoo Installer</b>,
+        and click <b>Generate install token</b>. Copy the <code>vxi_…</code> token — shown only once.</li>
       <li>In Odoo, open <b>Voxbi → Configuration</b>, paste the token, review the data-sharing
         notice, tick the authorization box, and click <b>Install</b>.</li>
-      <li>The wizard shows live progress and confirms once Mixvoip Cockpit has configured the
+      <li>The wizard shows live progress and confirms once Voxbi Cockpit has configured the
         integration.</li>
     </ol>
     <img src="screenshot_progress.png" class="vx-shot" alt="Voxbi install progress log"/>
@@ -231,22 +231,21 @@
         <h2>What gets shared, and with whom</h2>
       </div>
       <p class="vx-measure vx-center">
-        This module requires <b>Mixvoip Cockpit</b>, an external service operated by Mixvoip&nbsp;SA,
+        This module requires <b>Voxbi Cockpit</b>, an external service operated by Mixvoip SA,
         to provision the Voxbi integration. When you click Install, the module asks for your explicit
-        authorization and then sends the following to Mixvoip Cockpit over an encrypted (HTTPS) connection:
+        authorization and then sends the following to Voxbi Cockpit over an encrypted (HTTPS) connection:
       </p>
       <ul>
         <li>The one-time install token you pasted</li>
         <li>This Odoo instance's URL, database name and version</li>
         <li>The login of the administrator running the wizard</li>
-        <li>A freshly generated Odoo API key for that administrator, used by Mixvoip Cockpit to configure
+        <li>A freshly generated Odoo API key for that administrator, used by Voxbi Cockpit to configure
           the integration over XML-RPC</li>
         <li>Your chosen options (SIP sync, active flag)</li>
       </ul>
       <p class="vx-measure vx-center" style="margin-top:16px;">
         The generated API key can be revoked at any time from the administrator's
-        <b>Preferences → Account Security</b>. You retain full ownership of your data. A Mixvoip account
-        and an active Voxbi subscription are required to use this integration.
+        <b>Preferences → Account Security</b>. You retain full ownership of your data. A Voxbi account and an active Voxbi subscription are required to use this integration.
       </p>
     </div>
   </div>
@@ -257,7 +256,7 @@
     <h2>Questions about Voxbi?</h2>
     <p class="vx-measure">
       Contact us at <a href="mailto:support@mixvoip.com">support@mixvoip.com</a>
-      or visit <a href="https://www.mixvoip.com" target="_blank" rel="noopener">www.mixvoip.com</a>.
+      or visit <a href="https://voxbi.com" target="_blank" rel="noopener">voxbi.com</a>.
     </p>
   </div>
 </div>
