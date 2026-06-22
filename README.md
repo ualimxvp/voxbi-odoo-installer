@@ -1,9 +1,9 @@
 # Voxbi
 
-Odoo Apps Store module that connects an Odoo instance to Mixvoip Voxbi telephony.
+Odoo Apps Store module that connects an Odoo instance to Voxbi telephony.
 
 It adds a **Voxbi → Setup** wizard where you paste a one-time install token issued
-from Mixvoip Cockpit. The module hands the connection details back to Cockpit, which
+from Voxbi Cockpit. The module hands the connection details back to Cockpit, which
 then installs and configures the full Voxbi telephony integration in this Odoo.
 
 - **Odoo:** 18.0
@@ -33,7 +33,8 @@ The wizard shows progress and completes once Cockpit has configured the integrat
 
 ## Getting an install token
 
-In Mixvoip Cockpit, open the user's settings page and go to the **Odoo installer**
-tab, then generate a token under **Odoo install tokens**. Paste it into the setup
-wizard. Tokens are single-use (and can be revoked at any time) — mint a fresh one if
+In Voxbi Cockpit, go to [cockpit.voxbi.com/admin/integration/create](https://cockpit.voxbi.com/admin/integration/create),
+select **Odoo Installer** as the integration type, then click **Generate install token**.
+Copy the `vxi_…` token — it is shown only once. Paste it into the setup wizard.
+Tokens are single-use (and can be revoked at any time) — regenerate one in Cockpit if
 the wizard reports an invalid or already-used token.
