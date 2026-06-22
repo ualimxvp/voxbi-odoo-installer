@@ -49,6 +49,7 @@ of data shared.
             "voxbi_installer/static/src/masked_field.xml",
         ],
     },
+    "images": ["static/description/thumbnail.png"],
     "application": True,
     "installable": True,
     "auto_install": False,
