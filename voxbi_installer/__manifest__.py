@@ -22,7 +22,7 @@ of data shared.
     "support": "support@mixvoip.com",
     "category": "Telephony",
     "version": "18.0.1.0.0",
-    "license": "Other OSI approved licence",  # MIT, see LICENSE file
+    "license": "LGPL-3",
     # Prerequisite apps for the Voxbi integration that Cockpit pushes over
     # XML-RPC: the integration touches res.partner, mail.message, crm.lead,
     # project.task and account/sales_team groups, so those models must exist
