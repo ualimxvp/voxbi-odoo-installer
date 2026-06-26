@@ -1,9 +1,12 @@
+# Copyright 2026 Mixvoip SA
+# License LGPL-3 (https://www.gnu.org/licenses/lgpl-3.0.html).
+
 import json
 import logging
 import urllib.error
 import urllib.request
 
-from odoo import _, api, fields, models
+from odoo import _, api, fields, models, release
 from odoo.exceptions import UserError
 
 _logger = logging.getLogger(__name__)
@@ -15,8 +18,8 @@ DEFAULT_COCKPIT_URL = "https://cockpit.voxbi.com"
 # in res.users.apikeys looks for when authenticating XML-RPC requests.
 API_KEY_SCOPE = "rpc"
 API_KEY_NAME = "Voxbi installer"
-ODOO_VERSION = "18"
-MODULE_VERSION = "0.6.0"
+# Version of *this* installer module, sent to Cockpit purely for diagnostics.
+MODULE_VERSION = "2.0.0"
 
 
 class VoxbiInstallerSetup(models.Model):
@@ -24,7 +27,16 @@ class VoxbiInstallerSetup(models.Model):
     _description = "Voxbi Setup"
     _order = "id desc"
 
-    install_token = fields.Char(string="Cockpit token", required=False)
+    # Cockpit API v2 auth: a long-lived Bearer API key the admin creates in
+    # Cockpit (with the "Is Odoo Installer" scope). Reusable across every call;
+    # replaces the old single-use install token.
+    cockpit_api_key = fields.Char(
+        string="Cockpit API key",
+        help="The Bearer API key created in Voxbi Cockpit (Integrations → Add "
+        "integration → API key) with the “Is Odoo Installer” scope. It is reusable "
+        "and long-lived; the module sends it as a Bearer token on every request to "
+        "Cockpit. Treat it like a password.",
+    )
     consent = fields.Boolean(
         string="I authorize Voxbi to configure this Odoo",
         default=False,
@@ -53,7 +65,9 @@ class VoxbiInstallerSetup(models.Model):
         default="draft",
         readonly=True,
     )
-    token_id = fields.Char(readonly=True)
+    # Set once register-install succeeds. Also the sentinel for "have we
+    # registered with Cockpit yet?" — the v2 status/get/update endpoints derive
+    # the PBX from the API key, so there is no token id to carry around.
     integration_id = fields.Char(readonly=True)
     message = fields.Text(readonly=True)
     # Content is built server-side from Cockpit's log array with every message
@@ -84,13 +98,30 @@ class VoxbiInstallerSetup(models.Model):
     def _odoo_self_url(self):
         return self.env["ir.config_parameter"].sudo().get_param("web.base.url", "")
 
+    def _odoo_version(self):
+        # e.g. "18.0", "17.0" (or "saas~17.4" on Odoo Online). Stays within
+        # Cockpit's 16-char odoo_version limit and is always the real version.
+        return release.major_version
+
+    def _cockpit_api_key(self):
+        return (self.cockpit_api_key or "").strip()
+
+    def _auth_headers(self):
+        """Bearer + Accept headers required on every Cockpit request (API v2)."""
+        headers = {"Accept": "application/json"}
+        key = self._cockpit_api_key()
+        if key:
+            headers["Authorization"] = "Bearer %s" % key
+        return headers
+
     def _issue_api_key_for_current_user(self):
         """Generate a fresh Odoo API key for the logged-in user.
 
         The customer is never asked for credentials — the wizard runs as a
         logged-in admin, so we mint an API key on their behalf via
         `res.users.apikeys` and hand the plaintext (returned once) to Voxbi
-        Cockpit, which uses it as the XML-RPC password.
+        Cockpit, which uses it as the XML-RPC password. This is the Odoo-side
+        `service_key`, distinct from the Cockpit Bearer API key.
         """
         user = self.env.user
         # Wipe any prior keys for this scope so revocation/rotation is clean.
@@ -108,23 +139,25 @@ class VoxbiInstallerSetup(models.Model):
     def _generate_api_key(self, scope, name):
         """Call res.users.apikeys._generate with whichever signature this Odoo build exposes.
 
-        Odoo 18 requires `expiration_date` (third arg). Falsy = persistent key,
-        which is what we want here (the installer needs ongoing access).
-        Sudo lets us mint a persistent key even when the user's group caps the
-        max duration.
+        Odoo 17+ requires `expiration_date` (third arg). Falsy = persistent key,
+        which is what we want here (the installer needs ongoing access). Sudo
+        lets us mint a persistent key even when the user's group caps the max
+        duration. The fallback covers builds with the older 2-arg signature.
         """
         ApiKeys = self.env["res.users.apikeys"].sudo()
         try:
             return ApiKeys._generate(scope, name, False)
         except TypeError:
-            # Older Odoo 18 builds without expiration_date arg.
+            # Older builds without the expiration_date arg.
             return ApiKeys._generate(scope, name)
 
     def _post_json(self, url, payload, timeout=15):
+        headers = self._auth_headers()
+        headers["Content-Type"] = "application/json"
         req = urllib.request.Request(
             url,
             data=json.dumps(payload).encode("utf-8"),
-            headers={"Content-Type": "application/json", "Accept": "application/json"},
+            headers=headers,
             method="POST",
         )
         try:
@@ -141,21 +174,63 @@ class VoxbiInstallerSetup(models.Model):
             return 0, {"error": "network", "reason": str(e)}
 
     def _get_json(self, url, timeout=10):
+        req = urllib.request.Request(url, headers=self._auth_headers(), method="GET")
         try:
-            with urllib.request.urlopen(url, timeout=timeout) as resp:
+            with urllib.request.urlopen(req, timeout=timeout) as resp:
                 body = resp.read().decode("utf-8") or "{}"
                 return resp.getcode(), json.loads(body)
         except urllib.error.HTTPError as e:
-            return e.code, {}
+            body = e.read().decode("utf-8") or "{}"
+            try:
+                return e.code, json.loads(body)
+            except json.JSONDecodeError:
+                return e.code, {"raw": body}
         except urllib.error.URLError as e:
             return 0, {"error": "network", "reason": str(e)}
+
+    def _api_error_message(self, status, body):
+        """Map a Cockpit API v2 error response to an actionable message."""
+        detail = body.get("message") or body.get("error")
+        if status == 0:
+            return _("Could not reach Voxbi Cockpit: %s") % (
+                body.get("reason") or _("network error")
+            )
+        if status == 401:
+            return _(
+                "Your Cockpit API key is missing, invalid, or expired. Create a new "
+                "API key in Voxbi Cockpit (Integrations → Add integration → API key) "
+                "with the “Is Odoo Installer” scope, paste it above, and try again."
+            )
+        if status == 403:
+            return _(
+                "This Cockpit API key is not allowed to run the installer. In Voxbi "
+                "Cockpit, make sure the key has the “Is Odoo Installer” scope and "
+                "belongs to this PBX, then try again."
+            )
+        if status == 422:
+            errors = body.get("errors") or {}
+            if errors:
+                fields_detail = "; ".join(
+                    "%s: %s" % (
+                        field,
+                        ", ".join(msgs) if isinstance(msgs, (list, tuple)) else msgs,
+                    )
+                    for field, msgs in errors.items()
+                )
+                return _("Voxbi Cockpit rejected the request: %s") % fields_detail
+            return detail or _("Voxbi Cockpit rejected the request (validation error).")
+        if status == 429:
+            return _(
+                "Too many requests to Voxbi Cockpit. Please wait a minute and try again."
+            )
+        return detail or (_("HTTP %s") % status)
 
     # --- actions ---------------------------------------------------------
 
     def action_install(self):
         self.ensure_one()
-        if not self.install_token:
-            raise UserError(_("Please paste the install token from Voxbi Cockpit."))
+        if not self._cockpit_api_key():
+            raise UserError(_("Please paste the Cockpit API key from Voxbi Cockpit."))
         if not self.consent:
             raise UserError(_(
                 "Please review the data-sharing notice and tick the authorization "
@@ -172,10 +247,9 @@ class VoxbiInstallerSetup(models.Model):
             ) % e)
 
         payload = {
-            "token": self.install_token.strip(),
             "odoo_url": self._odoo_self_url(),
             "odoo_db": self.env.cr.dbname,
-            "odoo_version": ODOO_VERSION,
+            "odoo_version": self._odoo_version(),
             "service_user": login,
             "service_key": api_key,
             "service_uid": int(self.env.user.id),
@@ -188,48 +262,43 @@ class VoxbiInstallerSetup(models.Model):
         _logger.info("Voxbi installer: posting register-install to %s", url)
         status, body = self._post_json(url, payload)
 
-        if status == 201 and "token_id" in body:
+        if status == 201:
             self.write({
                 "state": "installing",
-                "token_id": str(body["token_id"]),
                 "integration_id": str(body.get("integration_id") or ""),
                 "message": _("Voxbi module is installing. This page updates automatically."),
             })
             return True
 
-        reason = body.get("reason") or body.get("error") or f"HTTP {status}"
-        token_problems = {"unknown", "expired", "consumed", "revoked"}
-
-        if status in (401, 410) and reason in token_problems:
-            # Keep the pasted token in the field — don't wipe what the user
-            # entered. Surface it as a failure so the error state is obvious;
-            # they paste a fresh token and click Try again.
-            self.write({
-                "state": "failed",
-                "message": _(
-                    "This install token is %(reason)s. Generate a fresh one in Voxbi "
-                    "Cockpit (user's settings page → Odoo installer tab → Odoo install "
-                    "tokens), paste it above, and click Try again."
-                ) % {"reason": reason},
-            })
-        else:
-            self.write({
-                "state": "failed",
-                "message": _("Register-install failed: %s") % reason,
-            })
-
+        self.write({
+            "state": "failed",
+            "message": _("Register-install failed: %s") % self._api_error_message(status, body),
+        })
         return True
 
     def action_refresh(self):
         self.ensure_one()
-        if not self.token_id:
-            raise UserError(_("Nothing to refresh yet."))
+        if not self.integration_id:
+            raise UserError(_("Nothing to refresh yet. Click Install first."))
 
-        url = f"{self._cockpit_base_url()}/api/v1/odoo-installer/install-status/{self.token_id}"
+        url = f"{self._cockpit_base_url()}/api/v1/odoo-installer/install-status"
         status, body = self._get_json(url)
 
+        if status == 404:
+            self.write({
+                "state": "failed",
+                "message": _(
+                    "Voxbi Cockpit has no integration registered for this API key yet. "
+                    "Click Install to register it."
+                ),
+            })
+            return True
+
         if status != 200:
-            self.write({"state": "failed", "message": f"Status check HTTP {status}"})
+            self.write({
+                "state": "failed",
+                "message": _("Status check failed: %s") % self._api_error_message(status, body),
+            })
             return True
 
         output_html = self._render_output_html(body.get("results") or [])
@@ -319,30 +388,34 @@ class VoxbiInstallerSetup(models.Model):
         return None
 
     def action_reset(self):
-        """Clear state so the user can paste a fresh token and try again."""
+        """Clear install state so the user can register again.
+
+        Keeps the (reusable, long-lived) Cockpit API key on the record — only
+        the consent and the per-install state are cleared.
+        """
         self.ensure_one()
         self.write({
             "state": "draft",
-            "install_token": False,
             "consent": False,
-            "token_id": False,
             "integration_id": False,
             "message": False,
+            "output_html": False,
         })
         return True
 
     def action_retry_with_fresh_credentials(self):
-        """Re-issue an Odoo API key and PATCH the existing integration.
+        """Re-issue an Odoo API key and update the existing integration.
 
-        Used when the install failed because crmapi could not authenticate
-        into Odoo (bad creds, expired key, wrong UID). The token_id stays the
-        same — we hit Voxbi Cockpit's `update-and-fix-integration` endpoint with a
-        freshly-minted key and flip the integration back to pending.
+        Used when the install failed because Cockpit could not authenticate
+        into Odoo (bad creds, expired key, wrong UID). We hit Cockpit's
+        `update-and-fix-integration` endpoint with a freshly-minted service key
+        and flip the integration back to pending. The endpoint derives the PBX
+        from the Bearer API key, so no id is sent.
         """
         self.ensure_one()
-        if not self.token_id:
+        if not self.integration_id:
             raise UserError(_(
-                "No integration linked to this wizard yet. Paste a token and click Install first."
+                "No integration registered yet. Paste your Cockpit API key and click Install first."
             ))
 
         base_url = self._cockpit_base_url()
@@ -357,7 +430,7 @@ class VoxbiInstallerSetup(models.Model):
         payload = {
             "odoo_url": self._odoo_self_url(),
             "odoo_db": self.env.cr.dbname,
-            "odoo_version": ODOO_VERSION,
+            "odoo_version": self._odoo_version(),
             "service_user": login,
             "service_key": api_key,
             "service_uid": int(self.env.user.id),
@@ -366,7 +439,7 @@ class VoxbiInstallerSetup(models.Model):
             "installer_module_version": MODULE_VERSION,
         }
 
-        url = f"{base_url}/api/v1/odoo-installer/update-and-fix-integration/{self.token_id}"
+        url = f"{base_url}/api/v1/odoo-installer/update-and-fix-integration"
         _logger.info("Voxbi installer: posting update-and-fix-integration to %s", url)
         status, body = self._post_json(url, payload)
 
@@ -381,39 +454,43 @@ class VoxbiInstallerSetup(models.Model):
         if status == 404:
             self.write({
                 "state": "draft",
-                "install_token": False,
-                "token_id": False,
                 "integration_id": False,
                 "message": _(
-                    "Cockpit no longer recognises this install. Paste a fresh token from "
-                    "Voxbi Cockpit and click Install."
+                    "Voxbi Cockpit no longer has an integration for this API key. "
+                    "Click Install to register it again."
                 ),
             })
             return True
 
-        reason = body.get("reason") or body.get("error") or f"HTTP {status}"
         self.write({
             "state": "failed",
-            "message": _("Credential refresh failed: %s") % reason,
+            "message": _("Credential refresh failed: %s") % self._api_error_message(status, body),
         })
         return True
 
     def action_fetch_integration(self):
-        """Pull the current integration state from cockpit (no secrets).
+        """Pull the current integration state from Cockpit (no secrets).
 
-        Useful after closing/reopening the wizard to confirm what cockpit
+        Useful after closing/reopening the wizard to confirm what Cockpit
         currently has on file for this install — what odoo_url / service_user
         / odoo_version it's holding, and whether the integration is active.
         """
         self.ensure_one()
-        if not self.token_id:
-            raise UserError(_("No install token on this record yet."))
+        if not self.integration_id:
+            raise UserError(_("No integration registered yet. Click Install first."))
 
-        url = f"{self._cockpit_base_url()}/api/v1/odoo-installer/get-integration/{self.token_id}"
+        url = f"{self._cockpit_base_url()}/api/v1/odoo-installer/get-integration"
         status, body = self._get_json(url)
 
+        if status == 404:
+            raise UserError(_(
+                "Voxbi Cockpit has no integration for this API key yet. Click Install first."
+            ))
         if status != 200:
-            raise UserError(_("Could not load integration from cockpit (HTTP %s).") % status)
+            raise UserError(
+                _("Could not load integration from Cockpit: %s")
+                % self._api_error_message(status, body)
+            )
 
         lines = [
             _("Integration: %s") % body.get("integration_id"),
@@ -425,7 +502,7 @@ class VoxbiInstallerSetup(models.Model):
             _("Job status: %s") % body.get("job_status"),
         ]
 
-        status_url = f"{self._cockpit_base_url()}/api/v1/odoo-installer/install-status/{self.token_id}"
+        status_url = f"{self._cockpit_base_url()}/api/v1/odoo-installer/install-status"
         status_code, status_body = self._get_json(status_url)
         output_html = False
         if status_code == 200:
@@ -447,8 +524,8 @@ class VoxbiInstallerSetup(models.Model):
         """
         rec = self.search([], order="id desc", limit=1)
 
-        # Stale "installing" rows with no token_id can't be refreshed; start fresh.
-        if not rec or (rec.state == "installing" and not rec.token_id):
+        # Stale "installing" rows that never registered can't be refreshed; start fresh.
+        if not rec or (rec.state == "installing" and not rec.integration_id):
             rec = self.create({})
 
         return {
@@ -460,4 +537,3 @@ class VoxbiInstallerSetup(models.Model):
             "view_id": self.env.ref("voxbi_installer.view_voxbi_installer_setup_form").id,
             "target": "current",
         }
-

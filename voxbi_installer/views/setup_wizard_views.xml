@@ -1,4 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright 2026 Mixvoip SA -->
+<!-- License LGPL-3 (https://www.gnu.org/licenses/lgpl-3.0.html). -->
 <odoo>
 
     <record id="view_voxbi_installer_setup_form" model="ir.ui.view">
@@ -26,9 +28,9 @@
                             string="Retry with refreshed credentials"
                             type="object"
                             class="btn-primary"
-                            invisible="state != 'failed' or not token_id"/>
+                            invisible="state != 'failed' or not integration_id"/>
                     <button name="action_reset"
-                            string="Try again with a new token"
+                            string="Reset"
                             type="object"
                             class="btn-secondary"
                             invisible="1"/>
@@ -40,23 +42,24 @@
                     </div>
                     <div class="alert alert-info" role="alert"
                          invisible="state in ('installing','done')">
-                        <h4 class="alert-heading">Get your Cockpit token</h4>
-                        <p class="mb-1">In <b>Voxbi Cockpit</b>, generate a single-use install token:</p>
+                        <h4 class="alert-heading">Get your Cockpit API key</h4>
+                        <p class="mb-1">In <b>Voxbi Cockpit</b>, create an API key for this PBX (once):</p>
                         <ol class="mb-0">
-                            <li>Go to <a href="https://cockpit.voxbi.com/admin/integration/create" target="_blank" rel="noopener">cockpit.voxbi.com/admin/integration/create</a>.</li>
-                            <li>Select <b>Odoo Installer</b> as the integration type.</li>
-                            <li>Click <b>Generate install token</b> and copy the <code>vxi_…</code> token — it is shown only once.</li>
+                            <li>Open <a href="https://cockpit.voxbi.com" target="_blank" rel="noopener">Voxbi Cockpit</a> → <b>Integrations</b> → <b>Add integration</b>.</li>
+                            <li>Set <b>Type</b> to <b>API key</b> and give it a name (e.g. <code>Odoo Installer</code>). Expiry is optional.</li>
+                            <li>Under <b>Scopes</b>, tick <b>“Is Odoo Installer”</b> (in the ODOO group).</li>
+                            <li><b>Save</b>, then copy the API key — it is shown like a password. Paste it below.</li>
                         </ol>
                     </div>
                     <group>
-                        <field name="install_token"
-                               string="Cockpit token"
+                        <field name="cockpit_api_key"
+                               string="Cockpit API key"
                                widget="masked_input"
-                               placeholder="vxi_…"
+                               placeholder="Paste your Cockpit API key…"
                                readonly="state == 'installing'"/>
                     </group>
                     <p class="text-muted" invisible="state in ('installing','done')">
-                        Paste the token from Voxbi Cockpit above. If the token has already been used, go back to Cockpit and click <b>Regenerate token</b>.
+                        The API key is reusable — paste it once. If install fails with an authorization error, re-check that the key has the <b>“Is Odoo Installer”</b> scope in Cockpit.
                     </p>
                     <div class="alert alert-info" role="alert"
                          invisible="state in ('installing','done')">
@@ -79,8 +82,7 @@
                         <field name="message" readonly="1" nolabel="1"/>
                     </div>
                     <widget name="voxbi_auto_refresh"/>
-                    <group string="Status" invisible="not token_id">
-                        <field name="token_id" widget="masked_text" readonly="1"/>
+                    <group string="Status" invisible="not integration_id">
                         <field name="integration_id" widget="masked_text" readonly="1"/>
                         <field name="message" readonly="1" invisible="state == 'failed'"/>
                     </group>

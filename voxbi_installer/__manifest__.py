@@ -1,13 +1,15 @@
+# Copyright 2026 Mixvoip SA
+# License LGPL-3 (https://www.gnu.org/licenses/lgpl-3.0.html).
 {
     "name": "Voxbi",
     "summary": "Connect this Odoo to Voxbi telephony.",
     "description": """
 Voxbi
 =====
-Paste a one-time install token from Voxbi Cockpit and click Install.
-This module hands off connection details to Voxbi Cockpit, which then
-installs and configures the full Voxbi telephony integration in this Odoo
-over XML-RPC.
+Paste your Voxbi Cockpit API key (a reusable Bearer key with the
+"Is Odoo Installer" scope) and click Install. This module hands off
+connection details to Voxbi Cockpit, which then installs and configures
+the full Voxbi telephony integration in this Odoo over XML-RPC.
 
 This module requires Voxbi Cockpit, an external service operated by
 Mixvoip SA, and an active Voxbi subscription. On install (with the
@@ -21,7 +23,7 @@ of data shared.
     "website": "https://voxbi.com",
     "support": "support@mixvoip.com",
     "category": "Telephony",
-    "version": "18.0.1.0.0",
+    "version": "18.0.2.0.0",
     "license": "LGPL-3",
     # Prerequisite apps for the Voxbi integration that Cockpit pushes over
     # XML-RPC: the integration touches res.partner, mail.message, crm.lead,
