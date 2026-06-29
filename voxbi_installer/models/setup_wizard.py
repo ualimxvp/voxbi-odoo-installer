@@ -4,6 +4,7 @@
 import json
 import logging
 import urllib.error
+import urllib.parse
 import urllib.request
 
 from odoo import _, api, fields, models, release
@@ -91,9 +92,20 @@ class VoxbiInstallerSetup(models.Model):
     # --- helpers ---------------------------------------------------------
 
     def _cockpit_base_url(self):
-        return self.env["ir.config_parameter"].sudo().get_param(
+        url = (self.env["ir.config_parameter"].sudo().get_param(
             "voxbi.cockpit_url", DEFAULT_COCKPIT_URL
-        ).rstrip("/")
+        ) or "").strip().rstrip("/")
+        # The Cockpit Bearer key and a freshly minted Odoo service key are sent
+        # to this host, so refuse anything that isn't a plain https:// URL. This
+        # blocks file://, http:// and SSRF to internal/metadata endpoints even
+        # if the system parameter is tampered with.
+        parsed = urllib.parse.urlparse(url)
+        if parsed.scheme != "https" or not parsed.netloc:
+            raise UserError(_(
+                "The Voxbi Cockpit URL (system parameter “voxbi.cockpit_url”) must "
+                "be a valid https:// URL. Current value: %s"
+            ) % (url or _("empty")))
+        return url
 
     def _odoo_self_url(self):
         return self.env["ir.config_parameter"].sudo().get_param("web.base.url", "")
