@@ -136,11 +136,14 @@ class VoxbiInstallerSetup(models.Model):
         `service_key`, distinct from the Cockpit Bearer API key.
         """
         user = self.env.user
-        # Wipe any prior keys for this scope so revocation/rotation is clean.
+        # Revoke only *our own* prior installer key (matched by name) so
+        # rotation is clean — never touch other "rpc"-scope keys the user may
+        # rely on for unrelated XML-RPC integrations.
         ApiKeys = self.env["res.users.apikeys"].sudo()
         prior = ApiKeys.search([
             ("user_id", "=", user.id),
             ("scope", "=", API_KEY_SCOPE),
+            ("name", "=", API_KEY_NAME),
         ])
         if prior:
             prior.unlink()
