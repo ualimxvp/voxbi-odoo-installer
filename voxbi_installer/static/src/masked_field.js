@@ -33,13 +33,13 @@ export class MaskedTextField extends Component {
     }
 }
 
-export const maskedTextField = {
-    component: MaskedTextField,
-    displayName: "Masked Text",
-    supportedTypes: ["char", "text"],
-};
+// Odoo 16 registers the Component class directly and reads the descriptor keys
+// as static members (displayName / supportedTypes / extractProps), unlike the
+// Odoo 17+ object-descriptor form ({ component, ... }).
+MaskedTextField.displayName = "Masked Text";
+MaskedTextField.supportedTypes = ["char", "text"];
 
-registry.category("fields").add("masked_text", maskedTextField);
+registry.category("fields").add("masked_text", MaskedTextField);
 
 // Editable char field rendered as a masked (password-style) input with an eye
 // toggle. Used for the Cockpit token so it isn't shown in cleartext by default,
@@ -68,11 +68,8 @@ export class MaskedInputField extends Component {
     }
 }
 
-export const maskedInputField = {
-    component: MaskedInputField,
-    displayName: "Masked Input",
-    supportedTypes: ["char"],
-    extractProps: ({ attrs }) => ({ placeholder: attrs.placeholder }),
-};
+MaskedInputField.displayName = "Masked Input";
+MaskedInputField.supportedTypes = ["char"];
+MaskedInputField.extractProps = ({ attrs }) => ({ placeholder: attrs.placeholder });
 
-registry.category("fields").add("masked_input", maskedInputField);
+registry.category("fields").add("masked_input", MaskedInputField);

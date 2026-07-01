@@ -29,16 +29,17 @@ noted below; only 18.0 is officially tested.
 | Odoo series | Edition        | Status                | Notes |
 |-------------|----------------|-----------------------|-------|
 | **18.0**    | Community & Enterprise | ✅ **Supported (target)** | Declared in the manifest; developed and tested against this release. |
-| **17.0**    | Community & Enterprise | ⚠️ **Source-compatible** | Uses the 17.0+ view expression syntax and the `res.users.apikeys._generate(scope, name, expiration_date)` signature. Should run after changing the manifest `version` series prefix to `17.0`. Not officially tested. |
-| **≤ 16.0**  | —              | ❌ **Not supported**   | The wizard views use Odoo 17.0+ attribute expressions (`invisible="state != 'draft'"`, `readonly="…"`). These series require the removed `attrs`/`states` syntax, so the views will not load. |
-| **19.0+**   | —              | ❓ **Untested**        | Not verified. Re-test the view syntax and the API-key generation signature before use. |
+| **16.0**    | Community & Enterprise | ✅ **Supported (this branch)** | The `16.0` branch is ported for Odoo 16: the wizard views use the legacy `attrs`/`states` domain syntax, the model overrides `name_get()`, the OWL field/widget JS uses the class-descriptor form, and `res.users.apikeys._generate(scope, name)` is called via the 2-argument fallback. |
+| **17.0 / 18.0** | Community & Enterprise | ↗️ **On their own branches** | The modern view expression syntax (`invisible="state != 'draft'"`), object-descriptor OWL fields, and the 3-argument `_generate(scope, name, expiration_date)` signature live on the `17.0` / `18.0` branches. Do not run this `16.0` branch on 17.0+. |
+| **≤ 15.0**  | —              | ❓ **Untested**        | Not verified. Re-test the view syntax, OWL APIs, and API-key generation before use. |
 
-**Why the cutoff is 17.0:** Odoo 17.0 removed the legacy `attrs`/`states` view
-attributes in favor of direct Python expressions (`invisible="…"`,
-`readonly="…"`), and changed `res.users.apikeys._generate` to require an
-`expiration_date` argument. This module targets the modern syntax/signature;
-the API-key generation includes a fallback for the older 2-argument form, but
-the views remain the hard floor at 17.0.
+**Why 16.0 is its own branch:** Odoo 17.0 removed the legacy `attrs`/`states`
+view attributes in favor of direct Python expressions (`invisible="…"`,
+`readonly="…"`), switched OWL field/widget registration to the object-descriptor
+form, and changed `res.users.apikeys._generate` to require an `expiration_date`
+argument. Odoo 16 uses the older `attrs`/`states` syntax, the class-descriptor
+OWL form, and the 2-argument `_generate`. Rather than one module straddle both,
+each Odoo series is maintained on its own branch.
 
 > The integration that Voxbi Cockpit provisions over XML-RPC touches standard
 > models (`res.partner`, `mail.message`, `crm.lead`, `project.task`, and

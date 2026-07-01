@@ -53,8 +53,7 @@ export class VoxbiAutoRefresh extends Component {
     }
 }
 
-export const voxbiAutoRefresh = {
-    component: VoxbiAutoRefresh,
-};
-
-registry.category("view_widgets").add("voxbi_auto_refresh", voxbiAutoRefresh);
+// Odoo 16 registers the widget Component class directly in "view_widgets" and
+// reads extractProps as a static on the class, unlike the Odoo 17+ object form
+// ({ component: ... }).
+registry.category("view_widgets").add("voxbi_auto_refresh", VoxbiAutoRefresh);

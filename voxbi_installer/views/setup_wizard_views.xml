@@ -13,22 +13,22 @@
                             string="Install"
                             type="object"
                             class="btn-primary"
-                            invisible="state != 'draft'"/>
+                            attrs="{'invisible': [('state', '!=', 'draft')]}"/>
                     <button name="action_install"
                             string="Re-install"
                             type="object"
                             class="btn-primary"
-                            invisible="state != 'done'"/>
+                            attrs="{'invisible': [('state', '!=', 'done')]}"/>
                     <button name="action_install"
                             string="Try again"
                             type="object"
                             class="btn-primary"
-                            invisible="state != 'failed'"/>
+                            attrs="{'invisible': [('state', '!=', 'failed')]}"/>
                     <button name="action_retry_with_fresh_credentials"
                             string="Retry with refreshed credentials"
                             type="object"
                             class="btn-primary"
-                            invisible="state != 'failed' or not integration_id"/>
+                            attrs="{'invisible': ['|', ('state', '!=', 'failed'), ('integration_id', '=', False)]}"/>
                     <button name="action_reset"
                             string="Reset"
                             type="object"
@@ -41,7 +41,7 @@
                         <h1 style="color:#8D3D8A;">Set up Voxbi telephony in Odoo</h1>
                     </div>
                     <div class="alert alert-info" role="alert"
-                         invisible="state in ('installing','done')">
+                         attrs="{'invisible': [('state', 'in', ('installing', 'done'))]}">
                         <h4 class="alert-heading">Get your Cockpit API key</h4>
                         <p class="mb-1">In <b>Voxbi Cockpit</b>, create an API key for this PBX (once):</p>
                         <ol class="mb-0">
@@ -56,13 +56,13 @@
                                string="Cockpit API key"
                                widget="masked_input"
                                placeholder="Paste your Cockpit API key…"
-                               readonly="state == 'installing'"/>
+                               attrs="{'readonly': [('state', '=', 'installing')]}"/>
                     </group>
-                    <p class="text-muted" invisible="state in ('installing','done')">
+                    <p class="text-muted" attrs="{'invisible': [('state', 'in', ('installing', 'done'))]}">
                         The API key is reusable — paste it once. If install fails with an authorization error, re-check that the key has the <b>“Is Odoo Installer”</b> scope in Cockpit.
                     </p>
                     <div class="alert alert-info" role="alert"
-                         invisible="state in ('installing','done')">
+                         attrs="{'invisible': [('state', 'in', ('installing', 'done'))]}">
                         <h4 class="alert-heading">Data shared with Voxbi Cockpit</h4>
                         <p>
                             Installing generates an Odoo API key for your user and sends it —
@@ -73,20 +73,20 @@
                         </p>
                     </div>
                     <div class="d-flex align-items-center gap-2 mb-3"
-                         invisible="state in ('installing','done')">
+                         attrs="{'invisible': [('state', 'in', ('installing', 'done'))]}">
                         <field name="consent" nolabel="1"/>
                         <label for="consent" class="o_form_label m-0">I authorize Voxbi to configure this Odoo</label>
                     </div>
-                    <div class="alert alert-danger" role="alert" invisible="state != 'failed'">
+                    <div class="alert alert-danger" role="alert" attrs="{'invisible': [('state', '!=', 'failed')]}">
                         <h4 class="alert-heading">Install failed</h4>
                         <field name="message" readonly="1" nolabel="1"/>
                     </div>
                     <widget name="voxbi_auto_refresh"/>
-                    <group string="Status" invisible="not integration_id">
+                    <group string="Status" attrs="{'invisible': [('integration_id', '=', False)]}">
                         <field name="integration_id" widget="masked_text" readonly="1"/>
-                        <field name="message" readonly="1" invisible="state == 'failed'"/>
+                        <field name="message" readonly="1" attrs="{'invisible': [('state', '=', 'failed')]}"/>
                     </group>
-                    <group string="Output" invisible="not output_html">
+                    <group string="Output" attrs="{'invisible': [('output_html', '=', False)]}">
                         <field name="output_html" nolabel="1" readonly="1"/>
                     </group>
                 </sheet>

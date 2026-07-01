@@ -82,12 +82,12 @@ class VoxbiInstallerSetup(models.Model):
         sanitize_style=True,
     )
 
-    @api.depends("state")
-    def _compute_display_name(self):
+    def name_get(self):
         # Without a name/_rec_name the breadcrumb falls back to "model,id"
         # (e.g. "voxbi.installer.setup,1"). Give it a stable human label.
-        for record in self:
-            record.display_name = _("Voxbi Setup")
+        # Odoo 16 derives display_name from name_get (see _compute_display_name),
+        # so overriding name_get is the idiomatic way to customise it here.
+        return [(record.id, _("Voxbi Setup")) for record in self]
 
     # --- helpers ---------------------------------------------------------
 
