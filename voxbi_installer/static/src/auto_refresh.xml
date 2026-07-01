@@ -2,7 +2,7 @@
 <!-- Copyright 2026 Mixvoip SA -->
 <!-- License LGPL-3 (https://www.gnu.org/licenses/lgpl-3.0.html). -->
 <templates xml:space="preserve">
-    <t t-name="voxbi_installer.AutoRefresh">
+    <t t-name="voxbi_installer.AutoRefresh" owl="1">
         <span class="o_voxbi_auto_refresh"/>
     </t>
 </templates>
