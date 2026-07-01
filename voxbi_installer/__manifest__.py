@@ -45,6 +45,7 @@ of data shared.
     ],
     "assets": {
         "web.assets_backend": [
+            "voxbi_installer/static/src/output_log.css",
             "voxbi_installer/static/src/auto_refresh.js",
             "voxbi_installer/static/src/auto_refresh.xml",
             "voxbi_installer/static/src/masked_field.js",

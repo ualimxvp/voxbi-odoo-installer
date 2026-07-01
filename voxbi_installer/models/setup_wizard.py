@@ -380,13 +380,11 @@ class VoxbiInstallerSetup(models.Model):
         if not lines:
             return False
 
+        # Container styling lives in the .o_voxbi_output class (output_log.css)
+        # rather than inline: Odoo 16's Html-field sanitizer strips background,
+        # overflow and max-height from inline styles, but keeps class names.
         body = "".join(lines)
-        return (
-            '<div style="background:#0b0b0b;color:#e5e7eb;padding:12px;'
-            'border-radius:6px;font-family:ui-monospace,Menlo,Consolas,monospace;'
-            'font-size:12px;max-height:480px;overflow:auto">'
-            f'{body}</div>'
-        )
+        return f'<div class="o_voxbi_output">{body}</div>'
 
     @staticmethod
     def _last_error_line(body):

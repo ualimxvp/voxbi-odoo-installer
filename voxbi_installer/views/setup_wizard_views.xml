@@ -86,9 +86,10 @@
                         <field name="integration_id" widget="masked_text" readonly="1"/>
                         <field name="message" readonly="1" attrs="{'invisible': [('state', '=', 'failed')]}"/>
                     </group>
-                    <group string="Output" attrs="{'invisible': [('output_html', '=', False)]}">
+                    <div class="o_voxbi_output_wrap" attrs="{'invisible': [('output_html', '=', False)]}">
+                        <separator string="Output"/>
                         <field name="output_html" nolabel="1" readonly="1"/>
-                    </group>
+                    </div>
                 </sheet>
             </form>
         </field>
