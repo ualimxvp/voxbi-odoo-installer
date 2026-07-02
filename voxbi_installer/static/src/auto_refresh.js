@@ -40,8 +40,11 @@ export class VoxbiAutoRefresh extends Component {
         try {
             await this.orm.call("voxbi.installer.setup", "action_refresh", [[resId]]);
             // Re-read the record from the server so the Status fields and the
-            // Output log reflect the latest cockpit response.
+            // Output log reflect the latest cockpit response. On Odoo 16
+            // record.load() only refetches — the view re-renders on
+            // model.notify() (17+ merged the notify into load()).
             await this.props.record.load();
+            this.props.record.model.notify();
         } catch {
             // On any error (network, server) stop auto-polling; the manual
             // "Refresh status" button stays available as a fallback.
