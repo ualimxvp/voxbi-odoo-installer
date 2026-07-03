@@ -20,7 +20,7 @@ DEFAULT_COCKPIT_URL = "https://cockpit.voxbi.com"
 API_KEY_SCOPE = "rpc"
 API_KEY_NAME = "Voxbi installer"
 # Version of *this* installer module, sent to Cockpit purely for diagnostics.
-MODULE_VERSION = "2.0.0"
+MODULE_VERSION = "2.1.0"
 
 
 class VoxbiInstallerSetup(models.Model):
@@ -326,6 +326,9 @@ class VoxbiInstallerSetup(models.Model):
                 "message": _("Voxbi installed successfully."),
                 "output_html": output_html,
             })
+            # Cockpit has provisioned its own Voxbi menu by now — merge ours
+            # into it so the user is not left with two "Voxbi" root menus.
+            self._reconcile_voxbi_menus()
         elif remote_status == "failed":
             self.write({
                 "state": "failed",
@@ -416,6 +419,9 @@ class VoxbiInstallerSetup(models.Model):
             "message": False,
             "output_html": False,
         })
+        # If the provisioned integration (and its menu) is gone, this brings
+        # the module's own root menu back so the wizard stays reachable.
+        self._reconcile_voxbi_menus()
         return True
 
     def action_retry_with_fresh_credentials(self):
@@ -543,6 +549,10 @@ class VoxbiInstallerSetup(models.Model):
         if not rec or (rec.state == "installing" and not rec.integration_id):
             rec = self.create({})
 
+        # Safety net for provisioning that finished while the wizard was
+        # closed (the auto-refresh only polls while the form is open).
+        self._reconcile_voxbi_menus()
+
         return {
             "type": "ir.actions.act_window",
             "name": _("Voxbi Configuration"),
@@ -552,3 +562,45 @@ class VoxbiInstallerSetup(models.Model):
             "view_id": self.env.ref("voxbi_installer.view_voxbi_installer_setup_form").id,
             "target": "current",
         }
+
+    # --- menu reconciliation ----------------------------------------------
+
+    @api.model
+    def _reconcile_voxbi_menus(self):
+        """Keep a single "Voxbi" root menu.
+
+        Cockpit's provisioning creates its own root "Voxbi" menu (call list,
+        dashboards, …). Once that exists, the module's own root menu is
+        redundant: hide it and hang the Configuration entry under Cockpit's
+        menu instead. Without a provisioned menu, restore the module's root.
+
+        Idempotent. Called from a <function/> tag in the module data — i.e. on
+        every install/upgrade/reinstall, right after menu.xml has re-rooted
+        the menus — and again when an install round-trip completes, so a
+        duplicate "Voxbi" root never survives.
+        """
+        root = self.env.ref("voxbi_installer.menu_voxbi_root", raise_if_not_found=False)
+        setup = self.env.ref("voxbi_installer.menu_voxbi_setup", raise_if_not_found=False)
+        if not root or not setup:
+            return
+        # full_list bypasses ir.ui.menu's visibility filtering (which hides
+        # action-less/childless menus from search on Odoo <= 18).
+        Menu = self.env["ir.ui.menu"].sudo().with_context(**{"ir.ui.menu.full_list": True})
+        cockpit_root = Menu.search(
+            [
+                ("id", "!=", root.id),
+                ("parent_id", "=", False),
+                ("name", "=ilike", "voxbi"),
+            ],
+            limit=1,
+        )
+        if cockpit_root:
+            if setup.parent_id != cockpit_root:
+                setup.sudo().write({"parent_id": cockpit_root.id, "sequence": 100})
+            if root.active:
+                root.sudo().write({"active": False})
+        else:
+            if not root.active:
+                root.sudo().write({"active": True})
+            if setup.parent_id != root:
+                setup.sudo().write({"parent_id": root.id})
