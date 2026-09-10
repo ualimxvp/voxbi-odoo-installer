@@ -82,9 +82,11 @@ class VoxbiConnectController(http.Controller):
 
         base_url = Setup._cockpit_base_url()
         try:
+            # Cockpit binds the code to the redirect_uri it was issued for and
+            # validates it as required, so it has to be sent back verbatim.
             response = requests.post(
                 f"{base_url}{TOKEN_PATH}",
-                json={"code": code},
+                json={"code": code, "redirect_uri": Setup._connect_redirect_uri()},
                 timeout=REQUEST_TIMEOUT,
             )
         except requests.RequestException:
@@ -111,7 +113,8 @@ class VoxbiConnectController(http.Controller):
             )) from None
 
         api_key = body.get("api_key")
-        cockpit_url = body.get("cockpit_url")
+        # Cockpit names this cockpit_base_url in its token response.
+        cockpit_url = body.get("cockpit_base_url")
         pbx_id = body.get("pbx_id")
         if not api_key or not cockpit_url:
             _logger.warning(
