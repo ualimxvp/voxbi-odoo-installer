@@ -74,7 +74,9 @@ class TestConnect(VoxbiConnectorCase):
         response = mock.Mock(status_code=200)
         response.json.return_value = {
             "api_key": "plaintext-key",
-            "cockpit_url": "https://cockpit.test",
+            # Cockpit's own key name; asserting the real one keeps the two
+            # halves of this flow from drifting apart again.
+            "cockpit_base_url": "https://cockpit.test",
             "pbx_id": "42",
         }
         with mock.patch(PATCH, return_value=response) as post:
@@ -82,6 +84,11 @@ class TestConnect(VoxbiConnectorCase):
                 self.env(user=self.admin), state, "auth-code"
             )
         post.assert_called_once()
+        # Cockpit binds the code to the redirect_uri and validates it as
+        # required, so the exchange must send it back.
+        sent = post.call_args.kwargs["json"]
+        self.assertEqual(sent["code"], "auth-code")
+        self.assertTrue(sent["redirect_uri"].endswith("/voxbi/connect/callback"))
 
         backend = self.env["voxbi.backend"].sudo().search(
             [("api_key", "=", "plaintext-key")]
