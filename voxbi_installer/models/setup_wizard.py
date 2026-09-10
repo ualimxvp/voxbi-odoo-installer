@@ -3,9 +3,11 @@
 
 import json
 import logging
+import secrets
 import urllib.error
 import urllib.parse
 import urllib.request
+from datetime import timedelta
 
 from odoo import _, api, fields, models, release
 from odoo.exceptions import UserError
@@ -21,6 +23,18 @@ API_KEY_SCOPE = "rpc"
 API_KEY_NAME = "Voxbi installer"
 # Version of *this* installer module, sent to Cockpit purely for diagnostics.
 MODULE_VERSION = "2.1.0"
+
+# --- Cockpit connect (authorization-code) flow ----------------------------
+# This sits alongside the older paste-a-key install flow above. Both talk to
+# the same Cockpit, via DEFAULT_COCKPIT_URL / the "voxbi.cockpit_url"
+# override. There is deliberately no second way to configure which Cockpit
+# to use.
+CONNECT_AUTHORIZE_PATH = "/odoo-connect/authorize"
+CONNECT_CALLBACK_PATH = "/voxbi/connect/callback"
+# Per-state ir.config_parameter key. Not stored in the session: the browser
+# leaves and comes back on a different request once Cockpit redirects here.
+CONNECT_STATE_PARAM_PREFIX = "voxbi.connect.state."
+CONNECT_STATE_TTL_MINUTES = 10
 
 
 class VoxbiInstallerSetup(models.Model):
@@ -562,6 +576,72 @@ class VoxbiInstallerSetup(models.Model):
             "view_id": self.env.ref("voxbi_installer.view_voxbi_installer_setup_form").id,
             "target": "current",
         }
+
+    # --- Cockpit connect (authorization-code) flow ------------------------
+
+    def action_connect_cockpit(self):
+        """Return an act_url sending the browser to Cockpit's consent screen.
+
+        This method itself never calls Cockpit; Odoo only builds the URL.
+        Cockpit is reached solely by the customer's own browser following
+        this redirect, and it is the browser that comes back to
+        /voxbi/connect/callback afterwards.
+        """
+        self.ensure_one()
+        base_url = self._cockpit_base_url()
+        query = urllib.parse.urlencode({
+            "state": self._create_connect_state(),
+            "redirect_uri": self._connect_redirect_uri(),
+        })
+        return {
+            "type": "ir.actions.act_url",
+            "url": f"{base_url}{CONNECT_AUTHORIZE_PATH}?{query}",
+            "target": "self",
+        }
+
+    @api.model
+    def _connect_redirect_uri(self):
+        return self._odoo_self_url().rstrip("/") + CONNECT_CALLBACK_PATH
+
+    @api.model
+    def _create_connect_state(self):
+        """Mint a single-use, time-boxed OAuth state token.
+
+        32 bytes of randomness, stored server side (not in the session) as an
+        ir.config_parameter keyed per-state, so it survives the round trip
+        through Cockpit. Consumed exactly once by `_consume_connect_state`.
+        """
+        state = secrets.token_urlsafe(32)
+        expires_at = fields.Datetime.now() + timedelta(minutes=CONNECT_STATE_TTL_MINUTES)
+        self.env["ir.config_parameter"].sudo().set_param(
+            CONNECT_STATE_PARAM_PREFIX + state,
+            json.dumps({"expires_at": fields.Datetime.to_string(expires_at)}),
+        )
+        return state
+
+    @api.model
+    def _consume_connect_state(self, state):
+        """Validate a state token and consume it so it can never be reused.
+
+        Returns True only for a state that is known and not yet expired. The
+        stored parameter is deleted the moment it is looked up, whether it
+        turns out to still be valid or already expired, so a replay of the
+        same state always fails.
+        """
+        if not state:
+            return False
+        key = CONNECT_STATE_PARAM_PREFIX + state
+        ICP = self.env["ir.config_parameter"].sudo()
+        raw = ICP.get_param(key)
+        if not raw:
+            return False
+        ICP.set_param(key, False)
+        try:
+            data = json.loads(raw)
+            expires_at = fields.Datetime.from_string(data["expires_at"])
+        except (ValueError, KeyError, TypeError):
+            return False
+        return fields.Datetime.now() <= expires_at
 
     # --- menu reconciliation ----------------------------------------------
 
