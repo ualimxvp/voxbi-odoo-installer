@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="voxbi_call_list" model="ir.ui.view">
+        <field name="name">voxbi.call.list</field>
+        <field name="model">voxbi.call</field>
+        <field name="arch" type="xml">
+            <list string="Calls">
+                <field name="started_at"/>
+                <field name="direction"/>
+                <field name="phone"/>
+                <field name="partner_id"/>
+                <field name="duration"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="voxbi_call_form" model="ir.ui.view">
+        <field name="name">voxbi.call.form</field>
+        <field name="model">voxbi.call</field>
+        <field name="arch" type="xml">
+            <form string="Call">
+                <sheet>
+                    <group>
+                        <group>
+                            <field name="phone"/>
+                            <field name="contact_name"/>
+                            <field name="contact_email"/>
+                            <field name="partner_id"/>
+                            <field name="direction"/>
+                        </group>
+                        <group>
+                            <field name="started_at"/>
+                            <field name="ended_at"/>
+                            <field name="duration"/>
+                            <field name="billsec"/>
+                        </group>
+                    </group>
+                    <notebook>
+                        <page string="Participants">
+                            <field name="participant_ids">
+                                <list>
+                                    <field name="name"/>
+                                    <field name="phone"/>
+                                    <field name="email"/>
+                                    <field name="internal"/>
+                                </list>
+                            </field>
+                        </page>
+                        <page string="Transcription">
+                            <field name="transcription"/>
+                        </page>
+                        <page string="Summary">
+                            <field name="summary"/>
+                            <field name="translation"/>
+                            <field name="keywords"/>
+                            <field name="ai_categories"/>
+                        </page>
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_voxbi_call" model="ir.actions.act_window">
+        <field name="name">Calls</field>
+        <field name="res_model">voxbi.call</field>
+        <field name="view_mode">list,form</field>
+    </record>
+</odoo>
