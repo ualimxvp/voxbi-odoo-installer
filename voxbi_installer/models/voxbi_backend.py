@@ -71,6 +71,28 @@ class VoxbiBackend(models.Model):
                 self.env._("The Cockpit URL must start with https://")
             )
 
+    @api.model
+    def _connect_upsert(self, cockpit_url, api_key, pbx_id=None):
+        """Create or update the single backend record from a Cockpit connect callback.
+
+        Exactly one backend exists per Odoo instance: connecting again
+        replaces its credentials in place rather than creating a duplicate.
+        Callers are expected to already hold sudo, since the connecting user
+        is not necessarily in group_voxbi_manager.
+        """
+        backend = self.sudo().search([], limit=1, order="id asc")
+        name = (
+            self.env._("Voxbi Cockpit (PBX %(pbx_id)s)", pbx_id=pbx_id)
+            if pbx_id
+            else self.env._("Voxbi Cockpit")
+        )
+        vals = {"name": name, "cockpit_url": cockpit_url, "api_key": api_key}
+        if backend:
+            backend.sudo().write(vals)
+        else:
+            backend = self.sudo().create(vals)
+        return backend
+
     def run_incremental_sync(self):
         """Pull everything changed since the cursor. Errors are recorded, not raised.
 
