@@ -23,7 +23,7 @@ of data shared.
     "website": "https://voxbi.com",
     "support": "support@mixvoip.com",
     "category": "Telephony",
-    "version": "18.0.2.1.0",
+    "version": "18.0.3.0.0",
     "license": "LGPL-3",
     # Prerequisite apps for the Voxbi integration that Cockpit pushes over
     # XML-RPC: the integration touches res.partner, mail.message, crm.lead,
@@ -39,10 +39,15 @@ of data shared.
     #   - web_studio  : design-time only; x_ models run without the editor
     "depends": ["base", "web", "mail", "account", "sales_team", "crm", "project"],
     "data": [
+        "security/voxbi_security.xml",
         "security/ir.model.access.csv",
+        "security/voxbi_record_rules.xml",
         "views/setup_wizard_views.xml",
+        "views/voxbi_backend_views.xml",
+        "views/voxbi_call_views.xml",
         "views/menu.xml",
         "data/reconcile_menus.xml",
+        "data/ir_cron.xml",
     ],
     "assets": {
         "web.assets_backend": [
