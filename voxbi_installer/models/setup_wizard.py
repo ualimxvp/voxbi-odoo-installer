@@ -21,6 +21,16 @@ DEFAULT_COCKPIT_URL = "https://cockpit.voxbi.com"
 # in res.users.apikeys looks for when authenticating XML-RPC requests.
 API_KEY_SCOPE = "rpc"
 API_KEY_NAME = "Voxbi installer"
+# The ongoing sync authenticates as a NON-admin user with its own key, so an
+# admin credential never has to outlive the install. Kept under its own name
+# so rotating one never touches the other.
+SYNC_API_KEY_NAME = "Voxbi sync"
+# Canonical home for the choice. An ir.config_parameter is readable over
+# XML-RPC and exists whether or not this module is installed, so the RPC
+# installer can read it back without depending on this model.
+SYNC_USER_PARAM = "voxbi.sync_user_id"
+# Login for the user action_create_sync_user() provisions.
+SYNC_USER_LOGIN = "voxbi.sync"
 # Version of *this* installer module, sent to Cockpit purely for diagnostics.
 MODULE_VERSION = "2.1.0"
 
@@ -51,6 +61,23 @@ class VoxbiInstallerSetup(models.Model):
         "integration → API key) with the “Is Odoo Installer” scope. It is reusable "
         "and long-lived; the module sends it as a Bearer token on every request to "
         "Cockpit. Treat it like a password.",
+    )
+    sync_user_id = fields.Many2one(
+        "res.users",
+        string="Sync user",
+        domain="[('id', 'in', allowed_sync_user_ids)]",
+        help="The Odoo user Voxbi authenticates as for the ongoing call sync. "
+        "Deliberately not an administrator: this credential is long-lived, "
+        "unlike the install credential, which is discarded once setup succeeds.",
+    )
+    allowed_sync_user_ids = fields.Many2many(
+        "res.users",
+        compute="_compute_allowed_sync_user_ids",
+        help="Internal, non-administrator users. Drives the sync user domain.",
+    )
+    has_sync_user_candidates = fields.Boolean(
+        compute="_compute_allowed_sync_user_ids",
+        help="False on a fresh Odoo whose only user is the administrator.",
     )
     consent = fields.Boolean(
         string="I authorize Voxbi to configure this Odoo",
@@ -95,6 +122,49 @@ class VoxbiInstallerSetup(models.Model):
         sanitize_attributes=True,
         sanitize_style=True,
     )
+
+    @api.depends_context("uid")
+    def _compute_allowed_sync_user_ids(self):
+        """Internal users that are not administrators.
+
+        Excluded by GROUP rather than by login: "admin" is a login, not a
+        privilege level, and a customer may well have several system users.
+        Portal/public accounts (share=True) cannot hold an rpc key at all.
+        """
+        admin_ids = set(self.env.ref("base.group_system").sudo().users.ids)
+        candidates = self.env["res.users"].sudo().search([
+            ("share", "=", False),
+            ("active", "=", True),
+        ])
+        allowed = candidates.filtered(lambda u: u.id not in admin_ids)
+        for record in self:
+            record.allowed_sync_user_ids = allowed
+            record.has_sync_user_candidates = bool(allowed)
+
+    def action_create_sync_user(self):
+        """Create a dedicated, non-admin user for the sync to authenticate as.
+
+        A brand new Odoo has only the administrator, so the dropdown would be
+        empty and the flow would dead-end on exactly the instance where this
+        matters most. A plain internal user is enough here: the Voxbi groups it
+        needs are granted later by the RPC installer, which is the only side
+        that knows what those groups are.
+        """
+        self.ensure_one()
+        existing = self.env["res.users"].sudo().search(
+            [("login", "=", SYNC_USER_LOGIN)], limit=1
+        )
+        if existing:
+            if not existing.active:
+                existing.active = True
+            self.sync_user_id = existing
+            return
+
+        self.sync_user_id = self.env["res.users"].sudo().create({
+            "name": "Voxbi Sync",
+            "login": SYNC_USER_LOGIN,
+            "groups_id": [(6, 0, [self.env.ref("base.group_user").id])],
+        })
 
     def name_get(self):
         # Without a name/_rec_name the breadcrumb falls back to "model,id"
@@ -163,6 +233,49 @@ class VoxbiInstallerSetup(models.Model):
             prior.unlink()
 
         plaintext = self._generate_api_key(API_KEY_SCOPE, API_KEY_NAME)
+        return user.login, plaintext
+
+    def _issue_api_key_for_sync_user(self):
+        """Mint a persistent Odoo API key that BELONGS to the chosen sync user.
+
+        `res.users.apikeys._generate` writes `self.env.user.id` and takes no
+        user argument, so the only way to mint for someone else is to change
+        env.user: `with_user(target)`. sudo() is then required and keeps that
+        uid (it sets su=True rather than switching to superuser), which is what
+        lets a non-admin hold a key with no expiry -- without it Odoo refuses,
+        since a plain internal user's group caps the duration.
+
+        Verified against Odoo 18 and 19.
+
+        Returns (login, plaintext) or (None, None) when no sync user is set.
+        """
+        self.ensure_one()
+        user = self.sync_user_id
+        if not user:
+            return None, None
+
+        ApiKeys = self.env["res.users.apikeys"].sudo()
+        # Replace only OUR key for this user, matched by name, so re-running
+        # setup rotates rather than accumulates and other rpc keys are safe.
+        prior = ApiKeys.search([
+            ("user_id", "=", user.id),
+            ("scope", "=", API_KEY_SCOPE),
+            ("name", "=", SYNC_API_KEY_NAME),
+        ])
+        if prior:
+            prior.unlink()
+
+        keys_as_user = self.env["res.users.apikeys"].with_user(user).sudo()
+        try:
+            plaintext = keys_as_user._generate(API_KEY_SCOPE, SYNC_API_KEY_NAME, False)
+        except TypeError:
+            plaintext = keys_as_user._generate(API_KEY_SCOPE, SYNC_API_KEY_NAME)
+
+        # Recorded where the RPC installer can read it back without this model.
+        self.env["ir.config_parameter"].sudo().set_param(
+            SYNC_USER_PARAM, str(user.id)
+        )
+
         return user.login, plaintext
 
     def _generate_api_key(self, scope, name):
@@ -275,6 +388,17 @@ class VoxbiInstallerSetup(models.Model):
                 "Could not generate an Odoo API key for the current user: %s"
             ) % e)
 
+        # The credential the ONGOING sync will use. Minted for the chosen
+        # non-admin user, and sent alongside the admin one so Cockpit can keep
+        # the two apart: the admin key is discarded once this install succeeds,
+        # this one is kept.
+        try:
+            sync_login, sync_api_key = self._issue_api_key_for_sync_user()
+        except Exception as e:
+            raise UserError(_(
+                "Could not generate an Odoo API key for the sync user: %s"
+            ) % e)
+
         payload = {
             "odoo_url": self._odoo_self_url(),
             "odoo_db": self.env.cr.dbname,
@@ -285,6 +409,17 @@ class VoxbiInstallerSetup(models.Model):
             "sync_sip_configurations": bool(self.sync_sip_configurations),
             "is_active": bool(self.is_active),
             "installer_module_version": MODULE_VERSION,
+            # Omitted entirely when no sync user was chosen, so an older
+            # Cockpit that does not know these keys is unaffected.
+            **(
+                {
+                    "sync_user": sync_login,
+                    "sync_key": sync_api_key,
+                    "sync_uid": int(self.sync_user_id.id),
+                }
+                if sync_login
+                else {}
+            ),
         }
 
         url = f"{base_url}/api/v1/odoo-installer/register-install"
