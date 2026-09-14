@@ -65,6 +65,34 @@
                     <p class="text-muted" invisible="state in ('installing','done')">
                         The API key is reusable — paste it once. If install fails with an authorization error, re-check that the key has the <b>“Is Odoo Installer”</b> scope in Cockpit.
                     </p>
+                    <!-- Sync user. The install runs as the administrator filling in
+                         this form; the ONGOING sync must not, so it authenticates as
+                         this user with its own long-lived key. Administrators are
+                         excluded from the dropdown by group, not by login name. -->
+                    <group string="Sync user" invisible="state in ('installing','done')">
+                        <field name="allowed_sync_user_ids" invisible="1"/>
+                        <field name="has_sync_user_candidates" invisible="1"/>
+                        <field name="sync_user_id"
+                               string="Sync as"
+                               options="{'no_create': True, 'no_open': True}"
+                               invisible="not has_sync_user_candidates"
+                               placeholder="Choose a non-administrator user…"/>
+                        <div colspan="2" invisible="has_sync_user_candidates">
+                            <p class="text-muted mb-2">
+                                This database has no non-administrator user yet. Voxbi can
+                                create a dedicated one to sync as, so the ongoing sync never
+                                runs on an administrator's credentials.
+                            </p>
+                            <button name="action_create_sync_user"
+                                    string="Create a Voxbi sync user"
+                                    type="object"
+                                    class="btn-secondary"/>
+                        </div>
+                    </group>
+                    <p class="text-muted" invisible="state in ('installing','done') or not sync_user_id">
+                        Voxbi will generate an API key for this user. The key you paste above is
+                        used only to install, and is discarded once setup completes.
+                    </p>
                     <div class="alert alert-info" role="alert"
                          invisible="state in ('installing','done')">
                         <h4 class="alert-heading">Data shared with Voxbi Cockpit</h4>
