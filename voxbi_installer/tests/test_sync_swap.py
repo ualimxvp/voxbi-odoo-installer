@@ -34,3 +34,33 @@ class TestSyncSwap(TransactionCase):
             self.setup._swap_to_sync_user()
             self.setup._swap_to_sync_user()
         self.assertEqual(post.call_count, 1)
+
+    def test_failed_swap_leaves_the_flag_false(self):
+        with patch.object(
+            type(self.setup), "_post_json", return_value=(500, {"error": "boom"})
+        ):
+            self.setup._swap_to_sync_user()
+        self.assertFalse(self.setup.sync_user_swapped)
+
+    def test_reopening_setup_retries_a_failed_swap(self):
+        """Opening the wizard again is the recovery path for a failed handoff.
+
+        Once state is "done" the frontend stops polling action_refresh, so a
+        swap that failed at that moment would otherwise never be retried.
+        action_open_setup runs every time the wizard is opened, so it must
+        pick the failed swap back up.
+        """
+        self.setup.write({"state": "done", "integration_id": "123"})
+
+        with patch.object(
+            type(self.setup), "_post_json", return_value=(500, {"error": "boom"})
+        ):
+            self.setup._swap_to_sync_user()
+        self.assertFalse(self.setup.sync_user_swapped)
+
+        with patch.object(
+            type(self.setup), "_post_json", return_value=(200, {"status": "ok"})
+        ) as post:
+            self.env["voxbi.installer.setup"].action_open_setup()
+        self.assertEqual(post.call_count, 1)
+        self.assertTrue(self.setup.sync_user_swapped)

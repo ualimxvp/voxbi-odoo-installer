@@ -485,9 +485,20 @@ class VoxbiInstallerSetup(models.Model):
         # Cockpit Integration.job_status: pending | processing | success | failed
         if remote_status == "success":
             self._swap_to_sync_user()
+            message = _("Voxbi installed successfully.")
+            if self.sync_user_id and not self.sync_user_swapped:
+                # The install itself succeeded; only the handoff of the sync
+                # credential failed (Cockpit briefly unreachable, etc). Say so
+                # and let action_open_setup retry it, rather than hiding it
+                # behind a generic success message.
+                message = _(
+                    "Voxbi installed successfully. Handing the sync credentials "
+                    "to Cockpit failed and will be retried the next time this "
+                    "page is opened."
+                )
             self.write({
                 "state": "done",
-                "message": _("Voxbi installed successfully."),
+                "message": message,
                 "output_html": output_html,
             })
             # Cockpit has provisioned its own Voxbi menu by now — merge ours
@@ -716,6 +727,13 @@ class VoxbiInstallerSetup(models.Model):
         # Safety net for provisioning that finished while the wizard was
         # closed (the auto-refresh only polls while the form is open).
         self._reconcile_voxbi_menus()
+
+        # Same idea for the sync-user handoff: if it failed at the moment the
+        # install succeeded (Cockpit briefly unreachable), there is otherwise
+        # no later trigger to retry it, since polling stops once state is
+        # "done". Reopening the wizard is a reliable point to try again.
+        if rec.state == "done" and not rec.sync_user_swapped:
+            rec._swap_to_sync_user()
 
         return {
             "type": "ir.actions.act_window",
