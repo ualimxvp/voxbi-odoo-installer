@@ -70,6 +70,11 @@ class VoxbiInstallerSetup(models.Model):
         "Deliberately not an administrator: this credential is long-lived, "
         "unlike the install credential, which is discarded once setup succeeds.",
     )
+    sync_user_swapped = fields.Boolean(
+        readonly=True,
+        help="True once the sync user's credentials have been handed to Cockpit. "
+        "Guards against re-minting a key on every status poll.",
+    )
     allowed_sync_user_ids = fields.Many2many(
         "res.users",
         compute="_compute_allowed_sync_user_ids",
@@ -278,6 +283,37 @@ class VoxbiInstallerSetup(models.Model):
 
         return user.login, plaintext
 
+    def _swap_to_sync_user(self):
+        """Hand Cockpit the sync user's credentials, after a successful install.
+
+        Deliberately after, not during: a failed install must never put the
+        long-lived credential in flight. Cockpit keeps the integration at
+        success and does not reset it to pending, so this cannot re-trigger the
+        installer cron.
+        """
+        self.ensure_one()
+        if not self.sync_user_id or self.sync_user_swapped:
+            return
+
+        login, api_key = self._issue_api_key_for_sync_user()
+        if not login:
+            return
+
+        url = f"{self._cockpit_base_url()}/api/v1/odoo-installer/swap-to-sync-user"
+        status, body = self._post_json(url, {
+            "sync_user": login,
+            "sync_key": api_key,
+            "sync_uid": int(self.sync_user_id.id),
+        })
+
+        if status == 200:
+            self.sync_user_swapped = True
+            return
+
+        _logger.warning(
+            "Voxbi: sync user swap refused (HTTP %s): %s", status, body
+        )
+
     def _generate_api_key(self, scope, name):
         """Call res.users.apikeys._generate with whichever signature this Odoo build exposes.
 
@@ -388,17 +424,6 @@ class VoxbiInstallerSetup(models.Model):
                 "Could not generate an Odoo API key for the current user: %s"
             ) % e)
 
-        # The credential the ONGOING sync will use. Minted for the chosen
-        # non-admin user, and sent alongside the admin one so Cockpit can keep
-        # the two apart: the admin key is discarded once this install succeeds,
-        # this one is kept.
-        try:
-            sync_login, sync_api_key = self._issue_api_key_for_sync_user()
-        except Exception as e:
-            raise UserError(_(
-                "Could not generate an Odoo API key for the sync user: %s"
-            ) % e)
-
         payload = {
             "odoo_url": self._odoo_self_url(),
             "odoo_db": self.env.cr.dbname,
@@ -409,17 +434,6 @@ class VoxbiInstallerSetup(models.Model):
             "sync_sip_configurations": bool(self.sync_sip_configurations),
             "is_active": bool(self.is_active),
             "installer_module_version": MODULE_VERSION,
-            # Omitted entirely when no sync user was chosen, so an older
-            # Cockpit that does not know these keys is unaffected.
-            **(
-                {
-                    "sync_user": sync_login,
-                    "sync_key": sync_api_key,
-                    "sync_uid": int(self.sync_user_id.id),
-                }
-                if sync_login
-                else {}
-            ),
         }
 
         url = f"{base_url}/api/v1/odoo-installer/register-install"
@@ -470,6 +484,7 @@ class VoxbiInstallerSetup(models.Model):
         remote_status = (body.get("status") or "").lower()
         # Cockpit Integration.job_status: pending | processing | success | failed
         if remote_status == "success":
+            self._swap_to_sync_user()
             self.write({
                 "state": "done",
                 "message": _("Voxbi installed successfully."),
