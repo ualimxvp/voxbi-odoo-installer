@@ -378,6 +378,37 @@ class VoxbiInstallerSetup(models.Model):
         except urllib.error.URLError as e:
             return 0, {"error": "network", "reason": str(e)}
 
+    def _post_json_with_key(self, url, payload, key, timeout=15):
+        """POST JSON to Cockpit authenticated with an explicit bearer key.
+
+        Used only by action_disconnect: that call must authenticate with
+        whichever credential the customer actually holds (the connect flow's
+        backend key, or the older pasted install key), not with whatever
+        _auth_headers()/cockpit_api_key happens to hold, which is empty for a
+        connect-flow customer.
+        """
+        headers = {"Accept": "application/json", "Content-Type": "application/json"}
+        if key:
+            headers["Authorization"] = "Bearer %s" % key
+        req = urllib.request.Request(
+            url,
+            data=json.dumps(payload).encode("utf-8"),
+            headers=headers,
+            method="POST",
+        )
+        try:
+            with urllib.request.urlopen(req, timeout=timeout) as resp:
+                body = resp.read().decode("utf-8") or "{}"
+                return resp.getcode(), json.loads(body)
+        except urllib.error.HTTPError as e:
+            body = e.read().decode("utf-8") or "{}"
+            try:
+                return e.code, json.loads(body)
+            except json.JSONDecodeError:
+                return e.code, {"raw": body}
+        except urllib.error.URLError as e:
+            return 0, {"error": "network", "reason": str(e)}
+
     def _get_json(self, url, timeout=10):
         req = urllib.request.Request(url, headers=self._auth_headers(), method="GET")
         try:
@@ -855,9 +886,22 @@ class VoxbiInstallerSetup(models.Model):
 
         backend = self.env["voxbi.backend"].sudo().search([], limit=1, order="id asc")
 
-        if backend and backend.api_key:
+        # The connect flow writes its credential onto the backend record, not
+        # onto cockpit_api_key -- that field is only ever populated by the
+        # older paste-a-key install flow. _post_json's own _auth_headers()
+        # reads cockpit_api_key alone, so for a connect-flow customer it would
+        # send no Authorization header at all, Cockpit would answer 401, and
+        # the "already revoked" rule below would report success while Cockpit
+        # still held a live key. Prefer the backend key; fall back to
+        # cockpit_api_key so a paste-a-key install can still revoke.
+        key = (backend.api_key if backend else False) or self._cockpit_api_key()
+
+        # With no credential at all there is nothing to revoke remotely: skip
+        # the call rather than sending it unauthenticated and reading its 401
+        # as a revocation that never happened.
+        if key:
             url = f"{self._cockpit_base_url()}/api/v1/odoo-connect/revoke"
-            status, body = self._post_json(url, {})
+            status, body = self._post_json_with_key(url, {}, key)
 
             # 401 means the key is already dead: Cockpit hard deletes the token,
             # so a second attempt cannot authenticate with it. Treat that as
@@ -870,9 +914,10 @@ class VoxbiInstallerSetup(models.Model):
                     "was changed here, so you can try again."
                 ) % self._api_error_message(status, body))
 
-            # Only the key. cockpit_url stays: it is not a secret, keeping it
-            # prefills a later reconnect, and clearing it trips the model's
-            # https constraint, which rejects an empty URL.
+        # Only the key. cockpit_url stays: it is not a secret, keeping it
+        # prefills a later reconnect, and clearing it trips the model's
+        # https constraint, which rejects an empty URL.
+        if backend and backend.api_key:
             backend.sudo().write({"api_key": False})
 
         # Both keys Voxbi minted inside this Odoo. The installer key still

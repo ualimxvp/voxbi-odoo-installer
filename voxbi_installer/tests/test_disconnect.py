@@ -1,4 +1,5 @@
-from unittest.mock import patch
+import json
+from unittest.mock import MagicMock, patch
 
 from odoo.exceptions import UserError
 from odoo.tests import TransactionCase
@@ -19,7 +20,7 @@ class TestDisconnect(TransactionCase):
 
     def test_revokes_at_cockpit_before_clearing_locally(self):
         with patch.object(
-            type(self.setup), "_post_json", return_value=(200, {"status": "revoked"})
+            type(self.setup), "_post_json_with_key", return_value=(200, {"status": "revoked"})
         ) as post:
             self.setup.action_disconnect()
 
@@ -31,13 +32,13 @@ class TestDisconnect(TransactionCase):
         # Cockpit hard deletes the token, so a retry after a half-finished
         # disconnect authenticates as nobody. That must complete the cleanup,
         # not strand the customer.
-        with patch.object(type(self.setup), "_post_json", return_value=(401, {})):
+        with patch.object(type(self.setup), "_post_json_with_key", return_value=(401, {})):
             self.setup.action_disconnect()
 
         self.assertFalse(self.backend.api_key)
 
     def test_keeps_the_connection_when_cockpit_refuses(self):
-        with patch.object(type(self.setup), "_post_json", return_value=(500, {})):
+        with patch.object(type(self.setup), "_post_json_with_key", return_value=(500, {})):
             with self.assertRaises(UserError):
                 self.setup.action_disconnect()
 
@@ -49,7 +50,7 @@ class TestDisconnect(TransactionCase):
         self.assertGreater(before, 0)
 
         with patch.object(
-            type(self.setup), "_post_json", return_value=(200, {"status": "revoked"})
+            type(self.setup), "_post_json_with_key", return_value=(200, {"status": "revoked"})
         ):
             self.setup.action_disconnect()
 
@@ -59,7 +60,7 @@ class TestDisconnect(TransactionCase):
     def test_does_not_delete_the_sync_user(self):
         user = self.setup.sync_user_id
         with patch.object(
-            type(self.setup), "_post_json", return_value=(200, {"status": "revoked"})
+            type(self.setup), "_post_json_with_key", return_value=(200, {"status": "revoked"})
         ):
             self.setup.action_disconnect()
 
@@ -68,7 +69,7 @@ class TestDisconnect(TransactionCase):
 
     def test_clears_the_sync_user_parameter(self):
         with patch.object(
-            type(self.setup), "_post_json", return_value=(200, {"status": "revoked"})
+            type(self.setup), "_post_json_with_key", return_value=(200, {"status": "revoked"})
         ):
             self.setup.action_disconnect()
 
@@ -79,8 +80,61 @@ class TestDisconnect(TransactionCase):
     def test_keeps_call_records(self):
         model = self.env["ir.model"].sudo().search([("model", "=", "voxbi.call")], limit=1)
         with patch.object(
-            type(self.setup), "_post_json", return_value=(200, {"status": "revoked"})
+            type(self.setup), "_post_json_with_key", return_value=(200, {"status": "revoked"})
         ):
             self.setup.action_disconnect()
 
         self.assertTrue(model.exists())
+
+    # --- which credential actually gets sent --------------------------
+
+    @staticmethod
+    def _urlopen_response(status=200, body=None):
+        response = MagicMock()
+        response.getcode.return_value = status
+        response.read.return_value = json.dumps(body or {}).encode("utf-8")
+        return response
+
+    def test_revoke_call_carries_the_backend_key_as_bearer_token(self):
+        # Asserting the actual header, not just that a mocked method was
+        # called with some url: _post_json's own _auth_headers() reads
+        # cockpit_api_key only, so a shallower test could pass while the
+        # real request still went out unauthenticated.
+        with patch("urllib.request.urlopen") as urlopen:
+            urlopen.return_value.__enter__.return_value = self._urlopen_response(
+                200, {"status": "revoked"}
+            )
+            self.setup.action_disconnect()
+
+        request = urlopen.call_args[0][0]
+        self.assertEqual(request.get_header("Authorization"), "Bearer cockpit-key")
+
+    def test_authenticates_when_only_the_backend_has_a_key(self):
+        # The connect-flow case that was broken: the wizard's own
+        # cockpit_api_key is never populated by the browser consent flow, so
+        # the backend record's key must be what is sent.
+        self.assertFalse(self.setup.cockpit_api_key)
+
+        with patch("urllib.request.urlopen") as urlopen:
+            urlopen.return_value.__enter__.return_value = self._urlopen_response(
+                200, {"status": "revoked"}
+            )
+            self.setup.action_disconnect()
+
+        request = urlopen.call_args[0][0]
+        self.assertEqual(request.get_header("Authorization"), "Bearer cockpit-key")
+
+    def test_falls_back_to_the_wizard_key_when_the_backend_has_none(self):
+        # The older paste-a-key install flow never creates a backend key, so
+        # it must still be able to authenticate a disconnect.
+        self.backend.write({"api_key": False})
+        self.setup.cockpit_api_key = "pasted-key"
+
+        with patch("urllib.request.urlopen") as urlopen:
+            urlopen.return_value.__enter__.return_value = self._urlopen_response(
+                200, {"status": "revoked"}
+            )
+            self.setup.action_disconnect()
+
+        request = urlopen.call_args[0][0]
+        self.assertEqual(request.get_header("Authorization"), "Bearer pasted-key")
