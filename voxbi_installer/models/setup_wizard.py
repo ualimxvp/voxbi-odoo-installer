@@ -1027,7 +1027,7 @@ class VoxbiInstallerSetup(models.Model):
         self.ensure_one()
 
         if not self.env.user.has_group("base.group_system"):
-            raise UserError(self.env._(
+            raise UserError(_(
                 "You are not allowed to disconnect the Voxbi connection."
             ))
 
@@ -1072,7 +1072,7 @@ class VoxbiInstallerSetup(models.Model):
             # that failed halfway can never be completed -- the customer would
             # be stuck holding a local credential Cockpit no longer honours.
             if status not in (200, 401):
-                raise UserError(self.env._(
+                raise UserError(_(
                     "Voxbi Cockpit could not revoke the connection (%s). Nothing "
                     "was changed here, so you can try again."
                 ) % self._api_error_message(status, body))
@@ -1112,7 +1112,7 @@ class VoxbiInstallerSetup(models.Model):
             "output_html": False,
             "cockpit_api_key": False,
             "sync_user_swapped": False,
-            "message": self.env._("Voxbi has been disconnected."),
+            "message": _("Voxbi has been disconnected."),
         })
 
     # --- menu reconciliation ----------------------------------------------
