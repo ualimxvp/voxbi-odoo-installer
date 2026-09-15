@@ -243,7 +243,28 @@ class VoxbiInstallerSetup(models.Model):
         return release.major_version
 
     def _cockpit_api_key(self):
-        return (self.cockpit_api_key or "").strip()
+        """The Cockpit Bearer key, whichever way the customer obtained it.
+
+        Two flows produce it and they write to different places: pasting a key
+        fills cockpit_api_key on this wizard, while the connect flow writes the
+        exchanged key onto voxbi.backend (ConnectController._complete_connect)
+        and never touches this field. Reading only the field meant every
+        outbound call sent no Authorization header at all for a connect-flow
+        customer, and Cockpit answered 401 "missing, invalid, or expired",
+        pointing them at a key they were right not to have.
+
+        The paste takes precedence: it is the credential the customer just
+        typed on this screen, so it is the one they expect to be used.
+
+        Both flows target the host in "voxbi.cockpit_url" -- the connect token
+        exchange reads it too -- so there is no credential/host mismatch here.
+        """
+        pasted = (self.cockpit_api_key or "").strip()
+        if pasted:
+            return pasted
+
+        backend = self.env["voxbi.backend"].sudo().search([], limit=1, order="id asc")
+        return (backend.api_key or "").strip() if backend else ""
 
     def _auth_headers(self):
         """Bearer + Accept headers required on every Cockpit request (API v2)."""
@@ -477,7 +498,10 @@ class VoxbiInstallerSetup(models.Model):
     def action_install(self):
         self.ensure_one()
         if not self._cockpit_api_key():
-            raise UserError(_("Please paste the Cockpit API key from Voxbi Cockpit."))
+            raise UserError(_(
+                "Not connected to Voxbi Cockpit yet. Click Connect above, or "
+                "paste a Cockpit API key."
+            ))
         if not self.consent:
             raise UserError(_(
                 "Please review the data-sharing notice and tick the authorization "
