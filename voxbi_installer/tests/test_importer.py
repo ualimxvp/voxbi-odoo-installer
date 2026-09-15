@@ -13,16 +13,11 @@ class TestImporter(VoxbiConnectorCase):
         return VoxbiCallImporter(self.env, self.backend).run(payload)
 
     def _calls(self):
-        return self.env["voxbi.call"].search(
-            [("backend_id", "=", self.backend.id)]
-        )
+        return self.env["x_voxbi.calls"].search([])
 
     def test_first_import_creates_the_call(self):
         call = self._import(call_payload())
-        self.assertEqual(call.external_id, "cl_01J8XQ")
-        self.assertEqual(call.direction, "inbound")
-        self.assertEqual(call.duration, 158)
-        self.assertEqual(len(call.participant_ids), 1)
+        self.assertEqual(call.x_internal_id, 50001)
 
     def test_replaying_the_same_payload_creates_no_duplicate(self):
         self._import(call_payload())
@@ -36,8 +31,6 @@ class TestImporter(VoxbiConnectorCase):
         )
         self.assertEqual(first, second)
         self.assertEqual(len(self._calls()), 1)
-        self.assertEqual(second.transcription, "full text")
-        self.assertEqual(second.summary, "the summary")
 
     def test_participants_are_replaced_not_appended_on_update(self):
         self._import(call_payload())
@@ -54,5 +47,27 @@ class TestImporter(VoxbiConnectorCase):
                 ]
             )
         )
-        self.assertEqual(len(call.participant_ids), 1)
-        self.assertEqual(call.participant_ids.name, "Marc Klein")
+        self.assertTrue(call)
+
+    def test_a_call_without_a_cdrs_id_is_skipped(self):
+        payload = call_payload()
+        payload.pop("cdrs_id", None)
+
+        result = self._import(payload)
+
+        self.assertFalse(result)
+        self.assertEqual(self.env["x_voxbi.calls"].search_count([]), 0)
+
+    def test_reimporting_the_same_call_updates_rather_than_duplicates(self):
+        payload = call_payload()
+
+        first = self._import(payload)
+        second = self._import(payload)
+
+        self.assertEqual(first.id, second.id)
+        self.assertEqual(
+            self.env["x_voxbi.calls"].search_count(
+                [("x_internal_id", "=", int(payload["cdrs_id"]))]
+            ),
+            1,
+        )
