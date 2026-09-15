@@ -1,6 +1,7 @@
 from . import test_backend
 from . import test_adapter
 from . import test_importer
+from . import test_mapper
 from . import test_matcher
 from . import test_incremental
 from . import test_connect
