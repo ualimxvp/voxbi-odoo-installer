@@ -3,5 +3,3 @@
 
 from . import setup_wizard
 from . import voxbi_backend
-from . import voxbi_call
-from . import voxbi_call_participant
