@@ -52,7 +52,10 @@ class VoxbiConnectController(http.Controller):
         except ConnectError as exc:
             return self._render_error(str(exc))
 
-        action = request.env.ref("voxbi_installer.action_voxbi_backend")
+        # Same action the Voxbi > Configuration menu item uses, so the
+        # customer lands exactly where the menu would take them, not on the
+        # raw backend list.
+        action = request.env.ref("voxbi_installer.action_voxbi_installer_open")
         return request.redirect(f"/odoo/action-{action.id}")
 
     @classmethod
