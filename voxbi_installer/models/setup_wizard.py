@@ -253,18 +253,19 @@ class VoxbiInstallerSetup(models.Model):
         customer, and Cockpit answered 401 "missing, invalid, or expired",
         pointing them at a key they were right not to have.
 
-        The paste takes precedence: it is the credential the customer just
-        typed on this screen, so it is the one they expect to be used.
+        A live connection wins over the field. The connect flow's key was
+        issued by Cockpit and is the one it will recognise, while the field
+        can still be holding whatever was typed during an earlier failed
+        attempt, which is exactly the state a customer reaches this screen in.
+        The field is the fallback for an install that never connected.
 
         Both flows target the host in "voxbi.cockpit_url" -- the connect token
         exchange reads it too -- so there is no credential/host mismatch here.
         """
-        pasted = (self.cockpit_api_key or "").strip()
-        if pasted:
-            return pasted
-
         backend = self.env["voxbi.backend"].sudo().search([], limit=1, order="id asc")
-        return (backend.api_key or "").strip() if backend else ""
+        connected = (backend.api_key or "").strip() if backend else ""
+
+        return connected or (self.cockpit_api_key or "").strip()
 
     def _auth_headers(self):
         """Bearer + Accept headers required on every Cockpit request (API v2)."""
