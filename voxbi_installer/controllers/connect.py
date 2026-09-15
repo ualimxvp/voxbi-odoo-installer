@@ -23,7 +23,7 @@ import logging
 import requests
 from markupsafe import escape
 
-from odoo import http
+from odoo import _, http
 from odoo.exceptions import ValidationError
 from odoo.http import request
 
@@ -67,19 +67,19 @@ class VoxbiConnectController(http.Controller):
         state check and code presence have all passed.
         """
         if not env.user.has_group("base.group_system"):
-            raise ConnectError(env._(
+            raise ConnectError(_(
                 "You are not allowed to configure the Voxbi connection."
             ))
 
         Setup = env["voxbi.installer.setup"]
         if not Setup._consume_connect_state(state):
-            raise ConnectError(env._(
+            raise ConnectError(_(
                 "This connection link is invalid or has expired. Start again "
                 "from the Voxbi Configuration page."
             ))
 
         if not code:
-            raise ConnectError(env._(
+            raise ConnectError(_(
                 "Voxbi Cockpit did not send an authorization code."
             ))
 
@@ -94,7 +94,7 @@ class VoxbiConnectController(http.Controller):
             )
         except requests.RequestException:
             _logger.exception("Voxbi connect: token exchange request failed")
-            raise ConnectError(env._(
+            raise ConnectError(_(
                 "Could not reach Voxbi Cockpit to finish connecting. Please try again."
             )) from None
 
@@ -103,7 +103,7 @@ class VoxbiConnectController(http.Controller):
                 "Voxbi connect: token exchange rejected (HTTP %s)",
                 response.status_code,
             )
-            raise ConnectError(env._(
+            raise ConnectError(_(
                 "Voxbi Cockpit rejected the connection request. Please try again."
             ))
 
@@ -111,7 +111,7 @@ class VoxbiConnectController(http.Controller):
             body = response.json()
         except ValueError:
             _logger.warning("Voxbi connect: token endpoint returned a non-JSON body")
-            raise ConnectError(env._(
+            raise ConnectError(_(
                 "Voxbi Cockpit returned an unexpected response. Please try again."
             )) from None
 
@@ -123,7 +123,7 @@ class VoxbiConnectController(http.Controller):
             _logger.warning(
                 "Voxbi connect: token endpoint response was missing expected fields"
             )
-            raise ConnectError(env._(
+            raise ConnectError(_(
                 "Voxbi Cockpit did not return the expected connection details."
             ))
 

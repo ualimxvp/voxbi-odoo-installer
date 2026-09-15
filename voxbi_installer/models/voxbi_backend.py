@@ -4,7 +4,7 @@
 import logging
 from urllib.parse import urlsplit
 
-from odoo import api, fields, models
+from odoo import _, api, fields, models
 from odoo.exceptions import ValidationError
 
 from ..components.batch_importer import VoxbiBatchImporter
@@ -64,13 +64,13 @@ class VoxbiBackend(models.Model):
                 if host in LOCAL_HOSTS or host.endswith(LOCAL_SUFFIXES):
                     continue
                 raise ValidationError(
-                    self.env._(
+                    _(
                         "Plain http is only allowed for a local Cockpit. "
                         "Use https:// for %(host)s.", host=host
                     )
                 )
             raise ValidationError(
-                self.env._("The Cockpit URL must start with https://")
+                _("The Cockpit URL must start with https://")
             )
 
     @api.model
@@ -84,9 +84,9 @@ class VoxbiBackend(models.Model):
         """
         backend = self.sudo().search([], limit=1, order="id asc")
         name = (
-            self.env._("Voxbi Cockpit (PBX %(pbx_id)s)", pbx_id=pbx_id)
+            _("Voxbi Cockpit (PBX %(pbx_id)s)", pbx_id=pbx_id)
             if pbx_id
-            else self.env._("Voxbi Cockpit")
+            else _("Voxbi Cockpit")
         )
         vals = {"name": name, "cockpit_url": cockpit_url, "api_key": api_key}
         if backend:
