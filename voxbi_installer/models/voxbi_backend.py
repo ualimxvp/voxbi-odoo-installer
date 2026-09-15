@@ -30,7 +30,9 @@ class VoxbiBackend(models.Model):
         help="Base URL of Voxbi Cockpit, for example https://cockpit.voxbi.com",
     )
     api_key = fields.Char(
-        required=True,
+        # Not required: a row with no key is the DISCONNECTED state. The record
+        # survives a disconnect so the sync cursors do too, which is what stops
+        # a reconnect re-importing the customer's entire call history.
         help="Cockpit API key. It authenticates this Odoo to Voxbi. It grants "
         "Voxbi no access to this database.",
     )

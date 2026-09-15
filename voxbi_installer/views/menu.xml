@@ -21,14 +21,4 @@
               groups="group_voxbi_user"
               sequence="10"/>
 
-    <!-- No second "Configuration": menu_voxbi_setup above already carries that
-         label. Backends sits beside it rather than under it, because a menu
-         with both an action and children stops opening its own action. -->
-    <menuitem id="menu_voxbi_backend"
-              name="Backends"
-              parent="menu_voxbi_root"
-              action="action_voxbi_backend"
-              groups="group_voxbi_manager"
-              sequence="110"/>
-
 </odoo>
