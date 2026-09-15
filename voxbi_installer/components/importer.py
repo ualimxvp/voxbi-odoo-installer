@@ -37,10 +37,12 @@ class VoxbiCallImporter:
 
         values = self.mapper.values(payload)
 
-        partner = self.matcher.find_partner(
-            payload.get("phone"), payload.get("contact_email")
-        )
-        values["x_partner_id"] = partner.id or False
+        # x_partner_id is NOT written here. It is a stored, readonly computed
+        # field on the installed model, matching on x_remote_person_number and
+        # falling back to x_remote_person_email, entirely inside the customer's
+        # database. Writing it fights the compute; filling the two fields it
+        # depends on (the mapper does) is what makes the match happen.
+        values["x_user_id"] = self._odoo_user(payload.get("contact_email"))
 
         if existing:
             existing.write(values)
@@ -61,19 +63,39 @@ class VoxbiCallImporter:
         Payload keys are id, name, type, number. There is no phone key and no
         internal flag, whatever an older mapper assumed.
 
-        x_user_id is a many2one to res.users, not a slot for the payload's
-        participant id (an external identifier, not an internal Odoo user).
-        The feed carries no internal-user reference, so it is left unset.
+        x_user_id is a many2one to res.users, resolved from the participant's
+        email the way the push path does (OdooService::createParticipants).
+        It is not a slot for the payload's participant id. Leaving it unset
+        would hide the call: the record rule on x_voxbi.calls is
+        ['|', ('x_user_id','=',user.id), ('x_participants.x_user_id','=',user.id)],
+        so a call matching neither is invisible to every non-admin user.
         """
         Participant = self.env["x_voxbi.call_participants"]
 
         Participant.search([("x_call_id", "=", call.id)]).unlink()
 
         for participant in payload.get("participants") or []:
+            # The push path writes 'Caller'/'Callee' capitalised from a raw
+            # 'caller'/'callee'. x_type is a char, so the wrong case fails
+            # nothing and just shows two spellings in one list.
+            is_caller = (participant.get("type") or "").lower() == "caller"
+
             Participant.create({
                 "x_call_id": call.id,
                 "x_name": participant.get("name") or False,
                 "x_number": participant.get("number") or False,
                 "x_email": participant.get("email") or False,
-                "x_type": participant.get("type") or False,
+                "x_type": "Caller" if is_caller else "Callee",
+                "x_user_id": self._odoo_user(participant.get("email")),
             })
+
+    def _odoo_user(self, email):
+        """The res.users id for an email, or False.
+
+        Mirrors OdooService::getUserByPhoneNumber, which despite its name
+        searches res.users on email.
+        """
+        if not email:
+            return False
+        user = self.env["res.users"].search([("email", "=", email)], limit=1)
+        return user.id or False

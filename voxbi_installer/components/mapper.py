@@ -30,9 +30,15 @@ class VoxbiCallMapper:
             ("direction", "x_call_type"),
             ("duration", "x_duration"),
             ("billsec", "x_billsec"),
-            ("phone", "x_phone"),
             ("contact_name", "x_remote_person"),
-            ("contact_email", "x_email"),
+            # The remote party goes into x_remote_person_number/_email, NOT
+            # x_phone/x_email. Those are the fields the push path writes, and
+            # x_partner_id is a stored compute that depends on exactly those
+            # two (SetupVoxbiOdooModuleCommand.php:802-810). Writing x_phone
+            # instead leaves the Number column blank and the contact match
+            # never fires, with nothing failing to say so.
+            ("phone", "x_remote_person_number"),
+            ("contact_email", "x_remote_person_email"),
             ("recording_url", "x_call_recording"),
             ("transcription", "x_transcription"),
             ("summary", "x_summary"),
