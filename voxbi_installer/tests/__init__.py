@@ -3,6 +3,7 @@ from . import test_adapter
 from . import test_importer
 from . import test_mapper
 from . import test_matcher
+from . import test_participants
 from . import test_incremental
 from . import test_connect
 from . import test_sync_swap

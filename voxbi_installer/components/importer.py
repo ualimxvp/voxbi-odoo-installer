@@ -44,5 +44,36 @@ class VoxbiCallImporter:
 
         if existing:
             existing.write(values)
-            return existing
-        return self.env["x_voxbi.calls"].create(values)
+            record = existing
+        else:
+            record = self.env["x_voxbi.calls"].create(values)
+
+        self._sync_participants(record, payload)
+        return record
+
+    def _sync_participants(self, call, payload):
+        """Replace the call's participant rows from the payload.
+
+        The feed sends the full set every time, so delete and recreate is both
+        simpler and correct: merging would leave a stale row behind whenever
+        someone drops off a call.
+
+        Payload keys are id, name, type, number. There is no phone key and no
+        internal flag, whatever an older mapper assumed.
+
+        x_user_id is a many2one to res.users, not a slot for the payload's
+        participant id (an external identifier, not an internal Odoo user).
+        The feed carries no internal-user reference, so it is left unset.
+        """
+        Participant = self.env["x_voxbi.call_participants"]
+
+        Participant.search([("x_call_id", "=", call.id)]).unlink()
+
+        for participant in payload.get("participants") or []:
+            Participant.create({
+                "x_call_id": call.id,
+                "x_name": participant.get("name") or False,
+                "x_number": participant.get("number") or False,
+                "x_email": participant.get("email") or False,
+                "x_type": participant.get("type") or False,
+            })
