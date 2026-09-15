@@ -51,7 +51,9 @@ class TestParticipants(TransactionCase):
         self.assertEqual(rows.x_name, "Anne Weber")
         # The payload key is "number". Reading "phone" lost every number.
         self.assertEqual(rows.x_number, "+352661123456")
-        self.assertEqual(rows.x_type, "caller")
+        # The push path writes capitalised Caller/Callee; the importer now
+        # normalises the feed's lowercase "caller"/"callee" to match.
+        self.assertEqual(rows.x_type, "Caller")
 
     def test_reimporting_replaces_rather_than_accumulates(self):
         first = self.importer.run(self.payload([
