@@ -23,6 +23,7 @@ def call_payload(**overrides):
     """A feed record matching the contract, overridable per test."""
     payload = {
         "id": "cl_01J8XQ",
+        "cdrs_id": 50001,
         "updated_at": "2026-09-10T08:04:11Z",
         "started_at": "2026-09-10T08:01:02Z",
         "ended_at": "2026-09-10T08:03:40Z",

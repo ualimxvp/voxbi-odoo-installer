@@ -15,9 +15,7 @@ ADAPTER = (
 @tagged("post_install", "-at_install")
 class TestIncremental(VoxbiConnectorCase):
     def _count(self):
-        return self.env["voxbi.call"].search_count(
-            [("backend_id", "=", self.backend.id)]
-        )
+        return self.env["x_voxbi.calls"].search_count([])
 
     def test_first_run_imports_and_advances_the_cursor(self):
         page = {
@@ -38,12 +36,12 @@ class TestIncremental(VoxbiConnectorCase):
 
     def test_pages_are_followed_while_has_more(self):
         first = {
-            "calls": [call_payload(id="cl_a")],
+            "calls": [call_payload(id="cl_a", cdrs_id=50001)],
             "next_since": "2026-09-10T08:04:11Z",
             "has_more": True,
         }
         second = {
-            "calls": [call_payload(id="cl_b")],
+            "calls": [call_payload(id="cl_b", cdrs_id=50002)],
             "next_since": "2026-09-10T08:09:00Z",
             "has_more": False,
         }
