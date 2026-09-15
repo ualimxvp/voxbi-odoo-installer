@@ -374,6 +374,24 @@ class VoxbiInstallerSetup(models.Model):
             "Voxbi: sync user swap refused (HTTP %s): %s", status, body
         )
 
+    def _revoke_installer_key(self):
+        """Delete the admin key minted for this install.
+
+        It exists to let the RPC installer create models, views and groups,
+        which the sync user has no rights to do. The moment the install
+        reaches a terminal state that power is no longer needed, so the key
+        goes -- on failure as much as on success, since a failed install used
+        to leave a live admin rpc key behind in the customer's database with
+        nothing scheduled to clean it up.
+
+        Matched by name and scope, never scope alone: customers keep their own
+        rpc keys for unrelated integrations.
+        """
+        self.env["res.users.apikeys"].sudo().search([
+            ("scope", "=", API_KEY_SCOPE),
+            ("name", "=", API_KEY_NAME),
+        ]).unlink()
+
     def _generate_api_key(self, scope, name):
         """Call res.users.apikeys._generate with whichever signature this Odoo build exposes.
 
@@ -466,9 +484,9 @@ class VoxbiInstallerSetup(models.Model):
             )
         if status == 401:
             return _(
-                "Your Cockpit API key is missing, invalid, or expired. Create a new "
-                "API key in Voxbi Cockpit (Integrations → Add integration → API key) "
-                "with the “Is Odoo Installer” scope, paste it above, and try again."
+                "Voxbi Cockpit did not accept this connection. It may have been "
+                "revoked or expired. Click Connect to Voxbi Cockpit to authorize "
+                "again."
             )
         if status == 403:
             return _(
@@ -503,11 +521,16 @@ class VoxbiInstallerSetup(models.Model):
                 "Not connected to Voxbi Cockpit yet. Click Connect above, or "
                 "paste a Cockpit API key."
             ))
-        if not self.consent:
-            raise UserError(_(
-                "Please review the data-sharing notice and tick the authorization "
-                "box before installing."
-            ))
+
+        # Authorization is given on Cockpit's authorize screen, which states
+        # what is sent and what is done with it before the customer clicks
+        # through. A second checkbox here asked the same question twice and
+        # blocked the connect flow from installing on its own.
+
+        # Every install mints a new admin key and hands it to Cockpit, so the
+        # swap back to the sync user has to run again. Without this reset a
+        # re-install leaves Cockpit holding the admin credential for good.
+        self.sync_user_swapped = False
 
         base_url = self._cockpit_base_url()
 
@@ -546,6 +569,8 @@ class VoxbiInstallerSetup(models.Model):
             "state": "failed",
             "message": _("Register-install failed: %s") % self._api_error_message(status, body),
         })
+        # Cockpit never took the key, so nothing will ever use it.
+        self._revoke_installer_key()
         return True
 
     def action_refresh(self):
@@ -605,6 +630,8 @@ class VoxbiInstallerSetup(models.Model):
                 "message": message,
                 "output_html": output_html,
             })
+            # Cockpit now holds the sync user's key instead of the admin one.
+            self._revoke_installer_key()
             # Cockpit has provisioned its own Voxbi menu by now — merge ours
             # into it so the user is not left with two "Voxbi" root menus.
             self._reconcile_voxbi_menus()
@@ -614,6 +641,10 @@ class VoxbiInstallerSetup(models.Model):
                 "message": self._last_error_line(body) or _("Install failed"),
                 "output_html": output_html,
             })
+            # A failed install has no more use for admin rights either, and
+            # leaving the key alive is the worse of the two outcomes: nothing
+            # else would ever come back to clean it up.
+            self._revoke_installer_key()
         else:
             step = _("Installing voxbi module") if remote_status == "processing" else _("Queued")
             self.write({
@@ -826,6 +857,23 @@ class VoxbiInstallerSetup(models.Model):
         if not rec or (rec.state == "installing" and not rec.integration_id):
             rec = self.create({})
 
+        # A failure from a connection that no longer exists is not actionable:
+        # nothing on this page can retry it, and a refresh would just redisplay
+        # the error. Disconnecting already resets to draft; this catches records
+        # stranded by anything that cleared the credential another way.
+        if not rec.is_connected and rec.state in ("failed", "done"):
+            rec.write({
+                "state": "draft",
+                "integration_id": False,
+                "output_html": False,
+                "message": False,
+                # A key left in the field outlives the connection it came with,
+                # and _cockpit_api_key() falls back to it -- so a dead key kept
+                # being posted to register-install, which answered 401. The
+                # field is no longer on screen, so nobody could clear it.
+                "cockpit_api_key": False,
+            })
+
         # Safety net for provisioning that finished while the wizard was
         # closed (the auto-refresh only polls while the form is open).
         self._reconcile_voxbi_menus()
@@ -913,6 +961,57 @@ class VoxbiInstallerSetup(models.Model):
             return False
         return fields.Datetime.now() <= expires_at
 
+    @api.model
+    def _autostart_install(self):
+        """Install straight after a successful connect.
+
+        Authorization was given on Cockpit's authorize screen, so there is
+        nothing left to ask: landing on a page whose only remaining action is
+        one more button makes the customer confirm the same thing twice.
+
+        A sync user must exist BEFORE the install runs, not after. The install
+        hands Cockpit an admin key and only replaces it once it succeeds, and
+        that replacement is skipped when there is no sync user to swap to --
+        which would leave Cockpit holding admin credentials, the exact thing
+        this flow exists to avoid. action_create_sync_user is idempotent and
+        reuses the existing Voxbi Sync user when there is one.
+
+        Failures are recorded on the wizard, never raised: this runs inside
+        the OAuth callback, and an exception there would show the customer a
+        connect error for an install problem, with the connection already made.
+        """
+        record = self.search([], order="id desc", limit=1)
+        if not record:
+            record = self.create({})
+
+        if not record.sync_user_id:
+            record.action_create_sync_user()
+
+        try:
+            record.action_install()
+        except Exception as exc:  # noqa: BLE001 - reported, not swallowed
+            _logger.exception("Voxbi: install could not be started after connect")
+            record.write({
+                "state": "failed",
+                "message": _("Could not start the installation: %s") % exc,
+            })
+        return record
+
+    def action_reinstall(self):
+        """Re-run the whole setup: disconnect, then authorize again.
+
+        Not a second register-install. The first install deliberately leaves
+        Voxbi holding only the sync user's credential, so re-running it would
+        mint fresh admin rights against a connection the customer authorized
+        for something narrower. Starting from disconnect revokes both keys at
+        Cockpit and here, clears the sync user parameter and resets the swap
+        flag, so the customer re-authorizes with the same screen and the same
+        disclosure they saw the first time.
+        """
+        self.ensure_one()
+        self.action_disconnect()
+        return self.action_connect_cockpit()
+
     def action_disconnect(self):
         """Withdraw the Voxbi connection, revoking rather than forgetting.
 
@@ -997,7 +1096,18 @@ class VoxbiInstallerSetup(models.Model):
 
         # The sync user itself is left alone: Voxbi may have created it, but it
         # is a user in the customer's database and may own records.
+        # Back to draft, and the integration id goes with it. Leaving the old
+        # state behind meant a disconnected wizard kept polling install-status
+        # for an install it no longer holds a credential for, and reported the
+        # 401 as "your Cockpit API key is missing, invalid, or expired" -- which
+        # sent the customer off to create a key the connect flow never needed.
+        # It matters most on the re-install path, which disconnects first: a
+        # customer who closes Cockpit's authorize screen lands back here, and
+        # what they should see is the Connect button, not a failed install.
         self.write({
+            "state": "draft",
+            "integration_id": False,
+            "output_html": False,
             "cockpit_api_key": False,
             "sync_user_swapped": False,
             "message": self.env._("Voxbi has been disconnected."),

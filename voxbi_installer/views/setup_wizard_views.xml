@@ -13,33 +13,37 @@
                             string="Connect to Voxbi Cockpit"
                             type="object"
                             class="btn-secondary"
-                            invisible="is_connected"/>
+                            attrs="{'invisible': [('is_connected', '=', True)]}"/>
                     <button name="action_disconnect"
                             string="Disconnect Voxbi"
                             type="object"
                             class="btn-secondary"
                             confirm="Disconnect this Odoo from Voxbi? Call history already imported is kept, but syncing stops and the credentials are revoked."
-                            invisible="not is_connected"/>
+                            attrs="{'invisible': [('is_connected', '=', False)]}"/>
+                    <!-- Connecting installs on its own, so there is no Install
+                         button on the connect path. This one is the fallback for
+                         a customer installing with a pasted Cockpit API key. -->
                     <button name="action_install"
                             string="Install"
                             type="object"
                             class="btn-primary"
-                            attrs="{'invisible': [('state', '!=', 'draft')]}"/>
-                    <button name="action_install"
-                            string="Re-install"
+                            invisible="1"/>
+                    <button name="action_reinstall"
+                            string="Updates and Fixes"
                             type="object"
                             class="btn-primary"
-                            attrs="{'invisible': [('state', '!=', 'done')]}"/>
+                            confirm="Run updates and fixes for your Voxbi setup?&#10;&#10;This re-applies the Voxbi models, views and menus in your database, repairing anything missing or out of date. Your imported call history is kept, and your Odoo users and their data are untouched.&#10;&#10;For security, Voxbi disconnects first and takes you back to Voxbi Cockpit to authorize again. Syncing stops until you finish authorizing."
+                            attrs="{'invisible': ['|', ('state', 'not in', ['done', 'failed']), ('is_connected', '=', False)]}"/>
                     <button name="action_install"
                             string="Try again"
                             type="object"
                             class="btn-primary"
-                            attrs="{'invisible': [('state', '!=', 'failed')]}"/>
+                            invisible="1"/>
                     <button name="action_retry_with_fresh_credentials"
                             string="Retry with refreshed credentials"
                             type="object"
                             class="btn-primary"
-                            attrs="{'invisible': ['|', ('state', '!=', 'failed'), ('integration_id', '=', False)]}"/>
+                            invisible="1"/>
                     <button name="action_reset"
                             string="Reset"
                             type="object"
@@ -48,17 +52,17 @@
                     <field name="state" widget="statusbar" statusbar_visible="draft,installing,done"/>
                 </header>
                 <sheet>
-                    <div class="oe_title">
-                        <h1 style="color:#8D3D8A;">Set up Voxbi telephony in Odoo</h1>
-                    </div>
-                    <group string="Connection" invisible="not is_connected">
+                    <group string="Connection" attrs="{'invisible': [('is_connected', '=', False)]}">
                         <field name="is_connected" invisible="1"/>
                         <field name="connected_cockpit_url" string="Cockpit" readonly="1"/>
                         <field name="connected_pbx_id" string="PBX" readonly="1"/>
                         <field name="connected_sync_user" string="Syncing as" readonly="1"/>
                     </group>
-                    <div class="alert alert-info" role="alert"
-                         attrs="{'invisible': [('state', 'in', ('installing', 'done'))]}">
+                    <!-- Connecting is the only way in now, so nothing here asks for a
+                         pasted key. The field stays on the model: action_install still
+                         falls back to it, and hiding the UI must not drop a credential
+                         an existing install is already authenticating with. -->
+                    <div class="alert alert-info" role="alert" invisible="1">
                         <h4 class="alert-heading">Get your Cockpit API key</h4>
                         <p class="mb-1">In <b>Voxbi Cockpit</b>, create an API key for this PBX (once):</p>
                         <ol class="mb-0">
@@ -68,29 +72,29 @@
                             <li><b>Save</b>, then copy the API key — it is shown like a password. Paste it below.</li>
                         </ol>
                     </div>
-                    <group>
+                    <group invisible="1">
                         <field name="cockpit_api_key"
                                string="Cockpit API key"
                                widget="masked_input"
                                placeholder="Paste your Cockpit API key…"
                                attrs="{'readonly': [('state', '=', 'installing')]}"/>
                     </group>
-                    <p class="text-muted" attrs="{'invisible': [('state', 'in', ('installing', 'done'))]}">
+                    <p class="text-muted" invisible="1">
                         The API key is reusable — paste it once. If install fails with an authorization error, re-check that the key has the <b>“Is Odoo Installer”</b> scope in Cockpit.
                     </p>
                     <!-- Sync user. The install runs as the administrator filling in
                          this form; the ONGOING sync must not, so it authenticates as
                          this user with its own long-lived key. Administrators are
                          excluded from the dropdown by group, not by login name. -->
-                    <group string="Sync user" invisible="state in ('installing','done')">
+                    <group string="Sync user" attrs="{'invisible': [('state', 'in', ['installing', 'done'])]}">
                         <field name="allowed_sync_user_ids" invisible="1"/>
                         <field name="has_sync_user_candidates" invisible="1"/>
                         <field name="sync_user_id"
                                string="Sync as"
                                options="{'no_create': True, 'no_open': True}"
-                               invisible="not has_sync_user_candidates"
+                               attrs="{'invisible': [('has_sync_user_candidates', '=', False)]}"
                                placeholder="Choose a non-administrator user…"/>
-                        <div colspan="2" invisible="has_sync_user_candidates">
+                        <div colspan="2" attrs="{'invisible': [('has_sync_user_candidates', '=', True)]}">
                             <p class="text-muted mb-2">
                                 This database has no non-administrator user yet. Voxbi can
                                 create a dedicated one to sync as, so the ongoing sync never
@@ -102,12 +106,11 @@
                                     class="btn-secondary"/>
                         </div>
                     </group>
-                    <p class="text-muted" invisible="state in ('installing','done') or not sync_user_id">
+                    <p class="text-muted" attrs="{'invisible': ['|', ('state', 'in', ['installing', 'done']), ('sync_user_id', '=', False)]}">
                         Voxbi will generate an API key for this user. The key you paste above is
                         used only to install, and is discarded once setup completes.
                     </p>
-                    <div class="alert alert-info" role="alert"
-                         attrs="{'invisible': [('state', 'in', ('installing', 'done'))]}">
+                    <div class="alert alert-info" role="alert" invisible="1">
                         <h4 class="alert-heading">Data shared with Voxbi Cockpit</h4>
                         <p>
                             Installing generates an Odoo API key for your user and sends it —
@@ -117,8 +120,11 @@
                             revoke the key at any time from <b>Preferences → Account Security</b>.
                         </p>
                     </div>
-                    <div class="d-flex align-items-center gap-2 mb-3"
-                         attrs="{'invisible': [('state', 'in', ('installing', 'done'))]}">
+                    <!-- Only the paste-a-key path asks here. A connected customer
+                         authorized on Cockpit's authorize screen, which states what
+                         is sent and what is done with it before they click through;
+                         asking again would be the same question twice. -->
+                    <div class="d-flex align-items-center gap-2 mb-3" invisible="1">
                         <field name="consent" nolabel="1"/>
                         <label for="consent" class="o_form_label m-0">I authorize Voxbi to configure this Odoo</label>
                     </div>
