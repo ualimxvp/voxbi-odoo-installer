@@ -195,7 +195,8 @@ class VoxbiInstallerSetup(models.Model):
         self.sync_user_id = self.env["res.users"].sudo().create({
             "name": "Voxbi Sync",
             "login": SYNC_USER_LOGIN,
-            "groups_id": [(6, 0, [self.env.ref("base.group_user").id])],
+            # Odoo 19 renamed res.users.groups_id to group_ids.
+            "group_ids": [(6, 0, [self.env.ref("base.group_user").id])],
         })
 
     @api.depends("state")

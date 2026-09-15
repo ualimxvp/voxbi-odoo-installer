@@ -18,11 +18,12 @@ class VoxbiPartnerMatcher:
     def find_partner(self, phone, email=None):
         key = normalise_number(phone)
         if key:
-            partners = self.env["res.partner"].search(
-                ["|", ("phone", "!=", False), ("mobile", "!=", False)]
-            )
+            # Odoo 19 dropped res.partner.mobile: a contact has one phone
+            # field now, so there is no second number to check here. Earlier
+            # versions of this module search phone and mobile both.
+            partners = self.env["res.partner"].search([("phone", "!=", False)])
             for partner in partners:
-                for candidate in (partner.phone, partner.mobile):
+                for candidate in (partner.phone,):
                     if candidate and normalise_number(candidate) == key:
                         return partner
 
