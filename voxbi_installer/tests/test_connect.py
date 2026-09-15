@@ -5,6 +5,8 @@ import json
 from datetime import timedelta
 from unittest import mock
 
+import werkzeug.utils
+
 from odoo import fields
 from odoo.tests.common import tagged
 
@@ -96,3 +98,42 @@ class TestConnect(VoxbiConnectorCase):
         self.assertEqual(len(backend), 1)
         self.assertEqual(backend.cockpit_url, "https://cockpit.test")
         self.assertIn("42", backend.name)
+
+    def test_callback_redirects_to_configuration_not_backend_list(self):
+        # The flow continues on the Configuration wizard (pick a sync user,
+        # tick consent, install). The raw backend list is not in the menu
+        # and is not where the customer should land.
+        Setup = self.env["voxbi.installer.setup"].with_user(self.admin)
+        state = Setup._create_connect_state()
+
+        response = mock.Mock(status_code=200)
+        response.json.return_value = {
+            "api_key": "plaintext-key-2",
+            "cockpit_base_url": "https://cockpit.test",
+            "pbx_id": "43",
+        }
+        config_action = self.env.ref("voxbi_installer.action_voxbi_installer_open")
+        backend_action = self.env.ref("voxbi_installer.action_voxbi_backend")
+
+        # request is a werkzeug LocalProxy with no bound request in a
+        # TransactionCase, so it must be swapped in via new=... rather than
+        # letting mock.patch introspect (and evaluate) the original.
+        mock_request = mock.MagicMock()
+        mock_request.env = self.env(user=self.admin)
+        # The route wrapper coerces the endpoint's return value into a
+        # werkzeug Response, so the mocked redirect() must produce one too.
+        mock_request.redirect.side_effect = (
+            lambda url, *a, **kw: werkzeug.utils.redirect(url)
+        )
+        with mock.patch(PATCH, return_value=response):
+            with mock.patch(
+                "odoo.addons.voxbi_installer.controllers.connect.request",
+                new=mock_request,
+            ):
+                VoxbiConnectController().voxbi_connect_callback(
+                    state=state, code="auth-code"
+                )
+
+        redirect_url = mock_request.redirect.call_args.args[0]
+        self.assertEqual(redirect_url, f"/odoo/action-{config_action.id}")
+        self.assertNotEqual(redirect_url, f"/odoo/action-{backend_action.id}")
