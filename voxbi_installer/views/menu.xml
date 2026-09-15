@@ -14,11 +14,4 @@
               action="action_voxbi_installer_open"
               sequence="100"/>
 
-    <menuitem id="menu_voxbi_calls"
-              name="Calls"
-              parent="menu_voxbi_root"
-              action="action_voxbi_call"
-              groups="group_voxbi_user"
-              sequence="10"/>
-
 </odoo>
