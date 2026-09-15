@@ -131,6 +131,9 @@ class VoxbiConnectController(http.Controller):
         except ValidationError as exc:
             raise ConnectError(str(exc)) from exc
 
+        if pbx_id:
+            env["ir.config_parameter"].sudo().set_param("voxbi.pbx_id", str(pbx_id))
+
     @staticmethod
     def _render_error(message):
         html = (

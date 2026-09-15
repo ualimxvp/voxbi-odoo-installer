@@ -8,3 +8,4 @@ from . import test_incremental
 from . import test_access
 from . import test_connect
 from . import test_sync_swap
+from . import test_connection_state

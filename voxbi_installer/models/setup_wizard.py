@@ -84,6 +84,14 @@ class VoxbiInstallerSetup(models.Model):
         compute="_compute_allowed_sync_user_ids",
         help="False on a fresh Odoo whose only user is the administrator.",
     )
+    is_connected = fields.Boolean(
+        compute="_compute_connection_state",
+        help="True once consent has produced a Cockpit credential. Drives which "
+        "half of the configuration page is shown.",
+    )
+    connected_cockpit_url = fields.Char(compute="_compute_connection_state")
+    connected_pbx_id = fields.Char(compute="_compute_connection_state")
+    connected_sync_user = fields.Char(compute="_compute_connection_state")
     consent = fields.Boolean(
         string="I authorize Voxbi to configure this Odoo",
         default=False,
@@ -145,6 +153,25 @@ class VoxbiInstallerSetup(models.Model):
         for record in self:
             record.allowed_sync_user_ids = allowed
             record.has_sync_user_candidates = bool(allowed)
+
+    @api.depends_context("uid")
+    def _compute_connection_state(self):
+        """Read the connection off the backend record.
+
+        Holding an api_key IS being connected: it is the credential every
+        outbound call uses, so anything else would be a second opinion that can
+        disagree with reality.
+        """
+        backend = self.env["voxbi.backend"].sudo().search([], limit=1, order="id asc")
+        for record in self:
+            record.is_connected = bool(backend and backend.api_key)
+            record.connected_cockpit_url = backend.cockpit_url if backend else False
+            record.connected_pbx_id = self.env["ir.config_parameter"].sudo().get_param(
+                "voxbi.pbx_id", default=False
+            )
+            record.connected_sync_user = (
+                record.sync_user_id.login if record.sync_user_id else False
+            )
 
     def action_create_sync_user(self):
         """Create a dedicated, non-admin user for the sync to authenticate as.
