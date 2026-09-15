@@ -12,7 +12,14 @@
                     <button name="action_connect_cockpit"
                             string="Connect to Voxbi Cockpit"
                             type="object"
-                            class="btn-secondary"/>
+                            class="btn-secondary"
+                            invisible="is_connected"/>
+                    <button name="action_disconnect"
+                            string="Disconnect Voxbi"
+                            type="object"
+                            class="btn-secondary"
+                            confirm="Disconnect this Odoo from Voxbi? Call history already imported is kept, but syncing stops and the credentials are revoked."
+                            invisible="not is_connected"/>
                     <button name="action_install"
                             string="Install"
                             type="object"
@@ -44,6 +51,12 @@
                     <div class="oe_title">
                         <h1 style="color:#8D3D8A;">Set up Voxbi telephony in Odoo</h1>
                     </div>
+                    <group string="Connection" invisible="not is_connected">
+                        <field name="is_connected" invisible="1"/>
+                        <field name="connected_cockpit_url" string="Cockpit" readonly="1"/>
+                        <field name="connected_pbx_id" string="PBX" readonly="1"/>
+                        <field name="connected_sync_user" string="Syncing as" readonly="1"/>
+                    </group>
                     <div class="alert alert-info" role="alert"
                          invisible="state in ('installing','done')">
                         <h4 class="alert-heading">Get your Cockpit API key</h4>
