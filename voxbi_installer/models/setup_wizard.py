@@ -208,19 +208,30 @@ class VoxbiInstallerSetup(models.Model):
     # --- helpers ---------------------------------------------------------
 
     def _cockpit_base_url(self):
-        url = (self.env["ir.config_parameter"].sudo().get_param(
+        url = self.env["ir.config_parameter"].sudo().get_param(
             "voxbi.cockpit_url", DEFAULT_COCKPIT_URL
-        ) or "").strip().rstrip("/")
-        # The Cockpit Bearer key and a freshly minted Odoo service key are sent
-        # to this host, so refuse anything that isn't a plain https:// URL. This
-        # blocks file://, http:// and SSRF to internal/metadata endpoints even
-        # if the system parameter is tampered with.
+        )
+        return self._require_https_cockpit_url(
+            url, _('system parameter "voxbi.cockpit_url"')
+        )
+
+    def _require_https_cockpit_url(self, url, source):
+        """Reject anything but a plain https:// URL.
+
+        Shared by every place this module picks a Cockpit host to talk to,
+        whichever record the URL came from (the system parameter or a
+        voxbi.backend row): the Cockpit Bearer key and a freshly minted Odoo
+        service key are sent to this host, so this blocks file://, http://
+        and SSRF to internal/metadata endpoints even if the source value is
+        tampered with.
+        """
+        url = (url or "").strip().rstrip("/")
         parsed = urllib.parse.urlparse(url)
         if parsed.scheme != "https" or not parsed.netloc:
             raise UserError(_(
-                "The Voxbi Cockpit URL (system parameter “voxbi.cockpit_url”) must "
-                "be a valid https:// URL. Current value: %s"
-            ) % (url or _("empty")))
+                "The Voxbi Cockpit URL (%(source)s) must be a valid https:// "
+                "URL. Current value: %(url)s"
+            ) % {"source": source, "url": url or _("empty")})
         return url
 
     def _odoo_self_url(self):
@@ -896,13 +907,29 @@ class VoxbiInstallerSetup(models.Model):
         # the "already revoked" rule below would report success while Cockpit
         # still held a live key. Prefer the backend key; fall back to
         # cockpit_api_key so a paste-a-key install can still revoke.
+        #
+        # The destination host must come from that same source: the connect
+        # flow never writes voxbi.cockpit_url (only the backend record's own
+        # cockpit_url), so building the URL from the system parameter here
+        # sends a connect-flow customer's key to whatever Cockpit that
+        # parameter happens to name -- the wrong one, if it names one at all.
+        # Keying the URL off wherever the credential itself came from keeps
+        # them from ever pointing at two different Cockpits.
         key = (backend.api_key if backend else False) or self._cockpit_api_key()
 
         # With no credential at all there is nothing to revoke remotely: skip
         # the call rather than sending it unauthenticated and reading its 401
-        # as a revocation that never happened.
+        # as a revocation that never happened. Only reached once a key exists,
+        # so the base URL lookup below (and its https validation) never runs
+        # needlessly on a disconnect with nothing to revoke.
         if key:
-            url = f"{self._cockpit_base_url()}/api/v1/odoo-connect/revoke"
+            if backend and backend.api_key:
+                base_url = self._require_https_cockpit_url(
+                    backend.cockpit_url, _("connected backend record")
+                )
+            else:
+                base_url = self._cockpit_base_url()
+            url = f"{base_url}/api/v1/odoo-connect/revoke"
             status, body = self._post_json_with_key(url, {}, key)
 
             # 401 means the key is already dead: Cockpit hard deletes the token,

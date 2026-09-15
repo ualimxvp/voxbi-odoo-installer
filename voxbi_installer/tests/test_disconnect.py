@@ -138,3 +138,58 @@ class TestDisconnect(TransactionCase):
 
         request = urlopen.call_args[0][0]
         self.assertEqual(request.get_header("Authorization"), "Bearer pasted-key")
+
+    # --- which Cockpit the revoke is actually sent to -------------------
+
+    def test_revoke_url_is_built_from_the_backend_cockpit_url(self):
+        # The connect flow never writes voxbi.cockpit_url, only the backend
+        # record's own cockpit_url, so the revoke target must come from the
+        # backend, not from the system parameter.
+        with patch.object(
+            type(self.setup), "_post_json_with_key", return_value=(200, {"status": "revoked"})
+        ) as post:
+            self.setup.action_disconnect()
+
+        url = post.call_args[0][0]
+        self.assertEqual(
+            url, "https://cockpit.example.com/api/v1/odoo-connect/revoke"
+        )
+
+    def test_paste_a_key_fallback_still_uses_the_system_parameter_url(self):
+        # No backend key present: the credential is the pasted one, so the
+        # destination must be _cockpit_base_url(), not the backend record.
+        self.backend.write({"api_key": False})
+        self.setup.cockpit_api_key = "pasted-key"
+        self.env["ir.config_parameter"].sudo().set_param(
+            "voxbi.cockpit_url", "https://param.example.com"
+        )
+
+        with patch.object(
+            type(self.setup), "_post_json_with_key", return_value=(200, {"status": "revoked"})
+        ) as post:
+            self.setup.action_disconnect()
+
+        url = post.call_args[0][0]
+        self.assertEqual(
+            url, "https://param.example.com/api/v1/odoo-connect/revoke"
+        )
+
+    def test_backend_url_wins_over_a_different_system_parameter(self):
+        # Regression test for the bug: an instance where voxbi.cockpit_url
+        # names a DIFFERENT Cockpit than the one the backend actually
+        # connected to must still revoke at the backend's own Cockpit, never
+        # at the one named by the system parameter.
+        self.env["ir.config_parameter"].sudo().set_param(
+            "voxbi.cockpit_url", "https://other-cockpit.example.com"
+        )
+
+        with patch.object(
+            type(self.setup), "_post_json_with_key", return_value=(200, {"status": "revoked"})
+        ) as post:
+            self.setup.action_disconnect()
+
+        url = post.call_args[0][0]
+        self.assertEqual(
+            url, "https://cockpit.example.com/api/v1/odoo-connect/revoke"
+        )
+        self.assertNotIn("other-cockpit.example.com", url)
