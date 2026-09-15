@@ -137,6 +137,11 @@ class VoxbiConnectController(http.Controller):
         if pbx_id:
             env["ir.config_parameter"].sudo().set_param("voxbi.pbx_id", str(pbx_id))
 
+        # Authorizing on Cockpit IS the go-ahead, so the install starts here
+        # rather than waiting behind one more button on the page the customer
+        # is about to land on.
+        env["voxbi.installer.setup"]._autostart_install()
+
     @staticmethod
     def _render_error(message):
         html = (
