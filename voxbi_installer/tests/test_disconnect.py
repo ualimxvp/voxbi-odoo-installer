@@ -4,10 +4,13 @@ from unittest.mock import MagicMock, patch
 from odoo.exceptions import UserError
 from odoo.tests import TransactionCase
 
+from .common import ensure_installed_models
+
 
 class TestDisconnect(TransactionCase):
     def setUp(self):
         super().setUp()
+        ensure_installed_models(self.env)
         self.env["voxbi.backend"].search([]).unlink()
         self.backend = self.env["voxbi.backend"].create({
             "name": "Voxbi Cockpit",
