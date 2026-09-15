@@ -579,7 +579,17 @@ class VoxbiInstallerSetup(models.Model):
         # Cockpit Integration.job_status: pending | processing | success | failed
         if remote_status == "success":
             self._swap_to_sync_user()
-            message = _("Voxbi installed successfully.")
+            # The Calls menu and the tabs on Contacts, Leads and Tasks are
+            # created server-side during the install, so the browser is still
+            # holding the menu it loaded before any of them existed. Nothing
+            # is wrong, but without saying so the customer reads a success
+            # message and then cannot find what it installed.
+            reload_hint = _(
+                "Refresh this page (F5) to see the Voxbi Calls menu and the "
+                "Calls tabs on your contacts."
+            )
+
+            message = _("Voxbi installed successfully. %s") % reload_hint
             if self.sync_user_id and not self.sync_user_swapped:
                 # The install itself succeeded; only the handoff of the sync
                 # credential failed (Cockpit briefly unreachable, etc). Say so
@@ -588,8 +598,8 @@ class VoxbiInstallerSetup(models.Model):
                 message = _(
                     "Voxbi installed successfully. Handing the sync credentials "
                     "to Cockpit failed and will be retried the next time this "
-                    "page is opened."
-                )
+                    "page is opened. %s"
+                ) % reload_hint
             self.write({
                 "state": "done",
                 "message": message,
