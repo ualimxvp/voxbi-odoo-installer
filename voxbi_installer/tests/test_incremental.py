@@ -18,6 +18,10 @@ class TestIncremental(VoxbiConnectorCase):
         return self.env["x_voxbi.calls"].search_count([])
 
     def test_first_run_imports_and_advances_the_cursor(self):
+        # x_voxbi.calls is installed by Cockpit into the customer's own
+        # database, so the table is not guaranteed empty when the test
+        # starts. Assert the increase, not an absolute total.
+        before = self._count()
         page = {
             "calls": [call_payload()],
             "next_since": "2026-09-10T08:04:11Z",
@@ -26,7 +30,7 @@ class TestIncremental(VoxbiConnectorCase):
         with mock.patch(ADAPTER, return_value=page):
             self.backend.run_incremental_sync()
 
-        self.assertEqual(self._count(), 1)
+        self.assertEqual(self._count(), before + 1)
         self.assertEqual(
             self.backend.cursor_since.strftime("%Y-%m-%d %H:%M:%S"),
             "2026-09-10 08:04:11",
@@ -45,17 +49,19 @@ class TestIncremental(VoxbiConnectorCase):
             "next_since": "2026-09-10T08:09:00Z",
             "has_more": False,
         }
+        before = self._count()
         with mock.patch(ADAPTER, side_effect=[first, second]):
             self.backend.run_incremental_sync()
 
-        self.assertEqual(self._count(), 2)
+        self.assertEqual(self._count(), before + 2)
 
     def test_a_transport_failure_is_recorded_and_the_cursor_holds(self):
         from ..components.adapter import VoxbiTransportError
 
+        before = self._count()
         with mock.patch(ADAPTER, side_effect=VoxbiTransportError("boom")):
             self.backend.run_incremental_sync()
 
-        self.assertEqual(self._count(), 0)
+        self.assertEqual(self._count(), before)
         self.assertFalse(self.backend.cursor_since)
         self.assertIn("boom", self.backend.last_error)

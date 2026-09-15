@@ -64,9 +64,9 @@ class TestMapper(TransactionCase):
     def test_maps_the_text_fields(self):
         values = self.mapper.values(self.payload())
         self.assertEqual(values["x_call_type"], "INCOMING")
-        self.assertEqual(values["x_phone"], "+352661123456")
+        self.assertEqual(values["x_remote_person_number"], "+352661123456")
         self.assertEqual(values["x_remote_person"], "Anne Weber")
-        self.assertEqual(values["x_email"], "anne@example.lu")
+        self.assertEqual(values["x_remote_person_email"], "anne@example.lu")
         self.assertEqual(values["x_transcription"], "hello")
         self.assertEqual(values["x_summary"], "a summary")
         self.assertEqual(values["x_translation"], "une traduction")
