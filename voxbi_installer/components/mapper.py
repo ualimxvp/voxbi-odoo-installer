@@ -15,49 +15,44 @@ class VoxbiCallMapper:
         self.backend_record = backend
 
     def values(self, record):
-        """Feed payload to Odoo field values, participants included."""
-        # Straight field copies, feed key on the left, Odoo field on the right.
+        """Feed payload to x_voxbi.calls field values.
+
+        The target model is installed by Cockpit over XML-RPC, so every field
+        carries the x_ prefix Odoo requires for custom fields. Relation fields
+        are deliberately absent: a user links calls to leads and tickets by
+        hand, and writing them here would fight that.
+
+        Participants are handled separately by the importer, since
+        x_voxbi.call_participants links back to the call by x_call_id rather
+        than hanging off it as a one2many.
+        """
         direct = [
-            ("id", "external_id"),
-            ("direction", "direction"),
-            ("duration", "duration"),
-            ("billsec", "billsec"),
-            ("phone", "phone"),
-            ("contact_name", "contact_name"),
-            ("contact_email", "contact_email"),
-            ("recording_url", "recording_url"),
-            ("transcription", "transcription"),
-            ("summary", "summary"),
-            ("translation", "translation"),
-            ("keywords", "keywords"),
-            ("ai_categories", "ai_categories"),
+            ("direction", "x_call_type"),
+            ("duration", "x_duration"),
+            ("billsec", "x_billsec"),
+            ("phone", "x_phone"),
+            ("contact_name", "x_remote_person"),
+            ("contact_email", "x_email"),
+            ("recording_url", "x_call_recording"),
+            ("transcription", "x_transcription"),
+            ("summary", "x_summary"),
+            ("translation", "x_translation"),
+            ("keywords", "x_keywords"),
+            ("ai_categories", "x_ai_categories"),
         ]
-        values = {odoo_field: record.get(feed_key) for feed_key, odoo_field in direct}
+        values = {field: record.get(key) for key, field in direct}
 
-        values["backend_id"] = self.backend_record.id
+        # The join key. int because the Odoo field is an integer while
+        # crm_messages.cdrs_id is a varchar holding digits.
+        values["x_internal_id"] = int(record["cdrs_id"])
 
-        values["started_at"] = _to_odoo_datetime(record.get("started_at"))
-        values["ended_at"] = _to_odoo_datetime(record.get("ended_at"))
-
-        # Replace the participant set wholesale. The feed sends the full
-        # participant list every time, so delete-all plus create is both
-        # simpler and correct, where merging would leave stale rows behind
-        # when someone drops off a call.
-        commands = [(5, 0, 0)]
-        for participant in record.get("participants") or []:
-            commands.append(
-                (
-                    0,
-                    0,
-                    {
-                        "external_id": participant.get("id"),
-                        "name": participant.get("name") or False,
-                        "phone": participant.get("phone") or False,
-                        "email": participant.get("email") or False,
-                        "internal": bool(participant.get("internal")),
-                    },
-                )
-            )
-        values["participant_ids"] = commands
+        # All three, including answered_at, which the previous mapper dropped.
+        # These three are CHAR display fields, not datetimes. The feed renders
+        # them the same way the push path does, so they are copied verbatim.
+        # Formatting the ISO values here instead would write a different shape
+        # and a different clock for the same call, and nothing would fail.
+        values["x_start_time"] = record.get("started_at_display") or False
+        values["x_answer_time"] = record.get("answered_at_display") or False
+        values["x_end_time"] = record.get("ended_at_display") or False
 
         return values
