@@ -78,7 +78,7 @@ class TestDisconnect(TransactionCase):
         )
 
     def test_keeps_call_records(self):
-        model = self.env["ir.model"].sudo().search([("model", "=", "voxbi.call")], limit=1)
+        model = self.env["ir.model"].sudo().search([("model", "=", "x_voxbi.calls")], limit=1)
         with patch.object(
             type(self.setup), "_post_json_with_key", return_value=(200, {"status": "revoked"})
         ):
