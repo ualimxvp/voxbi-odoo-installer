@@ -836,6 +836,66 @@ class VoxbiInstallerSetup(models.Model):
             return False
         return fields.Datetime.now() <= expires_at
 
+    def action_disconnect(self):
+        """Withdraw the Voxbi connection, revoking rather than forgetting.
+
+        Order matters: Cockpit is asked to revoke FIRST, and a refusal aborts
+        the whole thing. Clearing locally first would leave a live credential
+        with nothing left in this database that knows how to revoke it.
+
+        Nothing is uninstalled. The Voxbi models, views and call records stay,
+        so a customer who reconnects later keeps their history.
+        """
+        self.ensure_one()
+
+        if not self.env.user.has_group("base.group_system"):
+            raise UserError(self.env._(
+                "You are not allowed to disconnect the Voxbi connection."
+            ))
+
+        backend = self.env["voxbi.backend"].sudo().search([], limit=1, order="id asc")
+
+        if backend and backend.api_key:
+            url = f"{self._cockpit_base_url()}/api/v1/odoo-connect/revoke"
+            status, body = self._post_json(url, {})
+
+            # 401 means the key is already dead: Cockpit hard deletes the token,
+            # so a second attempt cannot authenticate with it. Treat that as
+            # success and carry on with local cleanup, otherwise a disconnect
+            # that failed halfway can never be completed -- the customer would
+            # be stuck holding a local credential Cockpit no longer honours.
+            if status not in (200, 401):
+                raise UserError(self.env._(
+                    "Voxbi Cockpit could not revoke the connection (%s). Nothing "
+                    "was changed here, so you can try again."
+                ) % self._api_error_message(status, body))
+
+            # Only the key. cockpit_url stays: it is not a secret, keeping it
+            # prefills a later reconnect, and clearing it trips the model's
+            # https constraint, which rejects an empty URL.
+            backend.sudo().write({"api_key": False})
+
+        # Both keys Voxbi minted inside this Odoo. The installer key still
+        # exists here even though Cockpit stopped storing it: the swap replaced
+        # Cockpit's copy, it never revoked the key itself.
+        #
+        # Matched by NAME and scope, never scope alone: customers have their own
+        # rpc keys for unrelated integrations.
+        self.env["res.users.apikeys"].sudo().search([
+            ("scope", "=", API_KEY_SCOPE),
+            ("name", "in", [API_KEY_NAME, SYNC_API_KEY_NAME]),
+        ]).unlink()
+
+        self.env["ir.config_parameter"].sudo().set_param(SYNC_USER_PARAM, False)
+
+        # The sync user itself is left alone: Voxbi may have created it, but it
+        # is a user in the customer's database and may own records.
+        self.write({
+            "cockpit_api_key": False,
+            "sync_user_swapped": False,
+            "message": self.env._("Voxbi has been disconnected."),
+        })
+
     # --- menu reconciliation ----------------------------------------------
 
     @api.model
