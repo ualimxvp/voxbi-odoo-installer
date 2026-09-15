@@ -3,10 +3,13 @@
 
 from odoo.tests import TransactionCase
 
+from .common import ensure_installed_models
+
 
 class TestParticipants(TransactionCase):
     def setUp(self):
         super().setUp()
+        ensure_installed_models(self.env)
         self.backend = self.env["voxbi.backend"].create({
             "name": "Voxbi Cockpit",
             "cockpit_url": "https://cockpit.example.com",

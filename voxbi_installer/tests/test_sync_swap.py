@@ -1,9 +1,9 @@
 from unittest.mock import patch
 
-from odoo.tests import TransactionCase
+from .common import VoxbiConnectorCase
 
 
-class TestSyncSwap(TransactionCase):
+class TestSyncSwap(VoxbiConnectorCase):
     def setUp(self):
         super().setUp()
         self.setup = self.env["voxbi.installer.setup"].create({})
