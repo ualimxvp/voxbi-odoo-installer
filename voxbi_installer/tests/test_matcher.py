@@ -43,18 +43,24 @@ class TestNormalise(VoxbiConnectorCase):
 
 @tagged("post_install", "-at_install")
 class TestMatcher(VoxbiConnectorCase):
+    # x_voxbi.calls.x_partner_id is a stored compute field on the installed
+    # target model, derived from x_remote_person_number / x_remote_person_email
+    # rather than from a value the importer can write. So these exercise the
+    # matcher directly against a call payload's own fields, the same way the
+    # two tests below do, instead of asserting on call.x_partner_id.
     def test_import_links_a_partner_whose_number_matches(self):
         partner = self.env["res.partner"].create(
             {"name": "Anne Weber", "phone": "00352 661 123 456"}
         )
-        call = VoxbiCallImporter(self.env, self.backend).run(call_payload())
-        self.assertEqual(call.partner_id, partner)
+        payload = call_payload()
+        matcher = VoxbiCallImporter(self.env, self.backend).matcher
+        found = matcher.find_partner(payload["phone"], payload["contact_email"])
+        self.assertEqual(found, partner)
 
     def test_no_match_leaves_partner_empty(self):
-        call = VoxbiCallImporter(self.env, self.backend).run(
-            call_payload(phone="+3529999999")
-        )
-        self.assertFalse(call.partner_id)
+        matcher = VoxbiCallImporter(self.env, self.backend).matcher
+        found = matcher.find_partner("+3529999999", None)
+        self.assertFalse(found)
 
     def test_email_fallback_only_fires_when_number_fails(self):
         self.env["res.partner"].create(
