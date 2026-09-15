@@ -44,7 +44,6 @@ of data shared.
         "security/voxbi_record_rules.xml",
         "views/setup_wizard_views.xml",
         "views/voxbi_backend_views.xml",
-        "views/voxbi_call_views.xml",
         "views/menu.xml",
         "data/reconcile_menus.xml",
         "data/ir_cron.xml",
