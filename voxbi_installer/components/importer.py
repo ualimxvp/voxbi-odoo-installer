@@ -21,21 +21,28 @@ class VoxbiCallImporter:
         self.matcher = VoxbiPartnerMatcher(env, backend)
 
     def run(self, payload):
-        existing = self.binder.to_internal(payload["id"])
+        cdrs_id = payload.get("cdrs_id")
 
-        if payload.get("deleted"):
-            if existing:
-                existing.unlink()
-            return self.env["voxbi.call"].browse()
+        # crm_messages.cdrs_id is populated by the CDRS engine after the call
+        # ends, so a just-ended call has no key yet. That is normal and
+        # transient: the call arrives on a later poll once the key exists.
+        if not cdrs_id:
+            _logger.info(
+                "Voxbi: call %s has no cdrs_id yet, will import on a later poll",
+                payload.get("id"),
+            )
+            return self.env["x_voxbi.calls"].browse()
+
+        existing = self.binder.to_internal(cdrs_id)
 
         values = self.mapper.values(payload)
 
         partner = self.matcher.find_partner(
             payload.get("phone"), payload.get("contact_email")
         )
-        values["partner_id"] = partner.id or False
+        values["x_partner_id"] = partner.id or False
 
         if existing:
             existing.write(values)
             return existing
-        return self.env["voxbi.call"].create(values)
+        return self.env["x_voxbi.calls"].create(values)
