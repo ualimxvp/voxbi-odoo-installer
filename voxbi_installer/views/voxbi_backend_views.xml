@@ -30,18 +30,18 @@
         <field name="name">voxbi.backend.list</field>
         <field name="model">voxbi.backend</field>
         <field name="arch" type="xml">
-            <list string="Voxbi Backends">
+            <tree string="Voxbi Backends">
                 <field name="name"/>
                 <field name="cockpit_url"/>
                 <field name="last_run"/>
                 <field name="backfill_done"/>
-            </list>
+            </tree>
         </field>
     </record>
 
     <record id="action_voxbi_backend" model="ir.actions.act_window">
         <field name="name">Voxbi Backends</field>
         <field name="res_model">voxbi.backend</field>
-        <field name="view_mode">list,form</field>
+        <field name="view_mode">tree,form</field>
     </record>
 </odoo>
