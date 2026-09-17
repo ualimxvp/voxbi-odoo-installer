@@ -1,0 +1,23 @@
+/* Copyright 2026 Mixvoip SA */
+/* License LGPL-3 (https://www.gnu.org/licenses/lgpl-3.0.html). */
+
+/* Terminal-style container for the Cockpit install log. The styling lives here
+   (not inline) because Odoo 16's HTML-field sanitizer strips background,
+   overflow and max-height from inline styles — a class survives sanitisation.
+   Per-line text colour stays inline in the rendered HTML (color survives). */
+.o_voxbi_output {
+    width: 100%;
+    background: #0b0b0b;
+    color: #e5e7eb;
+    padding: 12px;
+    border-radius: 6px;
+    font-family: ui-monospace, Menlo, Consolas, monospace;
+    font-size: 12px;
+    max-height: 480px;
+    overflow: auto;
+}
+
+.o_voxbi_output > div {
+    white-space: pre-wrap;
+    word-break: break-word;
+}

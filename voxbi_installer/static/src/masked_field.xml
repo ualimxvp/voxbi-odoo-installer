@@ -2,7 +2,7 @@
 <!-- Copyright 2026 Mixvoip SA -->
 <!-- License LGPL-3 (https://www.gnu.org/licenses/lgpl-3.0.html). -->
 <templates xml:space="preserve">
-    <t t-name="voxbi_installer.MaskedTextField">
+    <t t-name="voxbi_installer.MaskedTextField" owl="1">
         <div class="d-inline-flex align-items-center gap-2">
             <span class="font-monospace" t-esc="displayValue"/>
             <button t-if="value" type="button"
@@ -14,7 +14,7 @@
         </div>
     </t>
 
-    <t t-name="voxbi_installer.MaskedInputField">
+    <t t-name="voxbi_installer.MaskedInputField" owl="1">
         <div class="d-flex align-items-center gap-2 w-100">
             <input class="form-control"
                    t-att-type="state.revealed ? 'text' : 'password'"
