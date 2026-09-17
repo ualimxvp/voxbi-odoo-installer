@@ -11,7 +11,7 @@ XML-RPC.
 | | |
 |------------------|-------------------------------------------------|
 | **Module**       | `voxbi_installer`                               |
-| **Version**      | `18.0.2.0.0`                                     |
+| **Version**      | `19.0.2.0.0`                                     |
 | **Author**       | Mixvoip SA                                       |
 | **Website**      | https://voxbi.com                                |
 | **Support**      | support@mixvoip.com                              |
@@ -22,16 +22,15 @@ XML-RPC.
 
 ## Compatibility
 
-The module is **developed and released for Odoo 18.0**. Compatibility with
+The module is **developed and released for Odoo 19.0**. Compatibility with
 other releases is assessed from the code (view syntax and ORM APIs used) and is
-noted below; only 18.0 is officially tested.
+noted below; only 19.0 is officially tested.
 
 | Odoo series | Edition        | Status                | Notes |
 |-------------|----------------|-----------------------|-------|
-| **18.0**    | Community & Enterprise | ✅ **Supported (target)** | Declared in the manifest; developed and tested against this release. |
-| **17.0**    | Community & Enterprise | ⚠️ **Source-compatible** | Uses the 17.0+ view expression syntax and the `res.users.apikeys._generate(scope, name, expiration_date)` signature. Should run after changing the manifest `version` series prefix to `17.0`. Not officially tested. |
+| **19.0**    | Community & Enterprise | ✅ **Supported (target)** | Declared in the manifest; developed and tested against this release. |
+| **18.0** / **17.0** | Community & Enterprise | ⚠️ **Source-compatible** | Same view expression syntax and `res.users.apikeys._generate(scope, name, expiration_date)` signature. Dedicated releases exist on the matching branches; use those instead of changing the version prefix. |
 | **≤ 16.0**  | —              | ❌ **Not supported**   | The wizard views use Odoo 17.0+ attribute expressions (`invisible="state != 'draft'"`, `readonly="…"`). These series require the removed `attrs`/`states` syntax, so the views will not load. |
-| **19.0+**   | —              | ❓ **Untested**        | Not verified. Re-test the view syntax and the API-key generation signature before use. |
 
 **Why the cutoff is 17.0:** Odoo 17.0 removed the legacy `attrs`/`states` view
 attributes in favor of direct Python expressions (`invisible="…"`,
@@ -78,7 +77,7 @@ There are two distinct credentials, do not confuse them:
 
 ## Prerequisites
 
-- An Odoo 18.0 instance you administer.
+- An Odoo 19.0 instance you administer.
 - An active **Voxbi** subscription and access to **Voxbi Cockpit**.
 - Outbound HTTPS connectivity from Odoo to `https://cockpit.voxbi.com`.
 
