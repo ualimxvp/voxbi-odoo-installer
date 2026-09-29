@@ -2,7 +2,7 @@
 // Copyright 2026 Mixvoip SA
 // License LGPL-3 (https://www.gnu.org/licenses/lgpl-3.0.html).
 
-import { Component, useState } from "@odoo/owl";
+import { Component, signal, t, useProps } from "@odoo/owl";
 import { registry } from "@web/core/registry";
 import { standardFieldProps } from "@web/views/fields/standard_field_props";
 
@@ -10,11 +10,9 @@ import { standardFieldProps } from "@web/views/fields/standard_field_props";
 // Used for the token / integration identifiers so they aren't shown by default.
 export class MaskedTextField extends Component {
     static template = "voxbi_installer.MaskedTextField";
-    static props = { ...standardFieldProps };
+    props = useProps(standardFieldProps);
 
-    setup() {
-        this.state = useState({ revealed: false });
-    }
+    revealed = signal(false);
 
     get value() {
         return this.props.record.data[this.props.name] || "";
@@ -25,11 +23,11 @@ export class MaskedTextField extends Component {
             return "";
         }
         // Fixed-length mask so the real length isn't leaked.
-        return this.state.revealed ? this.value : "••••••••••••";
+        return this.revealed() ? this.value : "••••••••••••";
     }
 
     toggle() {
-        this.state.revealed = !this.state.revealed;
+        this.revealed.set(!this.revealed());
     }
 }
 
@@ -46,14 +44,12 @@ registry.category("fields").add("masked_text", maskedTextField);
 // while still being typeable/pasteable.
 export class MaskedInputField extends Component {
     static template = "voxbi_installer.MaskedInputField";
-    static props = {
+    props = useProps({
         ...standardFieldProps,
-        placeholder: { type: String, optional: true },
-    };
+        placeholder: t.string().optional(),
+    });
 
-    setup() {
-        this.state = useState({ revealed: false });
-    }
+    revealed = signal(false);
 
     get value() {
         return this.props.record.data[this.props.name] || "";
@@ -64,7 +60,7 @@ export class MaskedInputField extends Component {
     }
 
     toggle() {
-        this.state.revealed = !this.state.revealed;
+        this.revealed.set(!this.revealed());
     }
 }
 

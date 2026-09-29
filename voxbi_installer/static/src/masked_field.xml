@@ -4,12 +4,12 @@
 <templates xml:space="preserve">
     <t t-name="voxbi_installer.MaskedTextField">
         <div class="d-inline-flex align-items-center gap-2">
-            <span class="font-monospace" t-esc="displayValue"/>
-            <button t-if="value" type="button"
+            <span class="font-monospace" t-esc="this.displayValue"/>
+            <button t-if="this.value" type="button"
                     class="btn btn-link btn-sm p-0 text-muted"
-                    t-on-click="toggle"
-                    t-att-title="state.revealed ? 'Hide' : 'Show'">
-                <i class="fa" t-att-class="state.revealed ? 'fa-eye-slash' : 'fa-eye'"/>
+                    t-on-click="this.toggle"
+                    t-att-title="this.revealed() ? 'Hide' : 'Show'">
+                <i class="oi" t-att-data-icon="this.revealed() ? 'visibility_off' : 'visibility'" role="img" aria-hidden="true"/>
             </button>
         </div>
     </t>
@@ -17,17 +17,17 @@
     <t t-name="voxbi_installer.MaskedInputField">
         <div class="d-flex align-items-center gap-2 w-100">
             <input class="form-control"
-                   t-att-type="state.revealed ? 'text' : 'password'"
-                   t-att-value="value"
-                   t-att-placeholder="props.placeholder"
-                   t-att-readonly="props.readonly"
+                   t-att-type="this.revealed() ? 'text' : 'password'"
+                   t-att-value="this.value"
+                   t-att-placeholder="this.props.placeholder"
+                   t-att-readonly="this.props.readonly"
                    autocomplete="off"
-                   t-on-input="onInput"/>
-            <button t-if="!props.readonly" type="button"
+                   t-on-input="this.onInput"/>
+            <button t-if="!this.props.readonly" type="button"
                     class="btn btn-link btn-sm p-0 text-muted"
-                    t-on-click="toggle"
-                    t-att-title="state.revealed ? 'Hide' : 'Show'">
-                <i class="fa" t-att-class="state.revealed ? 'fa-eye-slash' : 'fa-eye'"/>
+                    t-on-click="this.toggle"
+                    t-att-title="this.revealed() ? 'Hide' : 'Show'">
+                <i class="oi" t-att-data-icon="this.revealed() ? 'visibility_off' : 'visibility'" role="img" aria-hidden="true"/>
             </button>
         </div>
     </t>

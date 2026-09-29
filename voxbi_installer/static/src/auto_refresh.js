@@ -2,7 +2,7 @@
 // Copyright 2026 Mixvoip SA
 // License LGPL-3 (https://www.gnu.org/licenses/lgpl-3.0.html).
 
-import { Component, useEffect } from "@odoo/owl";
+import { Component, useOnChange, useProps } from "@odoo/owl";
 import { registry } from "@web/core/registry";
 import { useService } from "@web/core/utils/hooks";
 import { standardWidgetProps } from "@web/views/widgets/standard_widget_props";
@@ -13,7 +13,7 @@ const POLL_INTERVAL_MS = 3000;
 
 export class VoxbiAutoRefresh extends Component {
     static template = "voxbi_installer.AutoRefresh";
-    static props = { ...standardWidgetProps };
+    props = useProps(standardWidgetProps);
 
     setup() {
         this.orm = useService("orm");
@@ -22,7 +22,8 @@ export class VoxbiAutoRefresh extends Component {
         // Start/stop polling whenever the record's state (or id) changes. The
         // cleanup tears the timer down when we leave the "installing" state or
         // the widget unmounts.
-        useEffect(
+        useOnChange(
+            () => [this.props.record.data.state, this.props.record.resId],
             (state, resId) => {
                 if (state === "installing" && resId) {
                     this.timer = setInterval(() => this._refresh(resId), POLL_INTERVAL_MS);
@@ -31,8 +32,7 @@ export class VoxbiAutoRefresh extends Component {
                         this.timer = null;
                     };
                 }
-            },
-            () => [this.props.record.data.state, this.props.record.resId]
+            }
         );
     }
 
