@@ -1,22 +1,40 @@
 # Voxbi for Odoo
 
-> Connect your Odoo instance to **Voxbi** telephony in a few clicks.
+> Every call in Odoo, logged the moment you hang up. Connect your Odoo
+> instance to **Voxbi** in a few clicks.
 
 `voxbi_installer` is an Odoo application that bootstraps the Voxbi telephony
 integration. You paste a **Voxbi Cockpit API key**, authorize the data hand-off,
-and click **Install** — the module registers this instance with Voxbi Cockpit,
+and click **Install**. The module registers this instance with Voxbi Cockpit,
 which then provisions and configures the full integration in your Odoo over
 XML-RPC.
 
 | | |
 |------------------|-------------------------------------------------|
 | **Module**       | `voxbi_installer`                               |
-| **Version**      | `19.0.2.0.0`                                     |
-| **Author**       | Mixvoip SA                                       |
+| **Version**      | `19.0.3.0.0`                                     |
+| **Author**       | VOXBI S.A.                                       |
 | **Website**      | https://voxbi.com                                |
-| **Support**      | support@mixvoip.com                              |
+| **Support**      | hello@voxbi.com                                  |
 | **License**      | LGPL-3                                            |
 | **Cockpit API**  | v2 (API-key / Bearer authentication)             |
+
+## About Voxbi
+
+Voxbi is a cloud phone system, hosted in the European Union, with a native VoIP
+integration for Odoo: automatic call logging, click-to-call, caller details on
+screen, and AI transcripts and summaries on every call. It is built and supported
+by Mixvoip, a Luxembourg telecom operator building European telecom since 2008,
+and is used by more than 5,000 businesses across 26 countries.
+
+Calls, recordings, and metadata stay in European Union data centers. Call
+transcription and summaries run on Voxbi's own infrastructure in Luxembourg.
+Mixvoip is a Gold sponsor of the Odoo Community Association.
+
+- Odoo integration: https://voxbi.com/integrations/odoo
+- Setup guide: https://voxbi.com/guides/connect-odoo-to-voxbi
+- Pricing: https://voxbi.com/pricing
+- Privacy policy: https://voxbi.com/legal/privacy-policy
 
 ---
 
@@ -24,7 +42,7 @@ XML-RPC.
 
 The module is **developed and released for Odoo 19.0**. Compatibility with
 other releases is assessed from the code (view syntax and ORM APIs used) and is
-noted below; only 19.0 is officially tested.
+noted below.
 
 | Odoo series | Edition        | Status                | Notes |
 |-------------|----------------|-----------------------|-------|
@@ -52,7 +70,7 @@ the views remain the hard floor at 17.0.
 ┌────────────┐  1. register-install (Bearer API key)   ┌──────────────────┐
 │            │ ───────────────────────────────────────▶│                  │
 │   Odoo     │  2. poll install-status                 │  Voxbi Cockpit   │
-│ (this app) │ ◀───────────────────────────────────────│  (Mixvoip SA)    │
+│ (this app) │ ◀───────────────────────────────────────│  (VOXBI S.A.)    │
 │            │                                          │                  │
 │            │ ◀───  3. XML-RPC: configure integration  │                  │
 └────────────┘        (using the Odoo service key)      └──────────────────┘
@@ -186,4 +204,5 @@ Licensed under **LGPL-3**. See [`LICENSE`](LICENSE).
 
 ## Support
 
-Operated by **Mixvoip SA** — https://voxbi.com · support@mixvoip.com
+Operated by **VOXBI S.A.**, 70 Rue des Prés, 7333 Steinsel, Luxembourg.
+https://voxbi.com · hello@voxbi.com
