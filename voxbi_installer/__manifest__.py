@@ -1,27 +1,33 @@
-# Copyright 2026 Mixvoip SA
+# Copyright 2026 VOXBI S.A.
 # License LGPL-3 (https://www.gnu.org/licenses/lgpl-3.0.html).
 {
     "name": "Voxbi",
-    "summary": "Connect this Odoo to Voxbi telephony.",
+    "summary": "Voxbi cloud phone system for Odoo: call logging, click-to-call, caller details.",
     "description": """
 Voxbi
 =====
+Voxbi is a cloud phone system, hosted in the European Union, with a native VoIP
+integration for Odoo: automatic call logging, click-to-call, caller details on
+screen, and AI transcripts and summaries on every call. It is built and supported
+by Mixvoip, a Luxembourg telecom operator building European telecom since 2008,
+and is used by more than 5,000 businesses across 26 countries.
+
 Paste your Voxbi Cockpit API key (a reusable Bearer key with the
 "Is Odoo Installer" scope) and click Install. This module hands off
 connection details to Voxbi Cockpit, which then installs and configures
 the full Voxbi telephony integration in this Odoo over XML-RPC.
 
 This module requires Voxbi Cockpit, an external service operated by
-Mixvoip SA, and an active Voxbi subscription. On install (with the
+VOXBI S.A., and an active Voxbi subscription. On install (with the
 administrator's explicit consent) it sends a generated Odoo API key and
 this instance's connection details to Voxbi Cockpit over HTTPS so the
 integration can be configured. See the app description for the full list
 of data shared.
 
 """,
-    "author": "Mixvoip SA",
+    "author": "VOXBI S.A.",
     "website": "https://voxbi.com",
-    "support": "support@mixvoip.com",
+    "support": "hello@voxbi.com",
     "category": "Telephony",
     "version": "17.0.3.0.0",
     "license": "LGPL-3",
