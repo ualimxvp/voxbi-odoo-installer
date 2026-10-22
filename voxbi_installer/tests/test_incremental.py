@@ -59,7 +59,13 @@ class TestIncremental(VoxbiConnectorCase):
         from ..components.adapter import VoxbiTransportError
 
         before = self._count()
-        with mock.patch(ADAPTER, side_effect=VoxbiTransportError("boom")):
+        # The failure is logged at ERROR by design; capture it so the Odoo
+        # test runner does not count the expected log as a failed test.
+        with mock.patch(
+            ADAPTER, side_effect=VoxbiTransportError("boom")
+        ), self.assertLogs(
+            "odoo.addons.voxbi_installer.models.voxbi_backend", level="ERROR"
+        ):
             self.backend.run_incremental_sync()
 
         self.assertEqual(self._count(), before)
