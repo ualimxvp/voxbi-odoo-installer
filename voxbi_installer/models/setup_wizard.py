@@ -144,7 +144,9 @@ class VoxbiInstallerSetup(models.Model):
         privilege level, and a customer may well have several system users.
         Portal/public accounts (share=True) cannot hold an rpc key at all.
         """
-        admin_ids = set(self.env.ref("base.group_system").sudo().users.ids)
+        # Odoo 19 removed res.groups.users. all_user_ids keeps its meaning
+        # (members plus users inheriting the group); user_ids is explicit only.
+        admin_ids = set(self.env.ref("base.group_system").sudo().all_user_ids.ids)
         candidates = self.env["res.users"].sudo().search([
             ("share", "=", False),
             ("active", "=", True),
