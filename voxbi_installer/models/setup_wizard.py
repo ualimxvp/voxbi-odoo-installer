@@ -535,6 +535,14 @@ class VoxbiInstallerSetup(models.Model):
         # re-install leaves Cockpit holding the admin credential for good.
         self.sync_user_swapped = False
 
+        # integration-api reads this back while it provisions, to grant the
+        # sync user its Voxbi group, so it has to exist before Cockpit is told
+        # to start. The swap writes it again once the install succeeds.
+        if self.sync_user_id:
+            self.env["ir.config_parameter"].sudo().set_str(
+                SYNC_USER_PARAM, str(self.sync_user_id.id)
+            )
+
         base_url = self._cockpit_base_url()
 
         try:
