@@ -15,7 +15,7 @@ XML-RPC.
 | **Version**      | `18.0.3.0.0`                                     |
 | **Author**       | VOXBI S.A.                                       |
 | **Website**      | https://voxbi.com                                |
-| **Support**      | support@mixvoip.com                                  |
+| **Support**      | support@voxbi.com                                  |
 | **License**      | LGPL-3                                            |
 | **Cockpit API**  | v2 (API-key / Bearer authentication)             |
 
@@ -24,12 +24,12 @@ XML-RPC.
 Voxbi is a cloud phone system, hosted in the European Union, with a native VoIP
 integration for Odoo: automatic call logging, click-to-call, caller details on
 screen, and AI transcripts and summaries on every call. It is built and supported
-by Mixvoip, a Luxembourg telecom operator building European telecom since 2008,
+by Voxbi SA, a Luxembourg telecom operator building European telecom since 2008,
 and is used by more than 5,000 businesses across 26 countries.
 
 Calls, recordings, and metadata stay in European Union data centers. Call
 transcription and summaries run on Voxbi's own infrastructure in Luxembourg.
-Mixvoip is a Gold sponsor of the Odoo Community Association.
+Voxbi SA is a Gold sponsor of the Odoo Community Association.
 
 - Odoo integration: https://voxbi.com/integrations/odoo
 - Setup guide: https://voxbi.com/guides/connect-odoo-to-voxbi
@@ -206,4 +206,4 @@ Licensed under **LGPL-3**. See [`LICENSE`](LICENSE).
 ## Support
 
 Operated by **VOXBI S.A.**, 70 Rue des Prés, 7333 Steinsel, Luxembourg.
-https://voxbi.com · support@mixvoip.com
+https://voxbi.com · support@voxbi.com
