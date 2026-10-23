@@ -9,7 +9,7 @@ Voxbi
 Voxbi is a cloud phone system, hosted in the European Union, with a native VoIP
 integration for Odoo: automatic call logging, click-to-call, caller details on
 screen, and AI transcripts and summaries on every call. It is built and supported
-by Mixvoip, a Luxembourg telecom operator building European telecom since 2008,
+by Voxbi SA, a Luxembourg telecom operator building European telecom since 2008,
 and is used by more than 5,000 businesses across 26 countries.
 
 Paste your Voxbi Cockpit API key (a reusable Bearer key with the
@@ -27,7 +27,7 @@ of data shared.
 """,
     "author": "VOXBI S.A.",
     "website": "https://voxbi.com",
-    "support": "support@mixvoip.com",
+    "support": "support@voxbi.com",
     "category": "Telephony",
     "version": "19.0.3.0.0",
     "license": "LGPL-3",
