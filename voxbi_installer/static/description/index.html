@@ -1,20 +1,22 @@
 <!--
   Odoo Apps Store description.
-  Every style is inline: the page has to look the same on apps.odoo.com, in
-  Odoo's own Apps screen and in a plain browser, and only some of those load
-  Bootstrap. Icons are Font Awesome classes, which Odoo ships; Odoo's sanitizer
+  apps.odoo.com keeps class attributes but filters inline styles down to box,
+  colour and type properties: every flex/grid property, box-shadow, list-style
+  and word-break is dropped. So layout comes from Bootstrap 5 classes (loaded
+  by the store and by Odoo), and inline styles use only properties that
+  survive. Icons are Font Awesome classes, which Odoo ships; Odoo's sanitizer
   strips inline SVG.
   The store turns external <a href> into plain <span>, so every external link
-  also shows its URL as text. mailto: and tel: links stay clickable.
-  feature_*.png are screenshots of the integration on this Odoo version, taken
-  with fictional sample data.
+  also shows its address as text. mailto: and tel: links stay clickable.
+  feature_*.png are screenshots of the integration taken with fictional
+  sample data.
 -->
-<div style="font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif;color:#1f1d24;font-size:16px;line-height:1.6;-webkit-font-smoothing:antialiased;">
+<div style="font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif;color:#1f1d24;font-size:16px;line-height:1.6;">
 
 <!-- Publisher bar -->
 <section style="border-bottom:1px solid #ECE3EE;background-color:#ffffff;">
-  <div style="max-width:1120px;margin:0 auto;padding:16px 24px;display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:12px;box-sizing:border-box;">
-    <div style="display:flex;align-items:center;gap:12px;">
+  <div class="d-flex flex-wrap align-items-center justify-content-between gap-3" style="max-width:1120px;margin:0 auto;padding:16px 24px;">
+    <div class="d-flex align-items-center gap-3">
       <img src="icon.png" alt="Voxbi" style="height:44px;width:44px;border-radius:10px;display:block;"/>
       <div style="font-size:13px;color:#6b6a73;line-height:1.35;">Published by<br/><b style="color:#171618;font-size:15px;">VOXBI S.A.</b></div>
     </div>
@@ -24,191 +26,200 @@
 
 <!-- Hero -->
 <section style="background-color:#F8F4F9;">
-  <div style="max-width:880px;margin:0 auto;padding:72px 24px 64px;text-align:center;box-sizing:border-box;">
+  <div style="max-width:880px;margin:0 auto;padding:72px 24px 64px;text-align:center;">
     <div style="display:inline-block;margin-bottom:20px;background-color:#ffffff;color:#8D3D8A;border:1px solid #E6D9EA;border-radius:999px;padding:6px 14px;font-size:13px;font-weight:600;">
       Community &middot; Enterprise &middot; Odoo Online &middot; Odoo.sh &middot; Self-hosted
     </div>
-    <h1 style="margin:0 0 16px;font-size:clamp(30px,5vw,42px);line-height:1.15;font-weight:800;letter-spacing:-.02em;color:#171618;">
+    <h1 style="margin:0 0 16px;font-size:42px;line-height:1.15;font-weight:800;letter-spacing:-.02em;color:#171618;">
       Every Voxbi call, <span style="color:#8D3D8A;">right inside Odoo.</span>
     </h1>
     <p style="margin:0 auto 28px;max-width:680px;font-size:19px;line-height:1.55;color:#4a4853;">
       Voxbi logs every call in Odoo, matches it to the right contact and adds an AI summary,
       sentiment and next steps. Connect your Voxbi account from Odoo and Voxbi sets up the rest.
     </p>
-    <div style="display:flex;flex-wrap:wrap;justify-content:center;gap:10px;">
-      <span style="display:inline-flex;align-items:center;gap:8px;padding:8px 14px;border-radius:999px;background-color:#ffffff;border:1px solid #E6D9EA;font-size:14px;font-weight:600;color:#171618;"><i class="fa fa-globe" style="color:#8D3D8A;"></i> Hosted in the European Union</span>
-      <span style="display:inline-flex;align-items:center;gap:8px;padding:8px 14px;border-radius:999px;background-color:#ffffff;border:1px solid #E6D9EA;font-size:14px;font-weight:600;color:#171618;"><i class="fa fa-balance-scale" style="color:#8D3D8A;"></i> License LGPL-3</span>
-      <span style="display:inline-flex;align-items:center;gap:8px;padding:8px 14px;border-radius:999px;background-color:#ffffff;border:1px solid #E6D9EA;font-size:14px;font-weight:600;color:#171618;"><i class="fa fa-life-ring" style="color:#8D3D8A;"></i> Support: <a href="mailto:hello@voxbi.com" style="color:#8D3D8A;">hello@voxbi.com</a></span>
+    <div class="d-flex flex-wrap justify-content-center gap-2">
+      <span class="d-inline-flex align-items-center gap-2" style="padding:8px 14px;border-radius:999px;background-color:#ffffff;border:1px solid #E6D9EA;font-size:14px;font-weight:600;color:#171618;"><i class="fa fa-globe" style="color:#8D3D8A;"></i> Hosted in the European Union</span>
+      <span class="d-inline-flex align-items-center gap-2" style="padding:8px 14px;border-radius:999px;background-color:#ffffff;border:1px solid #E6D9EA;font-size:14px;font-weight:600;color:#171618;"><i class="fa fa-balance-scale" style="color:#8D3D8A;"></i> License LGPL-3</span>
+      <span class="d-inline-flex align-items-center gap-2" style="padding:8px 14px;border-radius:999px;background-color:#ffffff;border:1px solid #E6D9EA;font-size:14px;font-weight:600;color:#171618;"><i class="fa fa-life-ring" style="color:#8D3D8A;"></i> Support: <a href="mailto:hello@voxbi.com" style="color:#8D3D8A;">hello@voxbi.com</a></span>
     </div>
   </div>
 </section>
 
 <!-- Highlights -->
 <section>
-  <div style="max-width:1120px;margin:0 auto;padding:56px 24px 8px;box-sizing:border-box;">
-    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:16px;">
-      <div style="padding:22px;border:1px solid #ECE3EE;border-radius:14px;background-color:#ffffff;">
-        <div style="width:44px;height:44px;border-radius:12px;background-color:#F6EEF7;color:#8D3D8A;display:flex;align-items:center;justify-content:center;font-size:20px;margin-bottom:14px;"><i class="fa fa-list-ul"></i></div>
-        <div style="font-size:16px;font-weight:700;color:#171618;margin-bottom:4px;">Every call logged</div>
-        <div style="font-size:14px;color:#5c5b66;">Matched to the right contact automatically</div>
+  <div style="max-width:1120px;margin:0 auto;padding:56px 24px 8px;">
+    <div class="row g-3">
+      <div class="col-12 col-sm-6 col-lg-3">
+        <div class="h-100" style="padding:22px;border:1px solid #ECE3EE;border-radius:14px;background-color:#ffffff;">
+          <div class="d-flex align-items-center justify-content-center" style="width:44px;height:44px;border-radius:12px;background-color:#F6EEF7;color:#8D3D8A;font-size:20px;margin-bottom:14px;"><i class="fa fa-list-ul"></i></div>
+          <div style="font-size:16px;font-weight:700;color:#171618;margin-bottom:4px;">Every call logged</div>
+          <div style="font-size:14px;color:#5c5b66;">Matched to the right contact automatically</div>
+        </div>
       </div>
-      <div style="padding:22px;border:1px solid #ECE3EE;border-radius:14px;background-color:#ffffff;">
-        <div style="width:44px;height:44px;border-radius:12px;background-color:#F6EEF7;color:#8D3D8A;display:flex;align-items:center;justify-content:center;font-size:20px;margin-bottom:14px;"><i class="fa fa-magic"></i></div>
-        <div style="font-size:16px;font-weight:700;color:#171618;margin-bottom:4px;">AI analysis</div>
-        <div style="font-size:14px;color:#5c5b66;">Transcript, summary, sentiment and NPS</div>
+      <div class="col-12 col-sm-6 col-lg-3">
+        <div class="h-100" style="padding:22px;border:1px solid #ECE3EE;border-radius:14px;background-color:#ffffff;">
+          <div class="d-flex align-items-center justify-content-center" style="width:44px;height:44px;border-radius:12px;background-color:#F6EEF7;color:#8D3D8A;font-size:20px;margin-bottom:14px;"><i class="fa fa-magic"></i></div>
+          <div style="font-size:16px;font-weight:700;color:#171618;margin-bottom:4px;">AI analysis</div>
+          <div style="font-size:14px;color:#5c5b66;">Transcript, summary, sentiment and NPS</div>
+        </div>
       </div>
-      <div style="padding:22px;border:1px solid #ECE3EE;border-radius:14px;background-color:#ffffff;">
-        <div style="width:44px;height:44px;border-radius:12px;background-color:#F6EEF7;color:#8D3D8A;display:flex;align-items:center;justify-content:center;font-size:20px;margin-bottom:14px;"><i class="fa fa-bolt"></i></div>
-        <div style="font-size:16px;font-weight:700;color:#171618;margin-bottom:4px;">One-click actions</div>
-        <div style="font-size:14px;color:#5c5b66;">Lead, opportunity, ticket or task from a call</div>
+      <div class="col-12 col-sm-6 col-lg-3">
+        <div class="h-100" style="padding:22px;border:1px solid #ECE3EE;border-radius:14px;background-color:#ffffff;">
+          <div class="d-flex align-items-center justify-content-center" style="width:44px;height:44px;border-radius:12px;background-color:#F6EEF7;color:#8D3D8A;font-size:20px;margin-bottom:14px;"><i class="fa fa-bolt"></i></div>
+          <div style="font-size:16px;font-weight:700;color:#171618;margin-bottom:4px;">One-click actions</div>
+          <div style="font-size:14px;color:#5c5b66;">Lead, opportunity, ticket or task from a call</div>
+        </div>
       </div>
-      <div style="padding:22px;border:1px solid #ECE3EE;border-radius:14px;background-color:#ffffff;">
-        <div style="width:44px;height:44px;border-radius:12px;background-color:#F6EEF7;color:#8D3D8A;display:flex;align-items:center;justify-content:center;font-size:20px;margin-bottom:14px;"><i class="fa fa-plug"></i></div>
-        <div style="font-size:16px;font-weight:700;color:#171618;margin-bottom:4px;">Guided setup</div>
-        <div style="font-size:14px;color:#5c5b66;">Connect from Odoo, follow the progress live</div>
+      <div class="col-12 col-sm-6 col-lg-3">
+        <div class="h-100" style="padding:22px;border:1px solid #ECE3EE;border-radius:14px;background-color:#ffffff;">
+          <div class="d-flex align-items-center justify-content-center" style="width:44px;height:44px;border-radius:12px;background-color:#F6EEF7;color:#8D3D8A;font-size:20px;margin-bottom:14px;"><i class="fa fa-plug"></i></div>
+          <div style="font-size:16px;font-weight:700;color:#171618;margin-bottom:4px;">Guided setup</div>
+          <div style="font-size:14px;color:#5c5b66;">Connect from Odoo, follow the progress live</div>
+        </div>
       </div>
     </div>
   </div>
 </section>
 
-<!-- Features: image first in the source so it sits on top when the row stacks on narrow screens -->
+<!-- Features: image column first in the source so it sits on top when a row stacks on narrow screens -->
 <section>
-  <div style="max-width:1120px;margin:0 auto;padding:64px 24px 24px;box-sizing:border-box;">
-    <h2 style="margin:0 0 8px;text-align:center;font-size:clamp(26px,4vw,32px);line-height:1.2;font-weight:800;letter-spacing:-.01em;color:#171618;">What you get <span style="color:#8D3D8A;">in Odoo</span></h2>
+  <div style="max-width:1120px;margin:0 auto;padding:64px 24px 24px;">
+    <h2 style="margin:0 0 8px;text-align:center;font-size:32px;line-height:1.2;font-weight:800;letter-spacing:-.01em;color:#171618;">What you get <span style="color:#8D3D8A;">in Odoo</span></h2>
     <p style="margin:0 auto 56px;max-width:620px;text-align:center;font-size:17px;color:#5c5b66;">Screens from a connected Odoo, shown with sample data.</p>
 
-    <div style="display:flex;flex-wrap:wrap;align-items:center;gap:40px 56px;margin-bottom:88px;">
-      <div style="flex:1.7 1 520px;min-width:0;">
-        <img src="feature_calls.png" alt="Voxbi calls list in Odoo" style="display:block;width:100%;height:auto;border:1px solid #E6E1E8;border-radius:12px;box-shadow:0 18px 40px -18px rgba(23,22,24,.35);"/>
+    <div class="row align-items-center g-4 g-lg-5" style="margin-bottom:72px;">
+      <div class="col-12 col-md-7">
+        <img src="feature_calls.png" alt="Voxbi calls list in Odoo" class="img-fluid shadow" style="display:block;width:100%;border:1px solid #E6E1E8;border-radius:12px;"/>
       </div>
-      <div style="flex:1 1 300px;min-width:0;">
+      <div class="col-12 col-md-5">
         <div style="font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#8D3D8A;margin-bottom:10px;">Calls list</div>
         <h3 style="margin:0 0 12px;font-size:26px;line-height:1.25;font-weight:800;color:#171618;">Every call <span style="color:#8D3D8A;">in one list</span></h3>
         <p style="margin:0 0 18px;font-size:16px;color:#5c5b66;">One row per call, newest first, for every call that passes through Voxbi.</p>
-        <ul style="list-style:none;margin:0;padding:0;font-size:15px;color:#33313a;">
-          <li style="display:flex;gap:10px;margin-bottom:10px;"><i class="fa fa-check" style="color:#8D3D8A;margin-top:4px;"></i><span>Initiated by, recipient, start and end time, duration</span></li>
-          <li style="display:flex;gap:10px;margin-bottom:10px;"><i class="fa fa-check" style="color:#8D3D8A;margin-top:4px;"></i><span>Answered or missed badge, how the call came in, and the AI topic</span></li>
-          <li style="display:flex;gap:10px;margin-bottom:10px;"><i class="fa fa-check" style="color:#8D3D8A;margin-top:4px;"></i><span>Filters: <b>My Calls</b>, <b>Today</b> and <b>Missed</b></span></li>
-          <li style="display:flex;gap:10px;margin-bottom:10px;"><i class="fa fa-check" style="color:#8D3D8A;margin-top:4px;"></i><span>Search by caller name, recipient name or number</span></li>
-          <li style="display:flex;gap:10px;margin-bottom:10px;"><i class="fa fa-check" style="color:#8D3D8A;margin-top:4px;"></i><span>Known numbers highlighted apart from unknown ones</span></li>
-          <li style="display:flex;gap:10px;margin-bottom:10px;"><i class="fa fa-check" style="color:#8D3D8A;margin-top:4px;"></i><span><b>Calls Analysis</b>: call minutes by month, inbound vs outbound</span></li>
-          <li style="display:flex;gap:10px;"><i class="fa fa-check" style="color:#8D3D8A;margin-top:4px;"></i><span>Works with Odoo VoIP (Enterprise): calls placed from Odoo are logged like any other call</span></li>
+        <ul class="list-unstyled" style="margin:0;padding:0;font-size:15px;color:#33313a;">
+          <li class="d-flex gap-2" style="margin-bottom:10px;"><i class="fa fa-check" style="color:#8D3D8A;margin-top:5px;"></i><span>Initiated by, recipient, start and end time, duration</span></li>
+          <li class="d-flex gap-2" style="margin-bottom:10px;"><i class="fa fa-check" style="color:#8D3D8A;margin-top:5px;"></i><span>Answered or missed badge, how the call came in, and the AI topic</span></li>
+          <li class="d-flex gap-2" style="margin-bottom:10px;"><i class="fa fa-check" style="color:#8D3D8A;margin-top:5px;"></i><span>Filters: <b>My Calls</b>, <b>Today</b> and <b>Missed</b></span></li>
+          <li class="d-flex gap-2" style="margin-bottom:10px;"><i class="fa fa-check" style="color:#8D3D8A;margin-top:5px;"></i><span>Search by caller name, recipient name or number</span></li>
+          <li class="d-flex gap-2" style="margin-bottom:10px;"><i class="fa fa-check" style="color:#8D3D8A;margin-top:5px;"></i><span>Known numbers highlighted apart from unknown ones</span></li>
+          <li class="d-flex gap-2" style="margin-bottom:10px;"><i class="fa fa-check" style="color:#8D3D8A;margin-top:5px;"></i><span><b>Calls Analysis</b>: call minutes by month, inbound vs outbound</span></li>
+          <li class="d-flex gap-2"><i class="fa fa-check" style="color:#8D3D8A;margin-top:5px;"></i><span>Works with Odoo VoIP (Enterprise): calls placed from Odoo are logged like any other call</span></li>
         </ul>
       </div>
     </div>
 
-    <div style="display:flex;flex-wrap:wrap;flex-direction:row-reverse;align-items:center;gap:40px 56px;margin-bottom:88px;">
-      <div style="flex:1.7 1 520px;min-width:0;">
-        <img src="feature_call_record.png" alt="A Voxbi call record with participants and transcription" style="display:block;width:100%;height:auto;border:1px solid #E6E1E8;border-radius:12px;box-shadow:0 18px 40px -18px rgba(23,22,24,.35);"/>
+    <div class="row align-items-center g-4 g-lg-5 flex-md-row-reverse" style="margin-bottom:72px;">
+      <div class="col-12 col-md-7">
+        <img src="feature_call_record.png" alt="A Voxbi call record with participants and transcription" class="img-fluid shadow" style="display:block;width:100%;border:1px solid #E6E1E8;border-radius:12px;"/>
       </div>
-      <div style="flex:1 1 300px;min-width:0;">
+      <div class="col-12 col-md-5">
         <div style="font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#8D3D8A;margin-bottom:10px;">Call record</div>
         <h3 style="margin:0 0 12px;font-size:26px;line-height:1.25;font-weight:800;color:#171618;">The full picture <span style="color:#8D3D8A;">on every call</span></h3>
         <p style="margin:0 0 18px;font-size:16px;color:#5c5b66;">Who was on the line, how the call ran, and what was said.</p>
-        <ul style="list-style:none;margin:0;padding:0;font-size:15px;color:#33313a;">
-          <li style="display:flex;gap:10px;margin-bottom:10px;"><i class="fa fa-check" style="color:#8D3D8A;margin-top:4px;"></i><span>Name, number, email and linked Odoo contact of the other party</span></li>
-          <li style="display:flex;gap:10px;margin-bottom:10px;"><i class="fa fa-check" style="color:#8D3D8A;margin-top:4px;"></i><span>Duration, start, answer and end time, billable seconds</span></li>
-          <li style="display:flex;gap:10px;margin-bottom:10px;"><i class="fa fa-check" style="color:#8D3D8A;margin-top:4px;"></i><span>The queue or extension the call came through</span></li>
-          <li style="display:flex;gap:10px;margin-bottom:10px;"><i class="fa fa-check" style="color:#8D3D8A;margin-top:4px;"></i><span>Every participant with name, number and role, transfers included</span></li>
-          <li style="display:flex;gap:10px;"><i class="fa fa-check" style="color:#8D3D8A;margin-top:4px;"></i><span>Tabs for <b>Transcription</b>, <b>Translation</b> and <b>Notes</b></span></li>
+        <ul class="list-unstyled" style="margin:0;padding:0;font-size:15px;color:#33313a;">
+          <li class="d-flex gap-2" style="margin-bottom:10px;"><i class="fa fa-check" style="color:#8D3D8A;margin-top:5px;"></i><span>Name, number, email and linked Odoo contact of the other party</span></li>
+          <li class="d-flex gap-2" style="margin-bottom:10px;"><i class="fa fa-check" style="color:#8D3D8A;margin-top:5px;"></i><span>Duration, start, answer and end time, billable seconds</span></li>
+          <li class="d-flex gap-2" style="margin-bottom:10px;"><i class="fa fa-check" style="color:#8D3D8A;margin-top:5px;"></i><span>The queue or extension the call came through</span></li>
+          <li class="d-flex gap-2" style="margin-bottom:10px;"><i class="fa fa-check" style="color:#8D3D8A;margin-top:5px;"></i><span>Every participant with name, number and role, transfers included</span></li>
+          <li class="d-flex gap-2"><i class="fa fa-check" style="color:#8D3D8A;margin-top:5px;"></i><span>Tabs for <b>Transcription</b>, <b>Translation</b> and <b>Notes</b></span></li>
         </ul>
       </div>
     </div>
 
-    <div style="display:flex;flex-wrap:wrap;align-items:center;gap:40px 56px;margin-bottom:88px;">
-      <div style="flex:1.7 1 520px;min-width:0;">
-        <img src="feature_ai.png" alt="AI analysis on a Voxbi call" style="display:block;width:100%;height:auto;border:1px solid #E6E1E8;border-radius:12px;box-shadow:0 18px 40px -18px rgba(23,22,24,.35);"/>
+    <div class="row align-items-center g-4 g-lg-5" style="margin-bottom:72px;">
+      <div class="col-12 col-md-7">
+        <img src="feature_ai.png" alt="AI analysis on a Voxbi call" class="img-fluid shadow" style="display:block;width:100%;border:1px solid #E6E1E8;border-radius:12px;"/>
       </div>
-      <div style="flex:1 1 300px;min-width:0;">
+      <div class="col-12 col-md-5">
         <div style="font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#8D3D8A;margin-bottom:10px;">AI analysis</div>
         <h3 style="margin:0 0 12px;font-size:26px;line-height:1.25;font-weight:800;color:#171618;"><span style="color:#8D3D8A;">AI</span> analysis built in</h3>
         <p style="margin:0 0 18px;font-size:16px;color:#5c5b66;">Get the gist of a call without listening to it.</p>
-        <ul style="list-style:none;margin:0;padding:0;font-size:15px;color:#33313a;">
-          <li style="display:flex;gap:10px;margin-bottom:10px;"><i class="fa fa-check" style="color:#8D3D8A;margin-top:4px;"></i><span>One-line topic and a written summary</span></li>
-          <li style="display:flex;gap:10px;margin-bottom:10px;"><i class="fa fa-check" style="color:#8D3D8A;margin-top:4px;"></i><span>Keywords and colour-coded labels</span></li>
-          <li style="display:flex;gap:10px;margin-bottom:10px;"><i class="fa fa-check" style="color:#8D3D8A;margin-top:4px;"></i><span>Sentiment and NPS with score, category and reasoning</span></li>
-          <li style="display:flex;gap:10px;"><i class="fa fa-check" style="color:#8D3D8A;margin-top:4px;"></i><span>Speakers, discussion points, agreements and action items</span></li>
+        <ul class="list-unstyled" style="margin:0;padding:0;font-size:15px;color:#33313a;">
+          <li class="d-flex gap-2" style="margin-bottom:10px;"><i class="fa fa-check" style="color:#8D3D8A;margin-top:5px;"></i><span>One-line topic and a written summary</span></li>
+          <li class="d-flex gap-2" style="margin-bottom:10px;"><i class="fa fa-check" style="color:#8D3D8A;margin-top:5px;"></i><span>Keywords and colour-coded labels</span></li>
+          <li class="d-flex gap-2" style="margin-bottom:10px;"><i class="fa fa-check" style="color:#8D3D8A;margin-top:5px;"></i><span>Sentiment and NPS with score, category and reasoning</span></li>
+          <li class="d-flex gap-2"><i class="fa fa-check" style="color:#8D3D8A;margin-top:5px;"></i><span>Speakers, discussion points, agreements and action items</span></li>
         </ul>
       </div>
     </div>
 
-    <div style="display:flex;flex-wrap:wrap;flex-direction:row-reverse;align-items:center;gap:40px 56px;margin-bottom:88px;">
-      <div style="flex:1.7 1 520px;min-width:0;">
-        <img src="feature_actions.png" alt="Action buttons on a Voxbi call" style="display:block;width:100%;height:auto;border:1px solid #E6E1E8;border-radius:12px;box-shadow:0 18px 40px -18px rgba(23,22,24,.35);"/>
+    <div class="row align-items-center g-4 g-lg-5 flex-md-row-reverse" style="margin-bottom:72px;">
+      <div class="col-12 col-md-7">
+        <img src="feature_actions.png" alt="Action buttons on a Voxbi call" class="img-fluid shadow" style="display:block;width:100%;border:1px solid #E6E1E8;border-radius:12px;"/>
       </div>
-      <div style="flex:1 1 300px;min-width:0;">
+      <div class="col-12 col-md-5">
         <div style="font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#8D3D8A;margin-bottom:10px;">Actions</div>
         <h3 style="margin:0 0 12px;font-size:26px;line-height:1.25;font-weight:800;color:#171618;">From call to <span style="color:#8D3D8A;">work in one click</span></h3>
         <p style="margin:0 0 18px;font-size:16px;color:#5c5b66;">Buttons at the top of every call.</p>
-        <ul style="list-style:none;margin:0;padding:0;font-size:15px;color:#33313a;">
-          <li style="display:flex;gap:10px;margin-bottom:10px;"><i class="fa fa-check" style="color:#8D3D8A;margin-top:4px;"></i><span><b>Save to Contacts</b> creates the contact from an unknown number</span></li>
-          <li style="display:flex;gap:10px;margin-bottom:10px;"><i class="fa fa-check" style="color:#8D3D8A;margin-top:4px;"></i><span><b>Open Contact</b> jumps to the matched contact</span></li>
-          <li style="display:flex;gap:10px;margin-bottom:10px;"><i class="fa fa-check" style="color:#8D3D8A;margin-top:4px;"></i><span><b>Create Lead</b>, <b>Opportunity</b>, <b>Ticket</b> or <b>Task</b>, pre-filled and linked back to the call</span></li>
-          <li style="display:flex;gap:10px;"><i class="fa fa-check" style="color:#8D3D8A;margin-top:4px;"></i><span>Each button shows only for users of that app</span></li>
+        <ul class="list-unstyled" style="margin:0;padding:0;font-size:15px;color:#33313a;">
+          <li class="d-flex gap-2" style="margin-bottom:10px;"><i class="fa fa-check" style="color:#8D3D8A;margin-top:5px;"></i><span><b>Save to Contacts</b> creates the contact from an unknown number</span></li>
+          <li class="d-flex gap-2" style="margin-bottom:10px;"><i class="fa fa-check" style="color:#8D3D8A;margin-top:5px;"></i><span><b>Open Contact</b> jumps to the matched contact</span></li>
+          <li class="d-flex gap-2" style="margin-bottom:10px;"><i class="fa fa-check" style="color:#8D3D8A;margin-top:5px;"></i><span><b>Create Lead</b>, <b>Opportunity</b>, <b>Ticket</b> or <b>Task</b>, pre-filled and linked back to the call</span></li>
+          <li class="d-flex gap-2"><i class="fa fa-check" style="color:#8D3D8A;margin-top:5px;"></i><span>Each button shows only for users of that app</span></li>
         </ul>
       </div>
     </div>
 
-    <div style="display:flex;flex-wrap:wrap;align-items:center;gap:40px 56px;margin-bottom:88px;">
-      <div style="flex:1.7 1 520px;min-width:0;">
-        <img src="feature_linking.png" alt="Leads linked to a Voxbi call" style="display:block;width:100%;height:auto;border:1px solid #E6E1E8;border-radius:12px;box-shadow:0 18px 40px -18px rgba(23,22,24,.35);"/>
+    <div class="row align-items-center g-4 g-lg-5" style="margin-bottom:72px;">
+      <div class="col-12 col-md-7">
+        <img src="feature_linking.png" alt="Tickets linked to a Voxbi call" class="img-fluid shadow" style="display:block;width:100%;border:1px solid #E6E1E8;border-radius:12px;"/>
       </div>
-      <div style="flex:1 1 300px;min-width:0;">
+      <div class="col-12 col-md-5">
         <div style="font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#8D3D8A;margin-bottom:10px;">Linking</div>
         <h3 style="margin:0 0 12px;font-size:26px;line-height:1.25;font-weight:800;color:#171618;">Calls where <span style="color:#8D3D8A;">the work lives</span></h3>
         <p style="margin:0 0 18px;font-size:16px;color:#5c5b66;">Call history on the record your team is already working on.</p>
-        <ul style="list-style:none;margin:0;padding:0;font-size:15px;color:#33313a;">
-          <li style="display:flex;gap:10px;margin-bottom:10px;"><i class="fa fa-check" style="color:#8D3D8A;margin-top:4px;"></i><span>Leads, Opportunities, Tickets and Tasks tabs on the call</span></li>
-          <li style="display:flex;gap:10px;margin-bottom:10px;"><i class="fa fa-check" style="color:#8D3D8A;margin-top:4px;"></i><span><b>Link</b> / <b>Linked</b> toggle per row, unlink a mistake from the record</span></li>
-          <li style="display:flex;gap:10px;margin-bottom:10px;"><i class="fa fa-check" style="color:#8D3D8A;margin-top:4px;"></i><span>Calls related through the contact appear automatically</span></li>
-          <li style="display:flex;gap:10px;"><i class="fa fa-check" style="color:#8D3D8A;margin-top:4px;"></i><span>Call tabs on contacts, leads, opportunities, helpdesk tickets and project tasks</span></li>
+        <ul class="list-unstyled" style="margin:0;padding:0;font-size:15px;color:#33313a;">
+          <li class="d-flex gap-2" style="margin-bottom:10px;"><i class="fa fa-check" style="color:#8D3D8A;margin-top:5px;"></i><span>Leads, Opportunities, Tickets and Tasks tabs on the call</span></li>
+          <li class="d-flex gap-2" style="margin-bottom:10px;"><i class="fa fa-check" style="color:#8D3D8A;margin-top:5px;"></i><span><b>Link</b> / <b>Linked</b> toggle per row, unlink a mistake from the record</span></li>
+          <li class="d-flex gap-2" style="margin-bottom:10px;"><i class="fa fa-check" style="color:#8D3D8A;margin-top:5px;"></i><span>Calls related through the contact appear automatically</span></li>
+          <li class="d-flex gap-2"><i class="fa fa-check" style="color:#8D3D8A;margin-top:5px;"></i><span>Call tabs on contacts, leads, opportunities, helpdesk tickets and project tasks</span></li>
         </ul>
       </div>
     </div>
 
-    <div style="display:flex;flex-wrap:wrap;flex-direction:row-reverse;align-items:center;gap:40px 56px;margin-bottom:88px;">
-      <div style="flex:1.7 1 520px;min-width:0;">
-        <img src="feature_contact_calls.png" alt="Voxbi Calls tab on a contact" style="display:block;width:100%;height:auto;border:1px solid #E6E1E8;border-radius:12px;box-shadow:0 18px 40px -18px rgba(23,22,24,.35);"/>
+    <div class="row align-items-center g-4 g-lg-5 flex-md-row-reverse" style="margin-bottom:72px;">
+      <div class="col-12 col-md-7">
+        <img src="feature_contact_calls.png" alt="Voxbi Calls tab on a contact" class="img-fluid shadow" style="display:block;width:100%;border:1px solid #E6E1E8;border-radius:12px;"/>
       </div>
-      <div style="flex:1 1 300px;min-width:0;">
+      <div class="col-12 col-md-5">
         <div style="font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#8D3D8A;margin-bottom:10px;">Contacts</div>
         <h3 style="margin:0 0 12px;font-size:26px;line-height:1.25;font-weight:800;color:#171618;">Every call <span style="color:#8D3D8A;">on the contact</span></h3>
         <p style="margin:0 0 18px;font-size:16px;color:#5c5b66;">A <b>Voxbi Calls</b> tab on each contact lists every call with them.</p>
-        <ul style="list-style:none;margin:0;padding:0;font-size:15px;color:#33313a;">
-          <li style="display:flex;gap:10px;margin-bottom:10px;"><i class="fa fa-check" style="color:#8D3D8A;margin-top:4px;"></i><span>Calls appear as soon as they are matched to the contact</span></li>
-          <li style="display:flex;gap:10px;margin-bottom:10px;"><i class="fa fa-check" style="color:#8D3D8A;margin-top:4px;"></i><span>Same columns as the calls list: who called, when, duration, status and topic</span></li>
-          <li style="display:flex;gap:10px;"><i class="fa fa-check" style="color:#8D3D8A;margin-top:4px;"></i><span>Users see the calls they handled; administrators see them all</span></li>
-        </ul>
-      </div>
-    </div>
-    <div style="display:flex;flex-wrap:wrap;align-items:center;gap:40px 56px;margin-bottom:88px;">
-      <div style="flex:1.7 1 520px;min-width:0;">
-        <img src="feature_opportunity_calls.png" alt="All Calls tab on an opportunity" style="display:block;width:100%;height:auto;border:1px solid #E6E1E8;border-radius:12px;box-shadow:0 18px 40px -18px rgba(23,22,24,.35);"/>
-      </div>
-      <div style="flex:1 1 300px;min-width:0;">
-        <div style="font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#8D3D8A;margin-bottom:10px;">Leads, opportunities and tasks</div>
-        <h3 style="margin:0 0 12px;font-size:26px;line-height:1.25;font-weight:800;color:#171618;">Calls on <span style="color:#8D3D8A;">every record</span></h3>
-        <p style="margin:0 0 18px;font-size:16px;color:#5c5b66;">Leads, opportunities, project tasks and helpdesk tickets each get two call tabs.</p>
-        <ul style="list-style:none;margin:0;padding:0;font-size:15px;color:#33313a;">
-          <li style="display:flex;gap:10px;margin-bottom:10px;"><i class="fa fa-check" style="color:#8D3D8A;margin-top:4px;"></i><span><b>All Calls</b>: every call with the record's customer</span></li>
-          <li style="display:flex;gap:10px;margin-bottom:10px;"><i class="fa fa-check" style="color:#8D3D8A;margin-top:4px;"></i><span><b>Linked Calls</b>: the calls linked to this record, with <b>Unlink</b> to undo a mistake</span></li>
-          <li style="display:flex;gap:10px;"><i class="fa fa-check" style="color:#8D3D8A;margin-top:4px;"></i><span>Records created or linked from a call show it here straight away</span></li>
+        <ul class="list-unstyled" style="margin:0;padding:0;font-size:15px;color:#33313a;">
+          <li class="d-flex gap-2" style="margin-bottom:10px;"><i class="fa fa-check" style="color:#8D3D8A;margin-top:5px;"></i><span>Calls appear as soon as they are matched to the contact</span></li>
+          <li class="d-flex gap-2" style="margin-bottom:10px;"><i class="fa fa-check" style="color:#8D3D8A;margin-top:5px;"></i><span>Same columns as the calls list: who called, when, duration, status and topic</span></li>
+          <li class="d-flex gap-2"><i class="fa fa-check" style="color:#8D3D8A;margin-top:5px;"></i><span>Users see the calls they handled; administrators see them all</span></li>
         </ul>
       </div>
     </div>
 
-    <div style="display:flex;flex-wrap:wrap;flex-direction:row-reverse;align-items:center;gap:40px 56px;margin-bottom:40px;">
-      <div style="flex:1.7 1 520px;min-width:0;">
-        <img src="feature_ticket_calls.png" alt="All Calls tab on a helpdesk ticket" style="display:block;width:100%;height:auto;border:1px solid #E6E1E8;border-radius:12px;box-shadow:0 18px 40px -18px rgba(23,22,24,.35);"/>
+    <div class="row align-items-center g-4 g-lg-5" style="margin-bottom:72px;">
+      <div class="col-12 col-md-7">
+        <img src="feature_opportunity_calls.png" alt="All Calls tab on an opportunity" class="img-fluid shadow" style="display:block;width:100%;border:1px solid #E6E1E8;border-radius:12px;"/>
       </div>
-      <div style="flex:1 1 300px;min-width:0;">
+      <div class="col-12 col-md-5">
+        <div style="font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#8D3D8A;margin-bottom:10px;">Leads, opportunities and tasks</div>
+        <h3 style="margin:0 0 12px;font-size:26px;line-height:1.25;font-weight:800;color:#171618;">Calls on <span style="color:#8D3D8A;">every record</span></h3>
+        <p style="margin:0 0 18px;font-size:16px;color:#5c5b66;">Leads, opportunities, project tasks and helpdesk tickets each get two call tabs.</p>
+        <ul class="list-unstyled" style="margin:0;padding:0;font-size:15px;color:#33313a;">
+          <li class="d-flex gap-2" style="margin-bottom:10px;"><i class="fa fa-check" style="color:#8D3D8A;margin-top:5px;"></i><span><b>All Calls</b>: every call with the record's customer</span></li>
+          <li class="d-flex gap-2" style="margin-bottom:10px;"><i class="fa fa-check" style="color:#8D3D8A;margin-top:5px;"></i><span><b>Linked Calls</b>: the calls linked to this record, with <b>Unlink</b> to undo a mistake</span></li>
+          <li class="d-flex gap-2"><i class="fa fa-check" style="color:#8D3D8A;margin-top:5px;"></i><span>Records created or linked from a call show it here straight away</span></li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="row align-items-center g-4 g-lg-5 flex-md-row-reverse" style="margin-bottom:24px;">
+      <div class="col-12 col-md-7">
+        <img src="feature_ticket_calls.png" alt="All Calls tab on a helpdesk ticket" class="img-fluid shadow" style="display:block;width:100%;border:1px solid #E6E1E8;border-radius:12px;"/>
+      </div>
+      <div class="col-12 col-md-5">
         <div style="font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#8D3D8A;margin-bottom:10px;">Helpdesk &middot; Enterprise</div>
         <h3 style="margin:0 0 12px;font-size:26px;line-height:1.25;font-weight:800;color:#171618;">Calls on <span style="color:#8D3D8A;">every ticket</span></h3>
         <p style="margin:0 0 18px;font-size:16px;color:#5c5b66;">With Odoo Helpdesk, tickets get the same <b>All Calls</b> and <b>Linked Calls</b> tabs.</p>
-        <ul style="list-style:none;margin:0;padding:0;font-size:15px;color:#33313a;">
-          <li style="display:flex;gap:10px;margin-bottom:10px;"><i class="fa fa-check" style="color:#8D3D8A;margin-top:4px;"></i><span>Every call with the customer, right on the ticket</span></li>
-          <li style="display:flex;gap:10px;margin-bottom:10px;"><i class="fa fa-check" style="color:#8D3D8A;margin-top:4px;"></i><span><b>Create Ticket</b> on a call opens a ticket already linked to it</span></li>
-          <li style="display:flex;gap:10px;"><i class="fa fa-check" style="color:#8D3D8A;margin-top:4px;"></i><span>Linked tickets show on the call's <b>Tickets</b> tab</span></li>
+        <ul class="list-unstyled" style="margin:0;padding:0;font-size:15px;color:#33313a;">
+          <li class="d-flex gap-2" style="margin-bottom:10px;"><i class="fa fa-check" style="color:#8D3D8A;margin-top:5px;"></i><span>Every call with the customer, right on the ticket</span></li>
+          <li class="d-flex gap-2" style="margin-bottom:10px;"><i class="fa fa-check" style="color:#8D3D8A;margin-top:5px;"></i><span><b>Create Ticket</b> on a call opens a ticket already linked to it</span></li>
+          <li class="d-flex gap-2"><i class="fa fa-check" style="color:#8D3D8A;margin-top:5px;"></i><span>Linked tickets show on the call's <b>Tickets</b> tab</span></li>
         </ul>
       </div>
     </div>
@@ -217,10 +228,10 @@
 
 <!-- Data shared with Voxbi -->
 <section style="background-color:#F8F4F9;">
-  <div style="max-width:1120px;margin:0 auto;padding:72px 24px;box-sizing:border-box;">
-    <div style="max-width:760px;margin:0 auto;padding:36px;background-color:#ffffff;border:1px solid #ECE3EE;border-radius:16px;box-sizing:border-box;">
-      <div style="display:flex;align-items:center;gap:12px;margin-bottom:12px;">
-        <div style="width:40px;height:40px;border-radius:12px;background-color:#F6EEF7;color:#8D3D8A;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;"><i class="fa fa-shield"></i></div>
+  <div style="max-width:1120px;margin:0 auto;padding:72px 24px;">
+    <div style="max-width:760px;margin:0 auto;padding:36px;background-color:#ffffff;border:1px solid #ECE3EE;border-radius:16px;">
+      <div class="d-flex align-items-center gap-3" style="margin-bottom:12px;">
+        <div class="d-flex align-items-center justify-content-center flex-shrink-0" style="width:40px;height:40px;border-radius:12px;background-color:#F6EEF7;color:#8D3D8A;font-size:18px;"><i class="fa fa-shield"></i></div>
         <h2 style="margin:0;font-size:24px;line-height:1.25;font-weight:800;color:#171618;">Transparent connection. <span style="color:#8D3D8A;">Explicit authorization.</span></h2>
       </div>
       <p style="margin:0 0 18px;font-size:15px;color:#5c5b66;">
@@ -229,16 +240,16 @@
         the details below are sent over <b style="color:#171618;">HTTPS</b>.
       </p>
       <div style="font-size:15px;font-weight:700;color:#171618;margin-bottom:8px;">Sent to Voxbi Cockpit</div>
-      <ul style="list-style:none;margin:0 0 18px;padding:0;font-size:15px;color:#33313a;">
-        <li style="display:flex;gap:10px;margin-bottom:8px;"><i class="fa fa-angle-right" style="color:#8D3D8A;margin-top:4px;"></i><span>Your Odoo URL, database name and Odoo version</span></li>
-        <li style="display:flex;gap:10px;margin-bottom:8px;"><i class="fa fa-angle-right" style="color:#8D3D8A;margin-top:4px;"></i><span>The login of the administrator who connects, with a temporary Odoo API key that Voxbi uses to set up the integration</span></li>
-        <li style="display:flex;gap:10px;"><i class="fa fa-angle-right" style="color:#8D3D8A;margin-top:4px;"></i><span>Once setup succeeds, the login and API key of a dedicated, non-administrator <b>Voxbi Sync</b> user, which replaces the administrator's key for the ongoing call sync</span></li>
+      <ul class="list-unstyled" style="margin:0 0 18px;padding:0;font-size:15px;color:#33313a;">
+        <li class="d-flex gap-2" style="margin-bottom:8px;"><i class="fa fa-angle-right" style="color:#8D3D8A;margin-top:4px;"></i><span>Your Odoo URL, database name and Odoo version</span></li>
+        <li class="d-flex gap-2" style="margin-bottom:8px;"><i class="fa fa-angle-right" style="color:#8D3D8A;margin-top:4px;"></i><span>The login of the administrator who connects, with a temporary Odoo API key that Voxbi uses to set up the integration</span></li>
+        <li class="d-flex gap-2"><i class="fa fa-angle-right" style="color:#8D3D8A;margin-top:4px;"></i><span>Once setup succeeds, the login and API key of a dedicated, non-administrator <b>Voxbi Sync</b> user, which replaces the administrator's key for the ongoing call sync</span></li>
       </ul>
       <p style="margin:0;font-size:14px;color:#5c5b66;">
         Revoke a key at any time in <b style="color:#171618;">Preferences &rarr; Account Security</b>, or disconnect from
         <b style="color:#171618;">Voxbi &rarr; Configuration</b>. You keep ownership of your data. A Voxbi account and an active
         Voxbi subscription are required. Privacy policy:
-        <a href="https://www.voxbi.com/legal/privacy-policy" target="_blank" rel="noopener" style="color:#8D3D8A;word-break:break-all;">https://www.voxbi.com/legal/privacy-policy</a>
+        <a href="https://www.voxbi.com/legal/privacy-policy" target="_blank" rel="noopener" class="text-break" style="color:#8D3D8A;">voxbi.com/legal/privacy-policy</a>
       </p>
     </div>
   </div>
@@ -246,57 +257,81 @@
 
 <!-- Voxbi Support -->
 <section>
-  <div style="max-width:1120px;margin:0 auto;padding:80px 24px 24px;box-sizing:border-box;">
-    <h2 style="margin:0 0 8px;text-align:center;font-size:clamp(26px,4vw,32px);line-height:1.2;font-weight:800;letter-spacing:-.01em;color:#171618;">Voxbi <span style="color:#8D3D8A;">Support</span></h2>
+  <div style="max-width:1120px;margin:0 auto;padding:80px 24px 24px;">
+    <h2 style="margin:0 0 8px;text-align:center;font-size:32px;line-height:1.2;font-weight:800;letter-spacing:-.01em;color:#171618;">Voxbi <span style="color:#8D3D8A;">Support</span></h2>
     <p style="margin:0 auto 40px;max-width:620px;text-align:center;font-size:17px;color:#5c5b66;">Questions about Voxbi and Odoo? A real person on our team replies within one business day, Monday to Friday.</p>
-    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:14px;">
-      <div style="display:flex;gap:14px;align-items:flex-start;padding:18px;border:1px solid #ECE3EE;border-radius:14px;">
-        <div style="width:38px;height:38px;border-radius:10px;background-color:#F6EEF7;color:#8D3D8A;display:flex;align-items:center;justify-content:center;font-size:17px;flex-shrink:0;"><i class="fa fa-phone"></i></div>
-        <div style="min-width:0;"><div style="font-size:15px;font-weight:700;color:#171618;">Call us</div><a href="tel:+35220509050" style="font-size:14px;color:#8D3D8A;text-decoration:none;">+352 20509050</a></div>
+    <div class="row g-3">
+      <div class="col-12 col-sm-6 col-lg-4">
+        <div class="d-flex gap-3 align-items-start h-100" style="padding:18px;border:1px solid #ECE3EE;border-radius:14px;">
+          <div class="d-flex align-items-center justify-content-center flex-shrink-0" style="width:38px;height:38px;border-radius:10px;background-color:#F6EEF7;color:#8D3D8A;font-size:17px;"><i class="fa fa-phone"></i></div>
+          <div style="min-width:0;"><div style="font-size:15px;font-weight:700;color:#171618;">Call us</div><a href="tel:+35220509050" style="font-size:14px;color:#8D3D8A;text-decoration:none;">+352 20509050</a></div>
+        </div>
       </div>
-      <div style="display:flex;gap:14px;align-items:flex-start;padding:18px;border:1px solid #ECE3EE;border-radius:14px;">
-        <div style="width:38px;height:38px;border-radius:10px;background-color:#F6EEF7;color:#8D3D8A;display:flex;align-items:center;justify-content:center;font-size:17px;flex-shrink:0;"><i class="fa fa-envelope"></i></div>
-        <div style="min-width:0;"><div style="font-size:15px;font-weight:700;color:#171618;">Email us</div><a href="mailto:hello@voxbi.com" style="font-size:14px;color:#8D3D8A;text-decoration:none;">hello@voxbi.com</a></div>
+      <div class="col-12 col-sm-6 col-lg-4">
+        <div class="d-flex gap-3 align-items-start h-100" style="padding:18px;border:1px solid #ECE3EE;border-radius:14px;">
+          <div class="d-flex align-items-center justify-content-center flex-shrink-0" style="width:38px;height:38px;border-radius:10px;background-color:#F6EEF7;color:#8D3D8A;font-size:17px;"><i class="fa fa-envelope"></i></div>
+          <div style="min-width:0;"><div style="font-size:15px;font-weight:700;color:#171618;">Email us</div><a href="mailto:hello@voxbi.com" style="font-size:14px;color:#8D3D8A;text-decoration:none;">hello@voxbi.com</a></div>
+        </div>
       </div>
-      <div style="display:flex;gap:14px;align-items:flex-start;padding:18px;border:1px solid #ECE3EE;border-radius:14px;">
-        <div style="width:38px;height:38px;border-radius:10px;background-color:#F6EEF7;color:#8D3D8A;display:flex;align-items:center;justify-content:center;font-size:17px;flex-shrink:0;"><i class="fa fa-comments"></i></div>
-        <div style="min-width:0;"><div style="font-size:15px;font-weight:700;color:#171618;">Send us a message</div><a href="https://www.voxbi.com/contact" target="_blank" rel="noopener" style="font-size:14px;color:#8D3D8A;text-decoration:none;overflow-wrap:anywhere;">voxbi.com/contact</a></div>
+      <div class="col-12 col-sm-6 col-lg-4">
+        <div class="d-flex gap-3 align-items-start h-100" style="padding:18px;border:1px solid #ECE3EE;border-radius:14px;">
+          <div class="d-flex align-items-center justify-content-center flex-shrink-0" style="width:38px;height:38px;border-radius:10px;background-color:#F6EEF7;color:#8D3D8A;font-size:17px;"><i class="fa fa-comments"></i></div>
+          <div style="min-width:0;"><div style="font-size:15px;font-weight:700;color:#171618;">Send us a message</div><a href="https://www.voxbi.com/contact" target="_blank" rel="noopener" class="text-break" style="font-size:14px;color:#8D3D8A;text-decoration:none;">voxbi.com/contact</a></div>
+        </div>
       </div>
-      <div style="display:flex;gap:14px;align-items:flex-start;padding:18px;border:1px solid #ECE3EE;border-radius:14px;">
-        <div style="width:38px;height:38px;border-radius:10px;background-color:#F6EEF7;color:#8D3D8A;display:flex;align-items:center;justify-content:center;font-size:17px;flex-shrink:0;"><i class="fa fa-calendar"></i></div>
-        <div style="min-width:0;"><div style="font-size:15px;font-weight:700;color:#171618;">Book a demo</div><a href="https://voxbi.me/mixvoip/rrubin" target="_blank" rel="noopener" style="font-size:14px;color:#8D3D8A;text-decoration:none;overflow-wrap:anywhere;">voxbi.me/mixvoip/rrubin</a></div>
+      <div class="col-12 col-sm-6 col-lg-4">
+        <div class="d-flex gap-3 align-items-start h-100" style="padding:18px;border:1px solid #ECE3EE;border-radius:14px;">
+          <div class="d-flex align-items-center justify-content-center flex-shrink-0" style="width:38px;height:38px;border-radius:10px;background-color:#F6EEF7;color:#8D3D8A;font-size:17px;"><i class="fa fa-calendar"></i></div>
+          <div style="min-width:0;"><div style="font-size:15px;font-weight:700;color:#171618;">Book a demo</div><a href="https://voxbi.me/mixvoip/rrubin" target="_blank" rel="noopener" class="text-break" style="font-size:14px;color:#8D3D8A;text-decoration:none;">voxbi.me/mixvoip/rrubin</a></div>
+        </div>
       </div>
-      <div style="display:flex;gap:14px;align-items:flex-start;padding:18px;border:1px solid #ECE3EE;border-radius:14px;">
-        <div style="width:38px;height:38px;border-radius:10px;background-color:#F6EEF7;color:#8D3D8A;display:flex;align-items:center;justify-content:center;font-size:17px;flex-shrink:0;"><i class="fa fa-book"></i></div>
-        <div style="min-width:0;"><div style="font-size:15px;font-weight:700;color:#171618;">Guides</div><a href="https://www.voxbi.com/guides" target="_blank" rel="noopener" style="font-size:14px;color:#8D3D8A;text-decoration:none;overflow-wrap:anywhere;">voxbi.com/guides</a></div>
+      <div class="col-12 col-sm-6 col-lg-4">
+        <div class="d-flex gap-3 align-items-start h-100" style="padding:18px;border:1px solid #ECE3EE;border-radius:14px;">
+          <div class="d-flex align-items-center justify-content-center flex-shrink-0" style="width:38px;height:38px;border-radius:10px;background-color:#F6EEF7;color:#8D3D8A;font-size:17px;"><i class="fa fa-book"></i></div>
+          <div style="min-width:0;"><div style="font-size:15px;font-weight:700;color:#171618;">Guides</div><a href="https://www.voxbi.com/guides" target="_blank" rel="noopener" class="text-break" style="font-size:14px;color:#8D3D8A;text-decoration:none;">voxbi.com/guides</a></div>
+        </div>
       </div>
-      <div style="display:flex;gap:14px;align-items:flex-start;padding:18px;border:1px solid #ECE3EE;border-radius:14px;">
-        <div style="width:38px;height:38px;border-radius:10px;background-color:#F6EEF7;color:#8D3D8A;display:flex;align-items:center;justify-content:center;font-size:17px;flex-shrink:0;"><i class="fa fa-shield"></i></div>
-        <div style="min-width:0;"><div style="font-size:15px;font-weight:700;color:#171618;">Firewall settings</div><a href="https://www.voxbi.com/resources/firewall-settings" target="_blank" rel="noopener" style="font-size:14px;color:#8D3D8A;text-decoration:none;overflow-wrap:anywhere;">voxbi.com/resources/firewall-settings</a></div>
+      <div class="col-12 col-sm-6 col-lg-4">
+        <div class="d-flex gap-3 align-items-start h-100" style="padding:18px;border:1px solid #ECE3EE;border-radius:14px;">
+          <div class="d-flex align-items-center justify-content-center flex-shrink-0" style="width:38px;height:38px;border-radius:10px;background-color:#F6EEF7;color:#8D3D8A;font-size:17px;"><i class="fa fa-shield"></i></div>
+          <div style="min-width:0;"><div style="font-size:15px;font-weight:700;color:#171618;">Firewall settings</div><a href="https://www.voxbi.com/resources/firewall-settings" target="_blank" rel="noopener" class="text-break" style="font-size:14px;color:#8D3D8A;text-decoration:none;">voxbi.com/resources/firewall-settings</a></div>
+        </div>
       </div>
-      <div style="display:flex;gap:14px;align-items:flex-start;padding:18px;border:1px solid #ECE3EE;border-radius:14px;">
-        <div style="width:38px;height:38px;border-radius:10px;background-color:#F6EEF7;color:#8D3D8A;display:flex;align-items:center;justify-content:center;font-size:17px;flex-shrink:0;"><i class="fa fa-mobile"></i></div>
-        <div style="min-width:0;"><div style="font-size:15px;font-weight:700;color:#171618;">Supported devices</div><a href="https://www.voxbi.com/integrations/supported-devices" target="_blank" rel="noopener" style="font-size:14px;color:#8D3D8A;text-decoration:none;overflow-wrap:anywhere;">voxbi.com/integrations/supported-devices</a></div>
+      <div class="col-12 col-sm-6 col-lg-4">
+        <div class="d-flex gap-3 align-items-start h-100" style="padding:18px;border:1px solid #ECE3EE;border-radius:14px;">
+          <div class="d-flex align-items-center justify-content-center flex-shrink-0" style="width:38px;height:38px;border-radius:10px;background-color:#F6EEF7;color:#8D3D8A;font-size:17px;"><i class="fa fa-mobile"></i></div>
+          <div style="min-width:0;"><div style="font-size:15px;font-weight:700;color:#171618;">Supported devices</div><a href="https://www.voxbi.com/integrations/supported-devices" target="_blank" rel="noopener" class="text-break" style="font-size:14px;color:#8D3D8A;text-decoration:none;">voxbi.com/integrations/supported-devices</a></div>
+        </div>
       </div>
-      <div style="display:flex;gap:14px;align-items:flex-start;padding:18px;border:1px solid #ECE3EE;border-radius:14px;">
-        <div style="width:38px;height:38px;border-radius:10px;background-color:#F6EEF7;color:#8D3D8A;display:flex;align-items:center;justify-content:center;font-size:17px;flex-shrink:0;"><i class="fa fa-download"></i></div>
-        <div style="min-width:0;"><div style="font-size:15px;font-weight:700;color:#171618;">Download the apps</div><a href="https://www.voxbi.com/features/download" target="_blank" rel="noopener" style="font-size:14px;color:#8D3D8A;text-decoration:none;overflow-wrap:anywhere;">voxbi.com/features/download</a></div>
+      <div class="col-12 col-sm-6 col-lg-4">
+        <div class="d-flex gap-3 align-items-start h-100" style="padding:18px;border:1px solid #ECE3EE;border-radius:14px;">
+          <div class="d-flex align-items-center justify-content-center flex-shrink-0" style="width:38px;height:38px;border-radius:10px;background-color:#F6EEF7;color:#8D3D8A;font-size:17px;"><i class="fa fa-download"></i></div>
+          <div style="min-width:0;"><div style="font-size:15px;font-weight:700;color:#171618;">Download the apps</div><a href="https://www.voxbi.com/features/download" target="_blank" rel="noopener" class="text-break" style="font-size:14px;color:#8D3D8A;text-decoration:none;">voxbi.com/features/download</a></div>
+        </div>
       </div>
-      <div style="display:flex;gap:14px;align-items:flex-start;padding:18px;border:1px solid #ECE3EE;border-radius:14px;">
-        <div style="width:38px;height:38px;border-radius:10px;background-color:#F6EEF7;color:#8D3D8A;display:flex;align-items:center;justify-content:center;font-size:17px;flex-shrink:0;"><i class="fa fa-code"></i></div>
-        <div style="min-width:0;"><div style="font-size:15px;font-weight:700;color:#171618;">API docs</div><a href="https://www.voxbi.com/apidocs" target="_blank" rel="noopener" style="font-size:14px;color:#8D3D8A;text-decoration:none;overflow-wrap:anywhere;">voxbi.com/apidocs</a></div>
+      <div class="col-12 col-sm-6 col-lg-4">
+        <div class="d-flex gap-3 align-items-start h-100" style="padding:18px;border:1px solid #ECE3EE;border-radius:14px;">
+          <div class="d-flex align-items-center justify-content-center flex-shrink-0" style="width:38px;height:38px;border-radius:10px;background-color:#F6EEF7;color:#8D3D8A;font-size:17px;"><i class="fa fa-code"></i></div>
+          <div style="min-width:0;"><div style="font-size:15px;font-weight:700;color:#171618;">API docs</div><a href="https://www.voxbi.com/apidocs" target="_blank" rel="noopener" class="text-break" style="font-size:14px;color:#8D3D8A;text-decoration:none;">voxbi.com/apidocs</a></div>
+        </div>
       </div>
-      <div style="display:flex;gap:14px;align-items:flex-start;padding:18px;border:1px solid #ECE3EE;border-radius:14px;">
-        <div style="width:38px;height:38px;border-radius:10px;background-color:#F6EEF7;color:#8D3D8A;display:flex;align-items:center;justify-content:center;font-size:17px;flex-shrink:0;"><i class="fa fa-handshake-o"></i></div>
-        <div style="min-width:0;"><div style="font-size:15px;font-weight:700;color:#171618;">Find a local partner</div><a href="https://www.voxbi.com/partners/find" target="_blank" rel="noopener" style="font-size:14px;color:#8D3D8A;text-decoration:none;overflow-wrap:anywhere;">voxbi.com/partners/find</a></div>
+      <div class="col-12 col-sm-6 col-lg-4">
+        <div class="d-flex gap-3 align-items-start h-100" style="padding:18px;border:1px solid #ECE3EE;border-radius:14px;">
+          <div class="d-flex align-items-center justify-content-center flex-shrink-0" style="width:38px;height:38px;border-radius:10px;background-color:#F6EEF7;color:#8D3D8A;font-size:17px;"><i class="fa fa-handshake-o"></i></div>
+          <div style="min-width:0;"><div style="font-size:15px;font-weight:700;color:#171618;">Find a local partner</div><a href="https://www.voxbi.com/partners/find" target="_blank" rel="noopener" class="text-break" style="font-size:14px;color:#8D3D8A;text-decoration:none;">voxbi.com/partners/find</a></div>
+        </div>
       </div>
-      <div style="display:flex;gap:14px;align-items:flex-start;padding:18px;border:1px solid #ECE3EE;border-radius:14px;">
-        <div style="width:38px;height:38px;border-radius:10px;background-color:#F6EEF7;color:#8D3D8A;display:flex;align-items:center;justify-content:center;font-size:17px;flex-shrink:0;"><i class="fa fa-tag"></i></div>
-        <div style="min-width:0;"><div style="font-size:15px;font-weight:700;color:#171618;">Pricing</div><a href="https://www.voxbi.com/pricing" target="_blank" rel="noopener" style="font-size:14px;color:#8D3D8A;text-decoration:none;overflow-wrap:anywhere;">voxbi.com/pricing</a></div>
+      <div class="col-12 col-sm-6 col-lg-4">
+        <div class="d-flex gap-3 align-items-start h-100" style="padding:18px;border:1px solid #ECE3EE;border-radius:14px;">
+          <div class="d-flex align-items-center justify-content-center flex-shrink-0" style="width:38px;height:38px;border-radius:10px;background-color:#F6EEF7;color:#8D3D8A;font-size:17px;"><i class="fa fa-tag"></i></div>
+          <div style="min-width:0;"><div style="font-size:15px;font-weight:700;color:#171618;">Pricing</div><a href="https://www.voxbi.com/pricing" target="_blank" rel="noopener" class="text-break" style="font-size:14px;color:#8D3D8A;text-decoration:none;">voxbi.com/pricing</a></div>
+        </div>
       </div>
-      <div style="display:flex;gap:14px;align-items:flex-start;padding:18px;border:1px solid #ECE3EE;border-radius:14px;">
-        <div style="width:38px;height:38px;border-radius:10px;background-color:#F6EEF7;color:#8D3D8A;display:flex;align-items:center;justify-content:center;font-size:17px;flex-shrink:0;"><i class="fa fa-external-link"></i></div>
-        <div style="min-width:0;"><div style="font-size:15px;font-weight:700;color:#171618;">Voxbi for Odoo</div><a href="https://www.voxbi.com/integrations/odoo" target="_blank" rel="noopener" style="font-size:14px;color:#8D3D8A;text-decoration:none;overflow-wrap:anywhere;">voxbi.com/integrations/odoo</a></div>
+      <div class="col-12 col-sm-6 col-lg-4">
+        <div class="d-flex gap-3 align-items-start h-100" style="padding:18px;border:1px solid #ECE3EE;border-radius:14px;">
+          <div class="d-flex align-items-center justify-content-center flex-shrink-0" style="width:38px;height:38px;border-radius:10px;background-color:#F6EEF7;color:#8D3D8A;font-size:17px;"><i class="fa fa-external-link"></i></div>
+          <div style="min-width:0;"><div style="font-size:15px;font-weight:700;color:#171618;">Voxbi for Odoo</div><a href="https://www.voxbi.com/integrations/odoo" target="_blank" rel="noopener" class="text-break" style="font-size:14px;color:#8D3D8A;text-decoration:none;">voxbi.com/integrations/odoo</a></div>
+        </div>
       </div>
     </div>
     <p style="margin:28px 0 0;text-align:center;font-size:14px;color:#6b6a73;">
@@ -308,9 +343,9 @@
 
 <!-- Free trial -->
 <section>
-  <div style="max-width:1120px;margin:0 auto;padding:56px 24px 80px;box-sizing:border-box;">
+  <div style="max-width:1120px;margin:0 auto;padding:56px 24px 80px;">
     <div style="padding:56px 32px;text-align:center;background-color:#8D3D8A;border-radius:20px;color:#ffffff;">
-      <h2 style="margin:0 0 12px;font-size:clamp(26px,4vw,32px);line-height:1.2;font-weight:800;color:#ffffff;">Try Voxbi for free</h2>
+      <h2 style="margin:0 0 12px;font-size:32px;line-height:1.2;font-weight:800;color:#ffffff;">Try Voxbi for free</h2>
       <p style="margin:0 auto 28px;max-width:560px;font-size:18px;color:#F3E7F3;">Create your Voxbi account, then connect it from Odoo in a few clicks.</p>
       <a href="https://www.voxbi.com/free-trial" target="_blank" rel="noopener" style="display:inline-block;padding:14px 28px;border-radius:10px;background-color:#ffffff;color:#8D3D8A;font-size:17px;font-weight:700;text-decoration:none;">Start your free trial</a>
       <div style="margin-top:12px;font-size:14px;color:#F3E7F3;">voxbi.com/free-trial</div>
