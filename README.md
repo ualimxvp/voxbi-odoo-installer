@@ -15,7 +15,7 @@ XML-RPC.
 | **Version**      | `17.0.3.0.0`                                     |
 | **Author**       | VOXBI S.A.                                       |
 | **Website**      | https://voxbi.com                                |
-| **Support**      | hello@voxbi.com                                  |
+| **Support**      | support@mixvoip.com                                  |
 | **License**      | LGPL-3                                            |
 | **Cockpit API**  | v2 (API-key / Bearer authentication)             |
 
@@ -206,4 +206,4 @@ Licensed under **LGPL-3**. See [`LICENSE`](LICENSE).
 ## Support
 
 Operated by **VOXBI S.A.**, 70 Rue des Prés, 7333 Steinsel, Luxembourg.
-https://voxbi.com · hello@voxbi.com
+https://voxbi.com · support@mixvoip.com
