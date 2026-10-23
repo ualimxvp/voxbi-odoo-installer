@@ -27,7 +27,7 @@ of data shared.
 """,
     "author": "VOXBI S.A.",
     "website": "https://voxbi.com",
-    "support": "hello@voxbi.com",
+    "support": "support@mixvoip.com",
     "category": "Telephony",
     "version": "20.0.3.0.0",
     "license": "LGPL-3",
