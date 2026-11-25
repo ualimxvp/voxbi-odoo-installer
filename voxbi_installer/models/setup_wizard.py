@@ -21,9 +21,9 @@ DEFAULT_COCKPIT_URL = "https://cockpit.voxbi.com"
 # in res.users.apikeys looks for when authenticating XML-RPC requests.
 API_KEY_SCOPE = "rpc"
 API_KEY_NAME = "Voxbi installer"
-# The ongoing sync authenticates as a NON-admin user with its own key, so an
-# admin credential never has to outlive the install. Kept under its own name
-# so rotating one never touches the other.
+# The ongoing sync authenticates as the chosen sync user with its own key, so
+# the installer's admin credential never has to outlive the install. Kept
+# under its own name so rotating one never touches the other.
 SYNC_API_KEY_NAME = "Voxbi sync"
 # Canonical home for the choice. An ir.config_parameter is readable over
 # XML-RPC and exists whether or not this module is installed, so the RPC
@@ -32,7 +32,7 @@ SYNC_USER_PARAM = "voxbi.sync_user_id"
 # Login for the user action_create_sync_user() provisions.
 SYNC_USER_LOGIN = "voxbi.sync"
 # Version of *this* installer module, sent to Cockpit purely for diagnostics.
-MODULE_VERSION = "2.1.0"
+MODULE_VERSION = "2.2.0"
 
 # --- Cockpit connect (authorization-code) flow ----------------------------
 # This sits alongside the older paste-a-key install flow above. Both talk to
@@ -65,24 +65,27 @@ class VoxbiInstallerSetup(models.Model):
     sync_user_id = fields.Many2one(
         "res.users",
         string="Sync user",
-        domain="[('id', 'in', allowed_sync_user_ids)]",
+        # Any internal user, administrators included, so a customer can sync
+        # without paying for another seat. Portal/public accounts (share=True)
+        # cannot hold an rpc key; archived users drop out through active_test.
+        domain="[('share', '=', False)]",
+        default=lambda self: self.env.user,
         help="The Odoo user Voxbi authenticates as for the ongoing call sync. "
-        "Deliberately not an administrator: this credential is long-lived, "
-        "unlike the install credential, which is discarded once setup succeeds.",
+        "Defaults to you. Its API key is long-lived, unlike the install "
+        "credential, which is discarded once setup succeeds.",
+    )
+    # Opt-in, never a default: on Odoo Enterprise every active internal user
+    # is a billed seat, bots and API-only users included.
+    create_sync_user = fields.Boolean(
+        string="Create a dedicated Voxbi sync user",
+        help="Creating a dedicated user adds one internal user. On Odoo "
+        "Enterprise (Online, Odoo.sh, on-premise) this is billed as an "
+        "additional user on your subscription.",
     )
     sync_user_swapped = fields.Boolean(
         readonly=True,
         help="True once the sync user's credentials have been handed to Cockpit. "
         "Guards against re-minting a key on every status poll.",
-    )
-    allowed_sync_user_ids = fields.Many2many(
-        "res.users",
-        compute="_compute_allowed_sync_user_ids",
-        help="Internal, non-administrator users. Drives the sync user domain.",
-    )
-    has_sync_user_candidates = fields.Boolean(
-        compute="_compute_allowed_sync_user_ids",
-        help="False on a fresh Odoo whose only user is the administrator.",
     )
     is_connected = fields.Boolean(
         compute="_compute_connection_state",
@@ -137,24 +140,6 @@ class VoxbiInstallerSetup(models.Model):
     )
 
     @api.depends_context("uid")
-    def _compute_allowed_sync_user_ids(self):
-        """Internal users that are not administrators.
-
-        Excluded by GROUP rather than by login: "admin" is a login, not a
-        privilege level, and a customer may well have several system users.
-        Portal/public accounts (share=True) cannot hold an rpc key at all.
-        """
-        admin_ids = set(self.env.ref("base.group_system").sudo().users.ids)
-        candidates = self.env["res.users"].sudo().search([
-            ("share", "=", False),
-            ("active", "=", True),
-        ])
-        allowed = candidates.filtered(lambda u: u.id not in admin_ids)
-        for record in self:
-            record.allowed_sync_user_ids = allowed
-            record.has_sync_user_candidates = bool(allowed)
-
-    @api.depends_context("uid")
     def _compute_connection_state(self):
         """Read the connection off the backend record.
 
@@ -174,16 +159,17 @@ class VoxbiInstallerSetup(models.Model):
             )
 
     def action_create_sync_user(self):
-        """Create a dedicated, non-admin user for the sync to authenticate as.
+        """Create the dedicated Voxbi Sync user for the sync to authenticate as.
 
-        A brand new Odoo has only the administrator, so the dropdown would be
-        empty and the flow would dead-end on exactly the instance where this
-        matters most. A plain internal user is enough here: the Voxbi groups it
-        needs are granted later by the RPC installer, which is the only side
-        that knows what those groups are.
+        Only runs when the customer opts in (create_sync_user): on Odoo
+        Enterprise the new user is a billed seat. A plain internal user is
+        enough here: the Voxbi groups it needs are granted later by the RPC
+        installer, which is the only side that knows what those groups are.
         """
         self.ensure_one()
-        existing = self.env["res.users"].sudo().search(
+        # active_test=False: an archived voxbi.sync still holds the login, and
+        # creating a second one would hit the unique login constraint.
+        existing = self.env["res.users"].sudo().with_context(active_test=False).search(
             [("login", "=", SYNC_USER_LOGIN)], limit=1
         )
         if existing:
@@ -197,6 +183,32 @@ class VoxbiInstallerSetup(models.Model):
             "login": SYNC_USER_LOGIN,
             "groups_id": [(6, 0, [self.env.ref("base.group_user").id])],
         })
+
+    def _ensure_sync_user(self):
+        """Make sure a sync user is set before an install starts.
+
+        One is mandatory: a successful install revokes the installer key, so
+        without a sync user to swap to, Cockpit would be left on a dead key.
+        The dedicated voxbi.sync user is created only on opt-in; otherwise
+        the current user (the administrator running setup) is used, which
+        adds no seat.
+
+        The opt-in is consumed once the user exists: consent covers one
+        creation, so a later re-install must not reactivate (and bill again)
+        a voxbi.sync the customer has since archived. A stored sync user that
+        is archived or portal is treated as unset, since a key minted for it
+        could never log in and the sync would die silently.
+        """
+        self.ensure_one()
+        if self.create_sync_user:
+            self.action_create_sync_user()
+            self.create_sync_user = False
+        elif (
+            not self.sync_user_id
+            or not self.sync_user_id.active
+            or self.sync_user_id.share
+        ):
+            self.sync_user_id = self.env.user
 
     @api.depends("state")
     def _compute_display_name(self):
@@ -531,6 +543,8 @@ class VoxbiInstallerSetup(models.Model):
         # swap back to the sync user has to run again. Without this reset a
         # re-install leaves Cockpit holding the admin credential for good.
         self.sync_user_swapped = False
+
+        self._ensure_sync_user()
 
         # integration-api reads this back while it provisions, to grant the
         # sync user its Voxbi group, so it has to exist before Cockpit is told
@@ -983,8 +997,9 @@ class VoxbiInstallerSetup(models.Model):
         hands Cockpit an admin key and only replaces it once it succeeds, and
         that replacement is skipped when there is no sync user to swap to --
         which would leave Cockpit holding admin credentials, the exact thing
-        this flow exists to avoid. action_create_sync_user is idempotent and
-        reuses the existing Voxbi Sync user when there is one.
+        this flow exists to avoid. action_install sees to it through
+        _ensure_sync_user: the dedicated Voxbi Sync user only on opt-in (a
+        billed seat on Enterprise), otherwise the current user.
 
         Failures are recorded on the wizard, never raised: this runs inside
         the OAuth callback, and an exception there would show the customer a
@@ -993,9 +1008,6 @@ class VoxbiInstallerSetup(models.Model):
         record = self.search([], order="id desc", limit=1)
         if not record:
             record = self.create({})
-
-        if not record.sync_user_id:
-            record.action_create_sync_user()
 
         try:
             record.action_install()
