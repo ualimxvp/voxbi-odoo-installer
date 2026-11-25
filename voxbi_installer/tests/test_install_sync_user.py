@@ -225,16 +225,36 @@ class TestInstallSyncUser(VoxbiConnectorCase):
         self.assertFalse(created.active)
 
     def test_admin_sync_key_survives_installer_key_revocation(self):
+        # The admin then holds both keys; revoking must take only the
+        # installer one.
         setup = self.Setup.create({"sync_user_id": self.admin.id})
+        setup._issue_api_key_for_current_user()
         setup._issue_api_key_for_sync_user()
 
         setup._revoke_installer_key()
 
-        keys = self.env["res.users.apikeys"].sudo().search([
+        ApiKeys = self.env["res.users.apikeys"].sudo()
+        self.assertFalse(ApiKeys.search([
+            ("user_id", "=", self.admin.id),
+            ("name", "=", "Voxbi installer"),
+        ]))
+        self.assertTrue(ApiKeys.search([
             ("user_id", "=", self.admin.id),
             ("name", "=", "Voxbi sync"),
-        ])
-        self.assertTrue(keys)
+        ]))
+
+    def test_opt_in_never_selects_a_portal_user_holding_the_login(self):
+        # A portal account cannot hold an rpc key, so the sync would die.
+        self.env["res.users"].sudo().create({
+            "name": "Voxbi Sync",
+            "login": "voxbi.sync",
+            "group_ids": [(6, 0, [self.env.ref("base.group_portal").id])],
+        })
+        setup = self.Setup.create({"create_sync_user": True})
+
+        setup._ensure_sync_user()
+
+        self.assertEqual(setup.sync_user_id, self.admin)
 
     def test_reconnect_after_disconnect_uses_the_newly_chosen_sync_user(self):
         # Moving an existing voxbi.sync install onto the admin: Disconnect,
