@@ -195,15 +195,16 @@ class VoxbiInstallerSetup(models.Model):
 
         The opt-in is consumed once the user exists: consent covers one
         creation, so a later re-install must not reactivate (and bill again)
-        a voxbi.sync the customer has since archived. A stored sync user that
-        is archived or portal is treated as unset, since a key minted for it
-        could never log in and the sync would die silently.
+        a voxbi.sync the customer has since archived. A sync user that is
+        archived or portal is treated as unset, including one the opt-in
+        found holding the voxbi.sync login, since a key minted for it could
+        never log in and the sync would die silently.
         """
         self.ensure_one()
         if self.create_sync_user:
             self.action_create_sync_user()
             self.create_sync_user = False
-        elif (
+        if (
             not self.sync_user_id
             or not self.sync_user_id.active
             or self.sync_user_id.share
@@ -390,7 +391,7 @@ class VoxbiInstallerSetup(models.Model):
         """Delete the admin key minted for this install.
 
         It exists to let the RPC installer create models, views and groups,
-        which the sync user has no rights to do. The moment the install
+        which a non-admin sync user has no rights to do. The moment the install
         reaches a terminal state that power is no longer needed, so the key
         goes -- on failure as much as on success, since a failed install used
         to leave a live admin rpc key behind in the customer's database with
@@ -652,7 +653,7 @@ class VoxbiInstallerSetup(models.Model):
                 "message": message,
                 "output_html": output_html,
             })
-            # Cockpit now holds the sync user's key instead of the admin one.
+            # Cockpit now holds the sync user's key instead of the installer one.
             self._revoke_installer_key()
             # Cockpit has provisioned its own Voxbi menu by now — merge ours
             # into it so the user is not left with two "Voxbi" root menus.
@@ -994,10 +995,10 @@ class VoxbiInstallerSetup(models.Model):
         A sync user must exist BEFORE the install runs, not after. The install
         hands Cockpit an admin key and only replaces it once it succeeds, and
         that replacement is skipped when there is no sync user to swap to --
-        which would leave Cockpit holding admin credentials, the exact thing
-        this flow exists to avoid. action_install sees to it through
-        _ensure_sync_user: the dedicated Voxbi Sync user only on opt-in (a
-        billed seat on Enterprise), otherwise the current user.
+        while the installer key is still revoked, leaving Cockpit on a dead
+        key. action_install sees to it through _ensure_sync_user: the
+        dedicated Voxbi Sync user only on opt-in (a billed seat on
+        Enterprise), otherwise the current user.
 
         Failures are recorded on the wizard, never raised: this runs inside
         the OAuth callback, and an exception there would show the customer a
