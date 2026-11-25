@@ -29,7 +29,7 @@ of data shared.
     "website": "https://voxbi.com",
     "support": "support@voxbi.com",
     "category": "Telephony",
-    "version": "19.0.3.0.0",
+    "version": "19.0.3.1.0",
     "license": "LGPL-3",
     # Prerequisite apps for the Voxbi integration that Cockpit pushes over
     # XML-RPC: the integration touches res.partner, mail.message, crm.lead,
