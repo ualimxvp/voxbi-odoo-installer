@@ -82,30 +82,29 @@
                     <p class="text-muted" invisible="1">
                         The API key is reusable — paste it once. If install fails with an authorization error, re-check that the key has the <b>“Is Odoo Installer”</b> scope in Cockpit.
                     </p>
-                    <!-- Sync user. The install runs as the administrator filling in
-                         this form; the ONGOING sync must not, so it authenticates as
-                         this user with its own long-lived key. Administrators are
-                         excluded from the dropdown by group, not by login name. -->
+                    <!-- Sync user. The ongoing sync authenticates as this user with
+                         its own long-lived key. Any active internal user can be
+                         picked, administrators included, and it defaults to the
+                         person running setup. Creating the dedicated voxbi.sync user
+                         is opt-in only: on Odoo Enterprise it is a billed seat. -->
                     <group string="Sync user" attrs="{'invisible': [('state', 'in', ['installing', 'done'])]}">
-                        <field name="allowed_sync_user_ids" invisible="1"/>
-                        <field name="has_sync_user_candidates" invisible="1"/>
+                        <field name="create_sync_user"/>
                         <field name="sync_user_id"
                                string="Sync as"
                                options="{'no_create': True, 'no_open': True}"
-                               attrs="{'invisible': [('has_sync_user_candidates', '=', False)]}"
-                               placeholder="Choose a non-administrator user…"/>
-                        <div colspan="2" attrs="{'invisible': [('has_sync_user_candidates', '=', True)]}">
-                            <p class="text-muted mb-2">
-                                This database has no non-administrator user yet. Voxbi can
-                                create a dedicated one to sync as, so the ongoing sync never
-                                runs on an administrator's credentials.
-                            </p>
-                            <button name="action_create_sync_user"
-                                    string="Create a Voxbi sync user"
-                                    type="object"
-                                    class="btn-secondary"/>
-                        </div>
+                               attrs="{'invisible': [('create_sync_user', '=', True)]}"
+                               placeholder="Defaults to you"/>
                     </group>
+                    <div class="alert alert-warning" role="alert"
+                         attrs="{'invisible': ['|', ('state', 'in', ['installing', 'done']), ('create_sync_user', '=', False)]}">
+                        Creating a dedicated user adds one internal user. On Odoo Enterprise
+                        (Online, Odoo.sh, on-premise) this is billed as an additional user on
+                        your subscription.
+                    </div>
+                    <p class="text-muted" attrs="{'invisible': ['|', ('state', 'in', ['installing', 'done']), ('create_sync_user', '=', True)]}">
+                        If you choose an administrator, Voxbi Cockpit keeps a long-lived
+                        administrator API key for this database.
+                    </p>
                     <p class="text-muted" attrs="{'invisible': ['|', ('state', 'in', ['installing', 'done']), ('sync_user_id', '=', False)]}">
                         Voxbi will generate an API key for this user. The key you paste above is
                         used only to install, and is discarded once setup completes.
